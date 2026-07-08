@@ -108,16 +108,38 @@ function exportTokens(t) {
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
 
+// Running inside a parent frame (the Claude design canvas embeds this app in an
+// iframe and drives the panel over postMessage). True => keep the panel wired
+// up exactly as before so design sessions are unaffected.
+function isEmbedded() {
+  try { return !!(window.parent && window.parent !== window); } catch (e) { return true; }
+}
+
+// The design tweak panel ships hidden on the standalone (deployed) site. Unlock
+// it by appending ?studio to the URL — the choice is remembered for this browser
+// (localStorage), so you only do it once. ?studio=off re-hides it, and
+// Ctrl+Shift+E toggles it in-page. There is no button or hint anywhere, so a
+// visitor who doesn't know the trick can't find it. Inside the design canvas the
+// panel stays available as always.
+function readStudioUnlock() {
+  try {
+    if (isEmbedded()) return true;
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("studio")) {
+      const v = (q.get("studio") || "").toLowerCase();
+      const on = v !== "off" && v !== "0" && v !== "false";
+      try { on ? localStorage.setItem("va-studio", "1") : localStorage.removeItem("va-studio"); } catch (e) {}
+      return on;
+    }
+    return localStorage.getItem("va-studio") === "1";
+  } catch (e) { return false; }
+}
+
 function App() {
   // Token layering: design-tokens.json (fetched at boot) is the portable base;
   // the EDITMODE block is the live layer the sliders persist into, so it wins
   // here. In production only the tokens file exists — same shape, one layer.
-  // Default light/dark to the device's own setting (prefers-color-scheme).
-  // Falls back to night when there's no preference; a manual "Day field" flip
-  // is persisted and overrides this on later loads.
-  const deviceMode = (typeof window !== "undefined" && window.matchMedia
-    && window.matchMedia("(prefers-color-scheme: light)").matches) ? "day" : "night";
-  const [t, setTweak] = useTweaks({ ...(window.__vaTokens || {}), ...FLOW5_DEFAULTS, mode: deviceMode });
+  const [t, setTweak] = useTweaks({ ...(window.__vaTokens || {}), ...FLOW5_DEFAULTS });
   const tRef = React.useRef(t); tRef.current = t;
   // Voice is its own beat, not a side-effect of phase order: the tlDraw "voice"
   // event sets this flag, so dragging Rest glide / Veil bleed around can never
@@ -136,7 +158,55 @@ function App() {
   // so the sink fade can never be cut short (or skipped) by reform — or by a
   // still-running Choice clock overwriting the phase.
   const [releasing, setReleasing] = React.useState(false);
-  const light = t.mode === "day";
+  // Light/dark follows the device's prefers-color-scheme LIVE — it flips the
+  // instant the OS theme changes, no reload. The secret panel's "Day field"
+  // toggle sets a persisted manual override that wins until "Follow device".
+  const [autoMode, setAutoMode] = React.useState(
+    () => (!window.matchMedia || window.matchMedia("(prefers-color-scheme: dark)").matches) ? "night" : "day");
+  const [modeManual, setModeManual] = React.useState(() => {
+    try { return localStorage.getItem("va-mode-manual") === "1"; } catch (e) { return false; }
+  });
+  React.useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => setAutoMode(mq.matches ? "night" : "day");
+    mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", onChange) : mq.removeListener(onChange); };
+  }, []);
+  const setManualMode = (v) => {
+    try { localStorage.setItem("va-mode-manual", "1"); } catch (e) {}
+    setModeManual(true); setTweak("mode", v ? "day" : "night");
+  };
+  const followDevice = () => {
+    try { localStorage.removeItem("va-mode-manual"); } catch (e) {}
+    setModeManual(false);
+  };
+  const light = (modeManual ? t.mode : autoMode) === "day";
+
+  // Secret studio unlock: ?studio in the URL (persists per-browser), ?studio=off
+  // to re-hide, or Ctrl+Shift+E to toggle. Hidden with no visible affordance.
+  // Embedded (design canvas) => the host opens the panel, so don't force it.
+  const embedded = isEmbedded();
+  const [studio, setStudio] = React.useState(readStudioUnlock);
+  const lockStudio = () => {
+    try { localStorage.removeItem("va-studio"); } catch (e) {}
+    setStudio(false);
+  };
+  React.useEffect(() => {
+    const onKey = (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === "E" || e.key === "e")) {
+        e.preventDefault();
+        setStudio((s) => {
+          const n = !s;
+          try { n ? localStorage.setItem("va-studio", "1") : localStorage.removeItem("va-studio"); } catch (x) {}
+          return n;
+        });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const desktopMQ = useDesktopMQ();
   const phoneFrame = t.viewport === "phone" && desktopMQ;
   const desktop = t.viewport === "auto" && desktopMQ;
@@ -585,19 +655,22 @@ function App() {
       </div>
       {phoneFrame ? <div className="va-frame-tag">393 × 852 · phone frame</div> : null}
 
-      <FlowPanel t={t} setTweak={setTweak} replay={replay}></FlowPanel>
+      {studio ? <FlowPanel t={t} setTweak={setTweak} replay={replay}
+        light={light} manual={modeManual} onMode={setManualMode} onFollowDevice={followDevice}
+        forceOpen={!embedded} onClose={lockStudio}></FlowPanel> : null}
     </div>
   );
 }
 
 // ---------- the panel ----------
-function FlowPanel({ t, setTweak, replay }) {
+function FlowPanel({ t, setTweak, replay, light, manual, onMode, onFollowDevice, forceOpen, onClose }) {
   const [tab, setTab] = usePanelPref("tab", "Design");
   return (
-    <TweaksPanel>
+    <TweaksPanel forceOpen={forceOpen} onDismiss={onClose}>
       <Flow3PanelStyle></Flow3PanelStyle>
       <TweakButton label="Export design-tokens.json" onClick={() => exportTokens(t)}></TweakButton>
-      <TweakToggle label="Day field" value={t.mode === "day"} onChange={(v) => setTweak("mode", v ? "day" : "night")}></TweakToggle>
+      <TweakToggle label={"Day field" + (manual ? "" : " · auto")} value={light} onChange={onMode}></TweakToggle>
+      {manual ? <TweakButton label="Follow device theme" onClick={onFollowDevice}></TweakButton> : null}
       <TweakToggle label="Phone frame" value={t.viewport === "phone"} onChange={(v) => setTweak("viewport", v ? "phone" : "auto")}></TweakToggle>
       <TweakTabs tabs={["Design", "Motion"]} value={tab} onChange={setTab}></TweakTabs>
 

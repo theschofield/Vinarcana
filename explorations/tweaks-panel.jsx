@@ -219,8 +219,8 @@ function useTweaks(defaults) {
 // The close button posts __edit_mode_dismissed so the host's toolbar toggle
 // flips off in lockstep; the host echoes __deactivate_edit_mode back which
 // is what actually hides the panel.
-function TweaksPanel({ title = 'Tweaks', children }) {
-  const [open, setOpen] = React.useState(false);
+function TweaksPanel({ title = 'Tweaks', forceOpen = false, onDismiss, children }) {
+  const [open, setOpen] = React.useState(forceOpen);
   const dragRef = React.useRef(null);
   const offsetRef = React.useRef({ x: 16, y: 16 });
   const PAD = 16;
@@ -251,6 +251,9 @@ function TweaksPanel({ title = 'Tweaks', children }) {
     return () => ro.disconnect();
   }, [open, clampToViewport]);
 
+  // Standalone (non-embedded) unlock drives visibility directly via forceOpen.
+  React.useEffect(() => { setOpen(forceOpen); }, [forceOpen]);
+
   React.useEffect(() => {
     const onMsg = (e) => {
       const t = e?.data?.type;
@@ -264,6 +267,7 @@ function TweaksPanel({ title = 'Tweaks', children }) {
 
   const dismiss = () => {
     setOpen(false);
+    if (onDismiss) onDismiss();
     window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
   };
 
