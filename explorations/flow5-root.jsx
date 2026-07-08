@@ -183,6 +183,18 @@ function App() {
   };
   const light = (modeManual ? t.mode : autoMode) === "day";
 
+  // Keep the browser chrome tint + document background in step with the theme so
+  // the page bleeds edge-to-edge on mobile (with viewport-fit=cover) instead of
+  // showing black bars behind the iOS status bar and Safari's address bar.
+  React.useEffect(() => {
+    const bg = light ? "#dddbd6" : "#181717";
+    let m = document.querySelector('meta[name="theme-color"]');
+    if (!m) { m = document.createElement("meta"); m.setAttribute("name", "theme-color"); document.head.appendChild(m); }
+    m.setAttribute("content", bg);
+    document.documentElement.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg;
+  }, [light]);
+
   // Secret studio unlock: ?studio in the URL (persists per-browser), ?studio=off
   // to re-hide, or Ctrl+Shift+E to toggle. Hidden with no visible affordance.
   // Embedded (design canvas) => the host opens the panel, so don't force it.
