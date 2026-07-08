@@ -253,8 +253,16 @@ function App() {
 
   const vigMob = React.useMemo(() => vigMaskMob(t.veilEdgeMob, t.vigWarpMob), [t.veilEdgeMob, t.vigWarpMob]);
   const vigDesk = React.useMemo(() => vigMaskDesk(t.veilEdgeDesk, t.vigWarpDesk), [t.veilEdgeDesk, t.vigWarpDesk]);
+  // Baked bleed mask: the turbulent blob is pre-rendered to a raster (assets/
+  // bleed-mask.png) so the reveal only SCALES a bitmap — cheap on mobile —
+  // instead of re-running feTurbulence at every mask-size step of the growth.
+  // The live SVG is kept as a fallback whenever the Bleed-warp slider is moved
+  // off its baked default, so the design canvas can still tune the edge.
+  const BAKED_BLEED_WARP = 140;
   const bleedMaskUrl = React.useMemo(
-    () => bleedMask(t.bleedWarp, desktop ? t.vigWarpDesk : t.vigWarpMob),
+    () => (t.bleedWarp === BAKED_BLEED_WARP
+      ? 'url("/assets/bleed-mask.png")'
+      : bleedMask(t.bleedWarp, desktop ? t.vigWarpDesk : t.vigWarpMob)),
     [t.bleedWarp, desktop, t.vigWarpDesk, t.vigWarpMob]);
   // Honest bleed endpoint: the blob's fully-opaque core reaches the farthest
   // viewport corner EXACTLY at the end of the Veil-bleed duration — so the
