@@ -1,6 +1,6 @@
 {
   "mode": "night",
-  "viewport": "phone",
+  "viewport": "auto",
   "uiExit": "fade",
   "grainSize": 260,
   "grainNight": 0.18,

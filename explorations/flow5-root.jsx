@@ -6,7 +6,7 @@
 // · Actor→layout handoffs are same-frame swaps (no crossfade doubling).
 
 const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "mode": "night", "viewport": "phone", "uiExit": "fade",
+  "mode": "night", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
   "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
   "deckTop": 18, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12,
@@ -112,7 +112,12 @@ function App() {
   // Token layering: design-tokens.json (fetched at boot) is the portable base;
   // the EDITMODE block is the live layer the sliders persist into, so it wins
   // here. In production only the tokens file exists — same shape, one layer.
-  const [t, setTweak] = useTweaks({ ...(window.__vaTokens || {}), ...FLOW5_DEFAULTS });
+  // Default light/dark to the device's own setting (prefers-color-scheme).
+  // Falls back to night when there's no preference; a manual "Day field" flip
+  // is persisted and overrides this on later loads.
+  const deviceMode = (typeof window !== "undefined" && window.matchMedia
+    && window.matchMedia("(prefers-color-scheme: light)").matches) ? "day" : "night";
+  const [t, setTweak] = useTweaks({ ...(window.__vaTokens || {}), ...FLOW5_DEFAULTS, mode: deviceMode });
   const tRef = React.useRef(t); tRef.current = t;
   // Voice is its own beat, not a side-effect of phase order: the tlDraw "voice"
   // event sets this flag, so dragging Rest glide / Veil bleed around can never
