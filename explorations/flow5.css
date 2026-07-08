@@ -1,0 +1,139 @@
+/* ============================================================
+   FLOW v5 — desktop + texture polish. Loads after flow3.css
+   (replaces flow4.css in the v5 page).
+   · Vignette masks are JS-built SVG data-URIs (--va-vig-mob /
+     --va-vig-desk) so their EDGE carries the turbulence warp —
+     the veil image itself stays undistorted.
+   · The bleed is now a growing SVG mask (--va-bleed-mask) with
+     the organic warp baked into ITS edge — no filter ever touches
+     the veil photograph, so nothing snaps when the bleed ends.
+   · Veil-image distortion is a separate, opt-in filter on the
+     img (#va-img-warp), gated by .imgwarp.
+   ============================================================ */
+
+/* ---- vignette masks (edge warp baked into the SVG) ---- */
+.va .rx-veil img {
+  -webkit-mask-image: var(--va-vig-mob);
+  mask-image: var(--va-vig-mob);
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
+.va.vw-desk .rx-veil {
+  -webkit-mask-image: var(--va-vig-desk);
+  mask-image: var(--va-vig-desk);
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
+
+/* ---- the bleed: one veil image, one organic mask, scaled up ----
+   Replaces flow2's --vaBleedR radial + #va-bleed-warp filter. The warped
+   blob (edge turbulence from the Bleed warp slider) grows via mask-size,
+   so the photograph underneath is NEVER displaced. */
+.va .va-veilwrap {
+  filter: none;
+  -webkit-mask-image: var(--va-bleed-mask); mask-image: var(--va-bleed-mask);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: var(--bx, 50%) var(--by, 52%); mask-position: var(--bx, 50%) var(--by, 52%);
+  -webkit-mask-size: 0.001% 0.001%; mask-size: 0.001% 0.001%;
+  transition: opacity calc(var(--dBleed, 2000ms) * 0.3) var(--eBleed, ease),
+    -webkit-mask-size var(--dBleed, 2000ms) var(--eBleed, cubic-bezier(0.3, 0.5, 0.3, 1)),
+    mask-size var(--dBleed, 2000ms) var(--eBleed, cubic-bezier(0.3, 0.5, 0.3, 1));
+}
+.va .va-veilwrap.in { -webkit-mask-size: var(--va-bleed-end, 340%) var(--va-bleed-end, 340%); mask-size: var(--va-bleed-end, 340%) var(--va-bleed-end, 340%); }
+.va.p-release .va-veilwrap {
+  transition: opacity var(--dRelease, 620ms) var(--eRelease, ease),
+    -webkit-mask-size calc(var(--dRelease, 620ms) * 1.2) var(--eRelease, ease),
+    mask-size calc(var(--dRelease, 620ms) * 1.2) var(--eRelease, ease);
+}
+
+/* ---- veil-image distortion (opt-in; masks apply AFTER the
+   filter on the same element, so the vignette edge stays put) ---- */
+.va.imgwarp .rx-dark .rx-veil img { filter: grayscale(0.5) brightness(0.92) contrast(1.02) url(#va-img-warp); }
+.va.imgwarp .rx-light .rx-veil img { filter: grayscale(0.2) sepia(0.2) contrast(1.05) url(#va-img-warp); }
+
+/* ---- the deck: every card in the stack wears the card back ----
+   The under-cards take a black scrim so the stack keeps its depth. */
+.va .rx-deck .stack {
+  background: #131110 url("../assets/card-back.png") center / cover no-repeat;
+}
+.va .rx-deck .stack::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* ---- header links: invisible 44px-tall hit targets ----
+   padding grows the tappable box; matching negative margins
+   cancel it in layout, so nothing on screen moves. */
+.va .rx-status .wordmark,
+.va .rx-status .links .rx-mono {
+  padding: 16px 10px; margin: -16px -10px;
+  display: flex; align-items: center;
+  cursor: pointer; position: relative; z-index: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---- orbit centering vs .fx enter/exit ----
+   The generic .va .fx.up.in transform rules out-specify the orbit
+   elements' translate(-50%,-50%) centering and strip it once elements
+   enter. Restate the fx states WITH the centering baked in. */
+.va.vw-desk .va-orbit-lens.fx { transform: translate(-50%, calc(-50% + 14px)); }
+.va.vw-desk .va-orbit-lens.fx.in { transform: translate(-50%, -50%); }
+.va.vw-desk .va-orbit-knowing.fx { transform: translate(-50%, 12px); }
+.va.vw-desk .va-orbit-knowing.fx.in { transform: translate(-50%, 0px); }
+
+/* abs-pos shrink-to-fit squeezes right-side lenses against the viewport
+   edge — size to content instead, capped for long subtitles */
+.va.vw-desk .va-orbit-lens { width: max-content; max-width: min(300px, 24vw); }
+.va.vw-desk .va-orbit-knowing { width: max-content; max-width: min(52ch, 46vw); }
+
+/* ---- orbit numerals: mirrored — numeral rides the OUTER edge ---- */
+.va.vw-desk .va-orbit-lens .namewrap { display: flex; align-items: baseline; gap: 10px; }
+.va.vw-desk .va-orbit-lens.side-l .namewrap { flex-direction: row-reverse; justify-content: flex-end; }
+.va.vw-desk .va-orbit-lens .rx-lens-num { width: auto; flex: none; font-size: 15px; }
+
+/* ---- desktop reveal: ONE column width for the whole screen ----
+   The screen itself narrows to --rv-col, so shout, hero, and info
+   columns all share the same measure and center together. */
+.va.vw-desk .rv-screen { width: min(var(--rv-col, 620px), 100%); }
+
+/* tall desktop: the hero grows with REAL sizes instead of a transform
+   scale (the old scale(1.32) pushed the hero past the column edge) */
+.va.vw-desk.vh-tall .rv-hero { height: 330px; margin-top: 26px; }
+.va.vw-desk.vh-tall .rv-hero .hero-scale { transform: none; }
+.va.vw-desk.vh-tall .rv-hero .card, .va.vw-desk.vh-tall .rv-card-ghost { height: 290px; top: 20px; }
+.va.vw-desk.vh-tall .rv-hero .bottle { height: 330px; left: calc(114px + var(--rv-shift, 0px)); }
+.va.vw-desk.vh-tall .rv-namewrap { left: calc(240px + var(--rv-shift, 0px)); top: 119px; }
+
+/* ---- pinned shout + card for paginated pours ----
+   The pin layer sits UNDER the panes (so each pane's bottle still
+   passes in front of the card) and follows the active pane's
+   vertical scroll; horizontal swipes never move it. */
+.va .rv-pourswrap { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; }
+.va .rv-pourswrap .rv-pours { flex: 1; min-height: 0; position: relative; z-index: 1; }
+.va .rv-pin { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; --vaTopFade: 0px;
+  transition: --vaTopFade 280ms ease;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 calc(100% - 40px), transparent 100%); }
+.va .rv-pin.scrolled { --vaTopFade: 38px; }
+
+/* ---- orbit float ---- */
+.va.vw-desk .va-orbit-lens .orb-float { will-change: transform; }
+.va.vw-desk .va-orbit-lens.side-l .orb-float { transform-origin: 100% 50%; }
+.va.vw-desk .va-orbit-lens.side-r .orb-float { transform-origin: 0% 50%; }
+
+/* ---- apricot bottom glow: state-driven both ways. The Glow beat sets "on"
+   (fade-in on --dGlow/--eGlow); the Release beat REMOVES "on", so the fade-out
+   is plain absence of the class — no cascade fight. p-release only retimes
+   the exit to the Release clock. */
+.va .rv-glow { opacity: 0; transition: opacity var(--dGlow, 640ms) var(--eGlow, ease); }
+.va .rv-glow.on { opacity: 1; }
+.va.p-release .rv-glow { transition: opacity var(--dRelease, 620ms) ease; }
+
+/* ---- bottle: its own beat (start · duration · curve from The Choice timeline) */
+.va .rv-hero .bottle.fx { transition-timing-function: var(--eBottle, ease); }
+
+/* ---- during The Choice the reveal screen sits ABOVE the card actor so the
+   bottle slides in front of the card the whole way — no z snap at handoff.
+   (Scoped to the transition phases; resting stacking is untouched.) */
+.va.p-choose .rv-screen, .va.p-slide .rv-screen, .va.p-echo .rv-screen, .va.p-pour .rv-screen { z-index: 22; }
+

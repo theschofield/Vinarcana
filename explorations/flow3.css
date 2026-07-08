@@ -1,0 +1,39 @@
+/* ============================================================
+   FLOW v3 — overrides on top of flow2.css.
+   · --rv-shift: slides the reveal hero cluster (card + bottle +
+     name column) toward/away from the left edge.
+   · --eX vars: timing-function hooks so every fade/crossfade
+     takes a tunable spring curve (set from the Tweaks panel).
+   ============================================================ */
+
+/* ---- pour-screen hero shift ---- */
+.va .rv-hero .card { left: calc(20px + var(--rv-shift, 0px)); }
+.va .rv-hero .bottle { left: calc(90px + var(--rv-shift, 0px)); }
+.va .rv-hero .bottle-sil { left: calc(104px + var(--rv-shift, 0px)); }
+.va .rv-hero .rv-namewrap { left: calc(180px + var(--rv-shift, 0px)); }
+.va .rv-card-ghost { left: calc(20px + var(--rv-shift, 0px)); }
+
+/* ---- fade curves ---- */
+/* approach UI out/in (invite · whisper · hint) */
+.va .rx-approach-invite.fx, .va .rx-whisper-region.fx, .va .rx-draw-hint.fx {
+  transition-timing-function: var(--eUiExit, ease); }
+/* the voice line */
+.va .rx-knowing.fx, .va .va-orbit-knowing.fx {
+  transition-timing-function: var(--eVoice, ease); }
+/* lenses in + out (and the foot line) */
+.va .rx-lens.fx, .va .va-orbit-lens.fx, .va .rx-read-foot.fx {
+  transition-timing-function: var(--eLens, ease); }
+/* echo beat: headline · bottle · name column */
+.va .rv-headline.fx, .va .rv-hero .bottle.fx, .va .rv-hero .bottle-sil.fx, .va .rv-namewrap.fx {
+  transition-timing-function: var(--eEcho, ease); }
+/* pour cascade: body · stats · scales · dots · actions */
+.va .rv-body.fx, .va .rv-stats.fx, .va .rv-scales.fx, .va .rv-dotswrap.fx, .va .rv-actions.fx {
+  transition-timing-function: var(--ePour, ease); }
+/* veil bleed: opacity fade-in, then radius growth (both on one curve) */
+.va .va-veilwrap {
+  transition-timing-function: var(--eBleed, ease), var(--eBleed, cubic-bezier(0.3, 0.5, 0.3, 1)); }
+/* release: everything sinks together */
+.va.p-release .va-layer, .va.p-release .rv-glow {
+  transition-timing-function: var(--eRelease, ease); }
+.va.p-release .va-veilwrap {
+  transition-timing-function: var(--eRelease, ease), var(--eRelease, cubic-bezier(0.5, 0, 0.6, 1)); }

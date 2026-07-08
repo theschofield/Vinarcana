@@ -1,0 +1,286 @@
+card,number,lens_no,nudge,lens_name,lens_subtitle,wine_mapping_idea,status
+The Moon,XVIII,I,,A shifting face,never quite the same twice,"chameleon wines: Rousseau Pinot, traditional Barolo (Mascarello)",approved
+The Moon,XVIII,II,,Drawn by the tide,pulled by something that can't be seen,"lunar/biodynamic: Joly, Coulée de Serrant",approved
+The Moon,XVIII,III,nudge,The beautiful lie,the best deceptions never feel like one,"deceptive wines: Tyrrell's Vat 1 (tastes oaked, never was)",approved
+The Moon,XVIII,IV,,Trust the dark,some things only make sense without the light,blind-tasting wines: chilled Poulsard / skin-contact Pinot Gris,approved
+Death,XIII,I,,From the ashes,the richest soil is always where something burned,"volcanic: Etna, Santorini, Canaries",approved
+Death,XIII,II,,"Reborn, but different",what comes back is never quite the same,"revived practice: Gravner amphora, qvevri",approved
+Death,XIII,III,,A stranger in the mirror,"unrecognizable, in the best way","transforms with age: Hunter Semillon, Nebbiolo",approved
+Death,XIII,IV,nudge,A clean break,the old way already had its turn,generational shift: Elio Altare chainsaw,approved
+The Tower,XVI,I,,Let it burn,"matter of fact, hand me the match","grower Champagne: Selosse, Bouchard",approved
+The Tower,XVI,II,,Still standing,what should have been the end wasn't,disaster vintage: 2014 Napa quake,approved
+The Tower,XVI,III,,The veil dropped,"once seen, impossible to unsee",tech upheaval: modern stainless whites,approved
+The Tower,XVI,IV,nudge,Rules are made to be broken,the interesting ones always were,iconoclast: Tignanello / Sassicaia,approved
+The Fool,0,I,nudge,Leap first,the landing figures itself out,"pét-nat: Las Jaras, Jolly-La-Fermette",approved
+The Fool,0,II,,Off the beaten path,the good stuff was never on the map,"experimental: Scholium, Trousseau Gris",approved
+The Fool,0,III,,For the hell of it,"no reason needed, no regrets offered",carbonic: Cru Beaujolais (Lapierre),approved
+The Fool,0,IV,,The long shot,the safest bet is the one nobody else is making,"emerging region: Movia Rebula, English still",approved
+The Hermit,IX,I,,Alone with it,some things only surface in the quiet,contemplative solo bottles,approved
+The Hermit,IX,II,,No rush tonight,the best things never hurry,slow-aged: late-release Rioja / Barolo Riserva,approved
+The Hermit,IX,III,,Off the map,the good stuff was never where the crowd went,obscure region hunting,approved
+The Hermit,IX,IV,nudge,Nothing easy,what's earned is always worth more,"demanding wines: Vin Jaune, Jura oxidative",approved
+Wheel of Fortune,X,I,,The sum of it all,every chapter led to this one,NV Champagne: Krug Grande Cuvée (multi-vintage blend),draft
+Wheel of Fortune,X,II,,Round it comes again,"the same crossroads, a different season","solera: Sherry, Rutherglen Muscat",draft
+Wheel of Fortune,X,III,,A lucky break,some things just land in the right lap,serendipity: Penfolds Grange origin story,draft
+Wheel of Fortune,X,IV,,The turn,one moment changes the whole story,new winemaker era: Latour under Engerer,draft
+Wheel of Fortune,X,V,nudge,A comeback,the best ones are written off first,"comeback region: Palacios, Priorat",draft
+The World,XXI,I,,The whole picture,every piece finally in its place,complete/complex blends,draft
+The World,XXI,II,,"Earned, not given",the kind of triumph that took the long way,long-aged patience wines,draft
+The World,XXI,III,nudge,A world unto itself,built from so many parts it became its own thing,Beaucastel 13-variety Châteauneuf,draft
+The World,XXI,IV,,The arrival,the journey ends where it was always heading,destination/pinnacle bottles,draft
+The Devil,XV,I,,A second glass,the first one was never going to be enough,"dangerously drinkable: Turley Zinfandel",draft
+The Devil,XV,II,,Worth every penny,some chains look a lot like luxury,"luxury bondage: cult Napa, Screaming Eagle tier",draft
+The Devil,XV,III,nudge,A guilty pleasure,"the best kind, no guilt at all","unfashionable joys: White Zin done seriously, Lambrusco",draft
+The Devil,XV,IV,,A perfect illusion,some things are better when they aren't real,"illusion wines: flor-aged, rancio",draft
+The Magician,I,I,,"Channeled, not made",the raw material was always extraordinary,terroir-transparent: great single vineyards,draft
+The Magician,I,II,,Greater than the sum,every piece played its part perfectly,masterful blends,draft
+The Magician,I,III,nudge,Bent to will,the impossible made to look effortless,virtuoso producers: Dagueneau Silex,draft
+The Magician,I,IV,,Between two worlds,some forces work best left unexplained,biodynamic mystique,draft
+The High Priestess,II,I,,Two truths at once,what shows and what hides are both real,"duality: Savennières, top Mosel Riesling (light body, endless finish)",draft
+The High Priestess,II,II,,Slow to speak,the deepest ones open in their own time,"evolves in glass: traditional Barolo/Barbaresco, high-end White Burgundy",draft
+The High Priestess,II,III,,A quiet frequency,some notes only reach the ones listening,"subtle non-fruit complexity: Manzanilla Sherry, Chablis 1er Cru",draft
+The High Priestess,II,IV,nudge,Kept behind the veil,the best secrets keep themselves,"secretive producers: Château Rayas, Clos Rougeard",draft
+The Empress,III,I,,A generous mood,there is more than enough to go around,"opulent earthy-sensual: Pomerol, Condrieu Viognier",draft
+The Empress,III,II,,Tended like a garden,living things thrive on attention,"living-farm estates: Domaine Leroy, Spottswoode",draft
+The Empress,III,III,nudge,A mother's line,the oldest roots feed the newest branches,"mother vines / heritage clones: Bechthold Vineyard Cinsault (Lodi, planted 1886)",draft
+The Empress,III,IV,,Room at the table,the best care is practical,"versatile food wines: Cru Beaujolais (Morgon), Barbera d'Asti",draft
+The Emperor,IV,I,,Built to stand,the things that last were engineered to,"architectural structure: Pauillac / St. Estèphe, Howell Mountain Cabernet",draft
+The Emperor,IV,II,nudge,A founding house,every order traces back to one name,"pinnacle first-growth estates: Château Latour, Vega Sicilia Unico",draft
+The Emperor,IV,III,,A code kept,good rules outlive their makers,"strict appellation benchmark: textbook Brunello di Montalcino, Hermitage",draft
+The Emperor,IV,IV,,A steady hand on top,control is a kind of care,"precise controlled winemaking: Krug Grande Cuvée blending, Haut-Brion",draft
+The Hierophant,V,I,,An old order,the rites survived for a reason,"monastic vineyards: Clos de Vougeot, Schloss Johannisberg",draft
+The Hierophant,V,II,,By the book,the classics earned the title,"textbook classics: benchmark Sancerre, Rioja Reserva",draft
+The Hierophant,V,III,,An unbroken line,each generation teaches the next,"solera aging: Sherry solera, Rutherglen Muscat",draft
+The Hierophant,V,IV,nudge,A keeper of the flame,somebody has to hold the line,"trend-resisting traditionalists: López de Heredia, Bartolo Mascarello",draft
+The Lovers,VI,I,,Better together,the whole outdoes its halves,"harmonious blends: classic Bordeaux blend, Rhône GSM",draft
+The Lovers,VI,II,,Opposites in harmony,the differences do the attracting,"contrasting flavors united: Riesling Spätlese (sweet/acid), Northern Rhône Syrah (savory/fruit)",draft
+The Lovers,VI,III,nudge,A shared life's work,the best things get built in pairs,"winemaking couples: Mullineux, Favia (Erickson & Favia), Mme Bollinger legacy",draft
+The Lovers,VI,IV,,A fork in the road,every choice is a small devotion,"choice of terroir: Roulot Perrières vs Charmes, Guigal La La bottlings",draft
+The Lovers,VI,V,,A toast to us,some feelings insist on being celebrated,rosé Champagne: Billecart-Salmon Brut Rosé,draft
+The Chariot,VII,I,,A running start,the finish was decided early,"driven powerful wines: Cornas, Shafer Napa Cabernet",draft
+The Chariot,VII,II,,A firm grip,power behaves for the right hands,"power harnessed with elegance (the two sphinxes): top Barolo / Brunello in prime",draft
+The Chariot,VII,III,nudge,An ambition realized,the doubters ran out of arguments,"relentless goal-driven producers: Angelo Gaja, Sine Qua Non",draft
+The Chariot,VII,IV,,Steered through weather,hard years make good drivers,"opposing-conditions vintage steered home: 2011 Napa, 2008 Bordeaux",draft
+Strength,VIII,I,nudge,A gentle hand,the wildest things answer to softness,"taming brutal grapes: Nebbiolo, Sagrantino, Tannat made graceful",draft
+Strength,VIII,II,,Velvet over iron,true power rarely raises its voice,"iron fist in velvet glove: Margaux, Chambertin",draft
+Strength,VIII,III,,An old soul's grip,endurance is its own kind of grace,"old resilient vines: Henschke century-old Shiraz, Lodi old-vine Zinfandel",draft
+Strength,VIII,IV,,Grace under fire,composure is loudest in the heat,hot-vintage freshness kept: Beaucastel 2003 Châteauneuf,draft
+Justice,XI,I,,Everything in measure,fair is another word for balanced,"perfect equilibrium: German Riesling GG, Chianti Classico Riserva",draft
+Justice,XI,II,,A fair trade,good business keeps its conscience,"ethical producers: Spottswoode (B Corp), Bosman Family (Fair-Trade)",draft
+Justice,XI,III,nudge,A long arc,every effect kept its receipt,"distant cause and effect: Chilean Carmenère (a century mistaken for Merlot), Pouilly-Fuissé WWII demarcation",draft
+Justice,XI,IV,,Nothing to hide,the truth holds up in any light,"terroir-true transparency: Raveneau Chablis, Keller GG",draft
+The Hanged Man,XII,I,nudge,A pause with purpose,nothing was wasted by the waiting,suspended grapes: Amarone (months of drying); Vin de Paille,draft
+The Hanged Man,XII,II,,A new angle,everything reads differently from here,"upended preconceptions: chilled red (Lambrusco, Frappato), bone-dry Amontillado",draft
+The Hanged Man,XII,III,,Held by a thread,some footholds are earned daily,"gravity-defying steep vineyards: Mosel, Ribeira Sacra",draft
+The Hanged Man,XII,IV,,Better with air,first impressions rarely finish the story,"patience and breathing: Jamet Syrah, Pierre Overnoy",draft
+Temperance,XIV,I,,A perfect middle,the middle took the most skill,"restrained balanced winemakers: Cathy Corison, Jean-Louis Chave",draft
+Temperance,XIV,II,,A steady recipe,"many parts, one purpose","masterful blends: Châteauneuf-du-Pape, classic Bordeaux assemblage",draft
+Temperance,XIV,III,nudge,Aged into agreement,time smooths what force cannot,"patient cask aging: López de Heredia Gran Reserva, Biondi-Santi Riserva",draft
+Temperance,XIV,IV,,Grown together,what grows up together gets along,"field blends: Bedrock Wine Co., Marcel Deiss",draft
+The Star,XVII,I,,A clear night,clarity is its own comfort,"pure crystalline styles: Blanc de Blancs Champagne, Chablis, high-altitude Torrontés",draft
+The Star,XVII,II,nudge,After the storm,even ruins get a morning,"comeback regions: Château Musar (made through Lebanon's civil war), Swartland renewal",draft
+The Star,XVII,III,,A guiding light,purpose steadies everything it touches,"guiding philosophy: Coulée de Serrant (Joly), DRC biodynamics",draft
+The Star,XVII,IV,,An open hand,wisdom shared loses nothing,generous mentors: Robert Mondavi's mentorship legacy,draft
+The Sun,XIX,I,nudge,A golden year,some years simply go right,"famously sunny vintages: 2009 Bordeaux, 2015 Burgundy",draft
+The Sun,XIX,II,,A long afternoon,the warm ones never rush,"sun-drenched rich styles: Barossa Shiraz, Châteauneuf-du-Pape, Sauternes",draft
+The Sun,XIX,III,,A simple joy,the best pleasures skip the fine print,"radiant uncomplicated styles: Provence rosé, Albariño",draft
+The Sun,XIX,IV,,A standing ovation,joy insists on company,"celebration sparkling: Vintage Champagne, Ca' del Bosco Franciacorta",draft
+Judgement,XX,I,nudge,A verdict overturned,history reserves the right to change its mind,"Judgement of Paris 1976: Stag's Leap Wine Cellars, Chateau Montelena",draft
+Judgement,XX,II,,A second hearing,dismissed was never the final word,"re-evaluated and redeemed: Cru Beaujolais rebirth, serious Muscadet",draft
+Judgement,XX,III,,Back from the dead,ruin was only intermission,"phoenix estates: Mayacamas, Château de la Maltroye",draft
+Judgement,XX,IV,,A name reclaimed,extinction has exceptions,"resurrected varieties: Arnot-Roberts Trousseau, Rossese in Liguria",draft
+Ace of Wands,W01,I,nudge,A debut,firsts carry a thrill nothing repeats,first release of an anticipated winery: Ashes & Diamonds debut,draft
+Ace of Wands,W01,II,,A live wire,energy this fresh can't sit still,"high-energy vibrant styles: Rias Baixas Albariño, young Gamay, Pét-Nat",draft
+Ace of Wands,W01,III,,A new idea catching,inspiration is contagious,"creativity-sparking styles: Bedrock field blends, Salta Torrontés",draft
+Ace of Wands,W01,IV,,Big things ahead,greatness starts as a hint,young wines with obvious potential: young Barolo / Napa Cabernet needing time,draft
+Two of Wands,W02,I,,A foot in each world,the past and the future can share a table,tradition-and-innovation balance: modern-classic Rioja and Barolo houses,draft
+Two of Wands,W02,II,nudge,A road not taken yet,"two futures, both still open","the Rioja oak debate, a historical fork: López de Heredia Tondonia vs Muga Reserva",draft
+Two of Wands,W02,III,,Early returns,promise shows itself ahead of proof,early-promise wines: a rising star's second or third release (Realm Cellars early days),draft
+Two of Wands,W02,IV,,Eyes on the horizon,somewhere else keeps calling,exploratory ventures: an established Burgundy house planting Oregon (Drouhin),draft
+Three of Wands,W03,I,,A bigger map,what worked here works out there,"successful expansion: Orin Swift portfolio, Duckhorn's Decoy",draft
+Three of Wands,W03,II,nudge,Ships on the horizon,the long routes made the legends,"trade-route wines: Taylor Fladgate LBV Port, Madeira shaped by sea voyages",draft
+Three of Wands,W03,III,,A promise kept,patience got exactly what it ordered,promise fulfilled: 2010 / 2016 Rioja Gran Reserva entering its prime window,draft
+Three of Wands,W03,IV,,A far-reaching name,good news travels fluently,"international reach: Penfolds, Veuve Clicquot global houses",draft
+Four of Wands,W04,I,,Raise the roof,joy is louder shared,"celebratory sparkling: true Champagne, Prosecco Superiore DOCG",draft
+Four of Wands,W04,II,,Everyone's invited,the best gatherings run on ease,"crowd-pleasing harmony: Fleurie, Washington Merlot, Côtes du Rhône Blanc",draft
+Four of Wands,W04,III,,A house with deep roots,stability is the quiet luxury,"long-standing family estates: Trimbach, Stag's Leap Wine Cellars",draft
+Four of Wands,W04,IV,nudge,A milestone kept,some dates get kept forever,"completion markers: birth-year Vintage Port, Sauternes for the sweet conclusion",draft
+Five of Wands,W05,I,,Sparks flying,friction means everyone showed up,"dynamic tension: young Northern Rhône Syrah, cool-climate Pinot with unresolved edges",draft
+Five of Wands,W05,II,,A crowded field,rivalry raises everyone's game,"competitive terroirs: neighboring Barolos of Monforte d'Alba, Howell Mountain Cabernets",draft
+Five of Wands,W05,III,,Pick a side,the interesting ones split the room,"debate-provoking styles: funky naturals, Uruguayan Tannat, oaked Chardonnay",draft
+Five of Wands,W05,IV,nudge,A fight with the rules,some arguments improve the world,Tignanello's defiance of the DOCG system (bottled as humble Vino da Tavola),draft
+Six of Wands,W06,I,,Wearing the laurels,acclaim finds the deserving eventually,award-winning high-scored wines: recent Decanter golds / 95+ point releases,draft
+Six of Wands,W06,II,nudge,A return to form,the struggle made the triumph sweeter,breakthrough vintage after hard years: 2018 Burgundy after the frost and hail years,draft
+Six of Wands,W06,III,,Toast of the town,success is best public,"public-celebration wines: Pierre Péters grower Champagne, Shafer One Point Five",draft
+Six of Wands,W06,IV,,Proof in the record,getting better is a habit,confident progress: a Ridge Monte Bello vertical across vintages,draft
+Seven of Wands,W07,I,,No ground given,conviction doesn't rotate with fashion,"defended tradition: Domaine Roulot's vineyard-identity fight, traditional Barolo holdouts",draft
+Seven of Wands,W07,II,,Standing apart,distinct beats familiar in the long run,"standing out in a crowd: Quincy / Reuilly beside Sancerre, small Anderson Valley Pinot",draft
+Seven of Wands,W07,III,,Against the odds,the hard-won kind lasts,"perseverance wines: steep Mosel and Côte-Rôtie farming, tiny frost-year yields",draft
+Seven of Wands,W07,IV,nudge,A rescue mission,what's worth saving finds defenders,"indigenous grapes preserved: Foradori Teroldego, Envínate Táganan Blanco",draft
+Eight of Wands,W08,I,nudge,No time wasted,fresh is a flavor of its own,"released-young freshness: Beaujolais Nouveau (weeks from harvest), Vinho Verde",draft
+Eight of Wands,W08,II,,Blink and it changes,the good stuff moves quickly,"rapid development in the glass: young aromatic Sauvignon Blanc, Valpolicella Classico",draft
+Eight of Wands,W08,III,,A racing pulse,some energies refuse to idle,"zippy momentum: dry Lambrusco di Sorbara, New Zealand Sauvignon Blanc",draft
+Nine of Wands,W09,I,,Still on the wall,what survived the years earned them,resilience through age: well-kept 1980s-90s Bordeaux still showing vitality,draft
+Nine of Wands,W09,II,nudge,Built for hard weather,tough places breed tough character,"hardy resilient vines: windswept Santorini Assyrtiko, century-old Lodi Zinfandel",draft
+Nine of Wands,W09,III,,"Walls up, for now",good defenses take years to soften,"strong structure as boundary: Madiran Tannat, traditional Barolo's tannic walls",draft
+Nine of Wands,W09,IV,,Almost there,so close the wait turns sweet,nearing peak but guarded: maturing Premier Cru Burgundy just opening,draft
+Ten of Wands,W10,I,,A heavy crown,density is its own achievement,"intense concentration: 16%+ Amarone, blockbuster-era Napa Cabernet",draft
+Ten of Wands,W10,II,nudge,Carried by hand,some work cannot be delegated,"labor-intensive wines: steep Douro / Priorat manual harvests, hand-sorted Tokaji Aszú",draft
+Ten of Wands,W10,III,,A hard year's haul,struggle leaves fingerprints,"difficult-vintage burden: drought-year concentration, 2016 hail-year Burgundy sorting",draft
+Page of Wands,W11,I,nudge,A first taste of elsewhere,the unfamiliar is an invitation,"brand-new grapes and regions: Georgian Saperavi, English sparkling (Nyetimber)",draft
+Page of Wands,W11,II,,A wild experiment,curiosity makes its own rules,"experimental batches: skin-contact Friuli orange, amphora ferments",draft
+Page of Wands,W11,III,,All enthusiasm,energy forgives inexperience,"bright youthful styles: Tavel rosé, Dolcetto, Beaujolais-Villages",draft
+Page of Wands,W11,IV,,A curious perfume,some first impressions demand answers,"curiosity-sparking aromatics: Gewürztraminer's lychee and rose, Grüner's white pepper",draft
+Knight of Wands,W12,I,,No introductions needed,boldness announces itself,"attention-grabbing bold: McLaren Vale Shiraz, Dry Creek Zinfandel, Sagrantino",draft
+Knight of Wands,W12,II,nudge,Off to the frontier,the daring get the best views,"pioneering regions: high-altitude Uco Valley, Patagonia and Tasmania extremes",draft
+Knight of Wands,W12,III,,A spur of the moment,the best stories start abruptly,"impulsive speed: Nouveau-style releases, early-bottled naturals",draft
+Knight of Wands,W12,IV,,A little fire in it,some warmth arrives armed,"fiery spicy notes: black-pepper St-Joseph Syrah, Austrian Blaufränkisch",draft
+Queen of Wands,W13,I,,Sure of itself,self-assurance reads instantly,"confident expressive wines: Meursault, Spottswoode Cabernet",draft
+Queen of Wands,W13,II,,A radiant welcome,generosity is magnetic,"warmth and generosity: Condrieu Viognier, balanced Châteauneuf Grenache",draft
+Queen of Wands,W13,III,nudge,An empire of her own,underestimated is a temporary condition,"determined female leaders: Veuve Clicquot (widowed at 27, built the house), Bize-Leroy, Corison",draft
+Queen of Wands,W13,IV,,Bright and deep at once,the lively ones still run deep,"vibrancy plus depth: aged Riesling GG, Brunello's cherry and earth",draft
+King of Wands,W14,I,nudge,A vision made real,someone saw all this coming,"visionary estates: Sassicaia (Super Tuscan pioneer), Vega Sicilia Unico",draft
+King of Wands,W14,II,,Command of the room,authority is felt before it's explained,"bold commanding wines: Barolo Riserva, Joseph Phelps Insignia, Dom Pérignon",draft
+King of Wands,W14,III,,Built from nothing,the boldest bets built the biggest names,"entrepreneurial triumphs: Robert Mondavi from scratch, Le Pin's garage fame",draft
+Ace of Cups,C01,I,,An open heart,beginnings feel exactly like this,"purity and joy: Provence rosé, Chablis, crisp Sancerre",draft
+Ace of Cups,C01,II,nudge,Running over,what's full past the brim gets shared,"effervescent overflow: Bollinger Special Cuvée NV, Prosecco Superiore",draft
+Ace of Cups,C01,III,,On instinct,instinct rarely needs editing,"intuitive minimal intervention: well-made Pét-Nat, Donkey & Goat naturals",draft
+Ace of Cups,C01,IV,,Simply itself,the direct approach charms most,"unadorned purity: unoaked Gamay, Albariño, tank-fermented Sauvignon Blanc",draft
+Two of Cups,C02,I,,In perfect step,harmony is two things agreeing,"seamless balance: Volnay Pinot, Beaucastel GSM",draft
+Two of Cups,C02,II,,Meant for two,some pleasures require company,"made-for-sharing wines: Grüner Veltliner at the table, Rioja Crianza",draft
+Two of Cups,C02,III,nudge,A meeting of equals,the right match doubles everything,"cross-world partnerships: Seña (Mondavi and Chadwick), Almaviva (Rothschild and Concha y Toro)",draft
+Two of Cups,C02,IV,,Give and take,"difference, met kindly, becomes balance","contrasts united: Dönnhoff Spätlese's sweet and acid, Huet Vouvray Sec",draft
+Three of Cups,C03,I,,The more the merrier,joy scales beautifully,"celebratory crowd-pleasers: Gramona Cava, Fleurie and Morgon crus",draft
+Three of Cups,C03,II,,Around one table,good company improves everything on it,"connection wines: Côtes du Rhône Blanc, Dolcetto d'Alba",draft
+Three of Cups,C03,III,,The whole town dancing,abundance was made for sharing,harvest celebration: Beaujolais Nouveau's festival release,draft
+Three of Cups,C03,IV,nudge,A village's pride,"many hands, one triumph",village cooperative: Produttori del Barbaresco (a whole town pooling its best),draft
+Four of Cups,C04,I,,Worth a second look,quiet things reward attention,"subtle patience wines: Muscadet sur lie (Pépière), Savennières",draft
+Four of Cups,C04,II,nudge,A gem in plain sight,the overlooked are rarely empty-handed,"overlooked gems: dry Tokaji Furmint, Alto Adige Kerner",draft
+Four of Cups,C04,III,,"Out of fashion, not out",neglect says nothing about worth,"fallen-from-favor styles rediscovered: Sherry, Marsala",draft
+Five of Cups,C05,I,,Forged in a bad year,difficulty leaves depth behind,difficult-vintage complexity: 2016 hail-year Burgundy salvaged by top growers,draft
+Five of Cups,C05,II,,A late bloomer,what starts stern often ends generous,"austerity needing time: young Nebbiolo, Saumur-Champigny",draft
+Five of Cups,C05,III,,A quiet companion,some moods prefer quiet company,"solace and contemplation: 20-Year Tawny Port, Amontillado Sherry",draft
+Five of Cups,C05,IV,nudge,Two cups still standing,what remains is enough to rebuild,phylloxera loss and rebirth: modern European vines grafted onto surviving rootstock,draft
+Six of Cups,C06,I,,Like coming home,the familiar holds its own kind of depth,"comforting classics: Felsina Chianti Classico, Washington Merlot",draft
+Six of Cups,C06,II,nudge,An old song replayed,the past knew a few things,"nostalgic revivals: quality Lambrusco di Sorbara, heritage-vineyard Zinfandel",draft
+Six of Cups,C06,III,,Easy does it,uncomplicated is underrated,"simple pleasures: Vinho Verde, Beaujolais-Villages, Campo de Borja Garnacha",draft
+Six of Cups,C06,IV,,A family recipe,some gifts arrive generations late,"long-family estates: Perrin, Torres, Antinori lineages",draft
+Seven of Cups,C07,I,,A hall of mirrors,every layer shows a different face,"shifting complex profiles: Alsace Gewürztraminer, Douro field blends",draft
+Seven of Cups,C07,II,,A trick of the senses,the first impression is a decoy,"deceptive traits: dry Muscat (smells sweet, finishes bone-dry), Jura Trousseau",draft
+Seven of Cups,C07,III,,All that glitters,shine and substance travel separately,hype versus reality: celebrity-label wines (poured playfully),draft
+Seven of Cups,C07,IV,nudge,A door to elsewhere,imagination accepts every invitation,"exotic dream-sparkers: Château-Chalon, Salta Torrontés, orange wines",draft
+Eight of Cups,C08,I,nudge,A brave goodbye,leaving takes more nerve than staying,"producers who walked away: growers leaving Champagne co-ops, conventional-to-natural converts",draft
+Eight of Cups,C08,II,,Deeper than it looks,meaning sits below the surface,"journey-into-the-glass wines: aged Riesling Spätlese, Vin Jaune",draft
+Eight of Cups,C08,III,,A distant address,the search led somewhere quiet,"remote pioneering regions: Central Otago, England's sparkling pioneers",draft
+Nine of Cups,C09,I,nudge,Every wish granted,satisfaction can be total,"wish-list icons: Château d'Yquem, Shafer Hillside Select",draft
+Nine of Cups,C09,II,,Pure indulgence,pleasure needs no defense,"hedonistic riches: Dal Forno Amarone, PX Sherry",draft
+Nine of Cups,C09,III,,A warm blanket,"comfort, done well, is profound","pure-comfort wines: 30-Year Tawny Port, plush California Merlot",draft
+Ten of Cups,C10,I,,The whole family here,the table is the true wealth,milestone family celebrations: Vintage Champagne (Krug) for the big days,draft
+Ten of Cups,C10,II,,Nothing missing tonight,complete is a feeling,peak-maturity culmination: aged First Growth at its perfect window,draft
+Ten of Cups,C10,III,nudge,A house of generations,happiness can be inherited,"multi-generational families: Henschke, Perrin, Antinori",draft
+Page of Cups,C11,I,,Barely above a whisper,soft voices carry far,"delicate expressive styles: Moscato d'Asti, Sancerre Rouge",draft
+Page of Cups,C11,II,nudge,A message in a dream,whimsy knows things logic doesn't,creative-spark charm: Mosel Riesling Kabinett (Dr. Loosen),draft
+Page of Cups,C11,III,,Guided by feel,sensitivity is a skill,"intuitive gentle farming: Joly's Savennières, sensitive naturals",draft
+Page of Cups,C11,IV,,A hidden note,the quiet details reward the curious,"subtle nuance: Pieropan Soave Classico, Fino Sherry",draft
+Knight of Cups,C12,I,nudge,A charm offensive,seduction is a fair opening move,"romantic charmers: Billecart-Salmon Brut Rosé, Chambolle-Musigny",draft
+Knight of Cups,C12,II,,Beauty in every detail,beauty is worth the errand,"art-and-beauty estates: Mouton Rothschild's artist labels, Castello Banfi",draft
+Knight of Cups,C12,III,,Led by ideals,conviction is attractive,"idealist producers: Leflaive's biodynamics, Rietsch's natural turn in Alsace",draft
+Queen of Cups,C13,I,nudge,A steady comfort,care this deep feels effortless,"nurturing wines: López de Heredia Rioja, 20-Year Tawny Port",draft
+Queen of Cups,C13,II,,A knowing kindness,the gentle ones understand the most,"depth with empathy: mature Meursault (Roulot), Huet Vouvray Moelleux",draft
+Queen of Cups,C13,III,,A quiet hour,stillness restores what noise takes,"calm contemplation: Amontillado and Oloroso Sherry (Lustau, Valdespino)",draft
+Queen of Cups,C13,IV,,An old remedy,some comforts were once called medicine,restorative history: Madeira's medicinal past,draft
+King of Cups,C14,I,nudge,Calm at the center,composure is the deepest strength,"seamless mature power: Château Palmer, aged Barolo (Giacomo Conterno)",draft
+King of Cups,C14,II,,Wisdom by degrees,time is the honest teacher,"patience-integrated age: aged Rioja Gran Reserva, old Hunter Valley Semillon",draft
+King of Cups,C14,III,,Restraint in command,the strongest hand stays lightest,"masterful restraint: Léoville Barton claret, Pierre Péters finesse",draft
+Ace of Swords,S01,I,nudge,Cut to the truth,one clean stroke settles it,"piercing clarity: Sancerre, Santorini Assyrtiko",draft
+Ace of Swords,S01,II,,A fine edge,exactness is a kind of beauty,"precise focus: Salon Blanc de Blancs, FX Pichler Grüner Veltliner",draft
+Ace of Swords,S01,III,,Food for thought,some pleasures are for the mind,"intellectually stimulating: aged Muscadet sur lie, Etna Bianco",draft
+Two of Swords,S02,I,,A standoff,neither side intends to blink,"structural tension: Thymiopoulos Xinomavro, Gattinara Nebbiolo",draft
+Two of Swords,S02,II,nudge,"Eyes closed, for now",some answers hide on purpose,"closed ""dumb phase"" wines: 2005 Bordeaux (Montrose) in its shut years",draft
+Two of Swords,S02,III,,A truce of two schools,both sides had a point,Alsace's grape-versus-terroir truce: Trimbach Clos Ste Hune beside Deiss Altenberg,draft
+Three of Swords,S03,I,,A painful clarity,the truth rarely pads its corners,"piercing acid clarity: Domaine de l'Ecu Muscadet 'Granite', Ulysse Collin low-dosage",draft
+Three of Swords,S03,II,,No soft landing,not everything wants to be liked,"austere demanding styles: young Sagrantino (Paolo Bea), Cornas (Clape)",draft
+Three of Swords,S03,III,nudge,An inheritance of sorrow,what breaks a heart can build a legacy,"heartbreak successions: Dagueneau 'Silex' circa 2008 (son inherits mid-harvest), Continuum after the Mondavi split",draft
+Four of Swords,S04,I,nudge,Years of quiet,rest is where depth accumulates,"cellar rest: Léoville Barton, Bartolo Mascarello Barolo, Jamet",draft
+Four of Swords,S04,II,,Room to breathe,a pause changes everything after it,decanting rest: Dunn Howell Mountain needing hours of air,draft
+Four of Swords,S04,III,,An hour of stillness,slow evenings earn their secrets,"contemplative mature wines: aged Vosne-Romanée, Oloroso Sherry",draft
+Five of Swords,S05,I,nudge,A hollow win,trophies weigh less than they look,"the Parkerization era: 90s-2000s blockbuster scores won at the cost of terroir",draft
+Five of Swords,S05,II,,A war over titles,status is an expensive argument,"Saint-Émilion classification feud: Ausone and Cheval Blanc quitting in 2022",draft
+Five of Swords,S05,III,,An old feud,both camps swore they were right,the Barolo Wars: Altare's barriques against Mascarello's old casks,draft
+Six of Swords,S06,I,nudge,A sea crossing,distance finishes what land began,"journey-over-water wines: Madeira, East India Solera Sherry",draft
+Six of Swords,S06,II,,A fresh start elsewhere,a change of place changes the story,producer transitions: Véronique Drouhin bringing Burgundy to Oregon,draft
+Six of Swords,S06,III,,Quieter waters,the simplest comfort follows the storm,"clean clarity after complexity: Fiano di Avellino, Vermentino",draft
+Six of Swords,S06,IV,,An island apart,some places keep their own counsel,"island terroirs: Etna (Foti), Santorini, Corsica (Arena)",draft
+Seven of Swords,S07,I,,A convincing disguise,imitation studies its subject,"mimicry and misdirection: New World Pinot playing Burgundy, deceptively light Grenache",draft
+Seven of Swords,S07,II,nudge,"The perfect crime, almost",every forger slips eventually,the Rudy Kurniawan saga: an authentic Domaine Ponsot beside the memory of the fakes,draft
+Seven of Swords,S07,III,,A shortcut taken,cunning has its own toolkit,"controversial techniques: Mega Purple, spinning-cone alcohol reduction",draft
+Seven of Swords,S07,IV,,A plain wrapper,labels lie in both directions,blind-tasting strategy: humble-label greats like Château Le Puy,draft
+Eight of Swords,S08,I,,Bound by the rules,even good fences feel tight sometimes,"strict appellation codes: Barolo DOCG, Château-Chalon's regulations",draft
+Eight of Swords,S08,II,,Wound tight,the tension is temporary,"tightly wound youth: 2010 Pichon Baron, young mountain Cabernet",draft
+Eight of Swords,S08,III,nudge,Waiting to be let out,release is a matter of time,trapped-then-freed wines: G. Rinaldi Barolo transformed by hours of air,draft
+Eight of Swords,S08,IV,,A forbidden era,what's banned rarely stays gone,"Prohibition survivors: Beaulieu Vineyard, Concannon (sacramental licenses)",draft
+Nine of Swords,S09,I,,A mind that won't quiet,intensity can be pointed somewhere,"demanding-focus wines: Keller Riesling, vintage Madeira",draft
+Nine of Swords,S09,II,nudge,A nervy edge,"tension, aimed well, becomes energy","nervy acidity: Raveneau Chablis, Muscadet sur lie",draft
+Nine of Swords,S09,III,,Back to earth,the ground is where worry ends,"grounding earthy wines: mature Burgundy, aged Clos Rougeard Cabernet Franc",draft
+Ten of Swords,S10,I,nudge,The last of its line,some endings close the book entirely,"end-of-era finales: Noël Verset's last Cornas, Gentaz-Dervieux Côte-Rôtie",draft
+Ten of Swords,S10,II,,A field where it ended,history buried is history kept,"ruin sites: Mastroberardino Lacryma Christi on Vesuvius, destroyer of Pompeii",draft
+Ten of Swords,S10,III,,A simple mercy,"when it's all over, simple is enough","stark simplicity after the ordeal: G.D. Vajra Dolcetto, honest Bourgogne Rouge",draft
+Page of Swords,S11,I,,Wide awake,sharp minds like sharp company,"crisp stimulating whites: Loire Sauvignon Blanc, dry Tokaji Furmint",draft
+Page of Swords,S11,II,nudge,A new trick learned,fresh methods find fresh answers,"new ideas and techniques: Walter Massa's Timorasso rescue, concrete-egg whites",draft
+Page of Swords,S11,III,,Straight from the source,every place has a handwriting,"textbook terroir signatures: flinty Silex Sancerre, oyster-shell Chablis",draft
+Page of Swords,S11,IV,,Quick on its feet,lightness moves fastest,"energetic light reds: Occhipinti Frappato, Austrian Zweigelt",draft
+Knight of Swords,S12,I,nudge,Straight at it,directness saves everyone time,"bold focused attack: Clape Cornas, Dunn Howell Mountain",draft
+Knight of Swords,S12,II,,A clean exit,the ending is part of the argument,"sharp cutting finish: Roagna Barbaresco, Santorini Assyrtiko",draft
+Knight of Swords,S12,III,,No permission asked,boundaries are suggestions to some,"boundary-pushing ambition: Schrader Cellars, Orin Swift",draft
+Queen of Swords,S13,I,nudge,Told straight,honesty is the highest courtesy,"bracing dry clarity: Trimbach Riesling, Wachau Smaragd",draft
+Queen of Swords,S13,II,,Clean lines,definition is a form of respect,"structured and well-defined: Produttori del Barbaresco, Pessac-Léognan blanc",draft
+Queen of Swords,S13,III,,An edge of salt,wit this dry keeps its edge,"saline mineral edge: Manzanilla Sherry, flinty Chablis",draft
+King of Swords,S14,I,,Exacting standards,precision is a promise kept,"precision mastery: Didier Dagueneau, Keller GG Riesling",draft
+King of Swords,S14,II,,A learned authority,"depth is earned, then shared","aged intellectual depth: mature Pauillac, aged Puligny-Montrachet",draft
+King of Swords,S14,III,nudge,A grand strategy,foresight compounds quietly,"decades-long strategy: Krug Grande Cuvée's multi-vintage design, Valdespino solera",draft
+Ace of Pentacles,P01,I,,Breaking ground,everything grand was once ground level,"first vintage of a new venture: Antica Terra's debut, Domaine de la Côte",draft
+Ace of Pentacles,P01,II,,A field reclaimed,good earth waits patiently,"replanted and rescued vineyards: Ridge Lytton Springs, Bedrock rehabilitations",draft
+Ace of Pentacles,P01,III,nudge,One patch of earth,a place can fit in the hand,"terroir-in-a-glass: single-vineyard Chablis, Hermitage 'Les Bessards'",draft
+Ace of Pentacles,P01,IV,,In on the ground floor,the best investments start small,"collectible current releases: Keller GG, Saxum, Foillard new vintages",draft
+Two of Pentacles,P02,I,nudge,Kept in the air,"grace is chaos, practiced","opposing elements juggled: Huet Vouvray Sec-Tendre, Mosel Kabinett",draft
+Two of Pentacles,P02,II,,A gathered balance,"many sources, one steady hand","multi-vineyard juggling: Ridge Geyserville, Penfolds Bin 389",draft
+Two of Pentacles,P02,III,,A nimble year,adaptation is quiet talent,variable-vintage adaptability: deft 2011 / 2013 Burgundy from top hands,draft
+Two of Pentacles,P02,IV,,"Two jobs, one name",duty and passion can share a desk,commercial line beside passion project: Duckhorn Merlot vs their single-vineyard work,draft
+Three of Pentacles,P03,I,,Built by many hands,the guild outbuilds the genius,"great cooperatives: La Chablisienne, Germany's VDP model",draft
+Three of Pentacles,P03,II,,A master on call,expertise travels well,"consulting winemakers: Michel Rolland (Pape Clément), Stéphane Derenoncourt",draft
+Three of Pentacles,P03,III,,A perfect crew,a good team makes it look inevitable,"synergy blends: Château Lynch-Bages, Esprit de Tablas",draft
+Three of Pentacles,P03,IV,nudge,The student's first mark,good teaching shows in the work,"master's apprentices: Mike Grgich (trained under Tchelistcheff), Ehren Jordan (Turley protégé)",draft
+Four of Pentacles,P04,I,,Built to keep,holding on is a strategy too,"long-haul agers: Vintage Port, Chinon (Olga Raffault)",draft
+Four of Pentacles,P04,II,,A deep vault,the careful never run out,library-cellar conservatives: Giacomo Conterno's deep reserves,draft
+Four of Pentacles,P04,III,,Under lock and key,scarcity sharpens desire,"hoarded allocations: Screaming Eagle, Yvon Métras",draft
+Four of Pentacles,P04,IV,nudge,A guarded few rows,small holdings hold tightest,"jealously guarded parcels: Cros Parantoux (Jayer), Clos de Vougeot's eighty owners",draft
+Five of Pentacles,P05,I,,Through lean years,the lean years made the backbone,"once-impoverished regions risen: post-communist Tokaj, Aglianico del Vulture",draft
+Five of Pentacles,P05,II,nudge,A brutal season,what the frost spared became precious,disaster-vintage survival: Dauvissat 2021 Chablis after the devastating frost,draft
+Five of Pentacles,P05,III,,Left off the list,outside has better company anyway,"outside the classifications: Grange des Pères, Domaine de Trévallon (Vin de France by choice)",draft
+Six of Pentacles,P06,I,nudge,For the greater good,generosity can be an institution,charity wines: Hospices de Beaune auction (funding the hospital since 1443),draft
+Six of Pentacles,P06,II,,More than its price,some gifts come disguised as bargains,"over-delivering value: Guigal Côtes du Rhône, Baudry Chinon",draft
+Six of Pentacles,P06,III,,A patron's hand,great work often had a backer,patronage: Louis Roederer Cristal (created for the Russian court),draft
+Seven of Pentacles,P07,I,nudge,Planted for later,the best rewards are slow ones,"decades-in-cellar investments: Vintage Port (Taylor 1994), Egon Müller Riesling",draft
+Seven of Pentacles,P07,II,,Slow by design,some methods refuse to hurry,slow patient methods: Canteiro-aged Madeira resting decades in warm lofts,draft
+Seven of Pentacles,P07,III,,Finally paying off,long bets settle in full,"newly mature vineyard projects: Clos Mogador, Sea Smoke",draft
+Eight of Pentacles,P08,I,nudge,Every detail attended,perfection is a pile of small choices,"meticulous craft: Jacques Selosse, Coche-Dury",draft
+Eight of Pentacles,P08,II,,An understudy's turn,the training shows early,"second labels: Carruades de Lafite, Les Forts de Latour",draft
+Eight of Pentacles,P08,III,,"One plot, one lifetime",devotion narrows and deepens,"single-vineyard mastery: J.J. Prüm's Wehlener Sonnenuhr, Clos Rougeard 'Les Poyeux'",draft
+Nine of Pentacles,P09,I,,A well-earned treat,reward is part of the work,"luxury indulgence: Château Suduiraut Sauternes, Tignanello",draft
+Nine of Pentacles,P09,II,nudge,A walled garden,what's wholly yours answers to no one,"monopoles: Clos de Tart, Château-Grillet, La Tâche",draft
+Nine of Pentacles,P09,III,,Complete by itself,the finest company can be none,"self-sufficient complete wines: Château d'Yquem, Dom Pérignon P2, old Sercial Madeira",draft
+Ten of Pentacles,P10,I,nudge,Twenty-six generations,some families measure in centuries,"dynastic estates: Antinori (26 generations), Henschke Hill of Grace",draft
+Ten of Pentacles,P10,II,,Older than the blight,the past survives in living things,"pre-phylloxera ungrafted vines: Colares (Viúva Gomes), Santorini",draft
+Ten of Pentacles,P10,III,,Made to be handed down,some things are bought for grandchildren,"enduring agers: Vintage Port, decades-old Madeira",draft
+Page of Pentacles,P11,I,nudge,A name to watch,talent shows before fame does,"rising young winemakers: Chiara Condello, current ones-to-watch lists",draft
+Page of Pentacles,P11,II,,A test plot,learning looks like tinkering,"experimental plantings: Tablas Creek small batches, Channing Daughters",draft
+Page of Pentacles,P11,III,,A classic example,fundamentals never wasted anyone's time,"textbook study wines: benchmark Cloudy Bay Sauvignon, Heitz Napa Cabernet",draft
+Knight of Pentacles,P12,I,nudge,Never a bad year,reliability is the rarest feat,"unwavering consistency: Château Musar, Ridge Vineyards",draft
+Knight of Pentacles,P12,II,,A trusty workhorse,dependable is a compliment,"workhorse bottlings: Drouhin Bourgogne Rouge, Dr. Loosen Kabinett",draft
+Knight of Pentacles,P12,III,,Done the long way,shortcuts were never considered,"methodical slow methods: traditional Rioja Gran Reserva, Bartolo Mascarello Barolo",draft
+Queen of Pentacles,P13,I,nudge,Salt of the earth,groundedness is generosity,"earthy nurturing wines: Domaine Tempier Bandol, Pommard",draft
+Queen of Pentacles,P13,II,,Dinner's best friend,a good meal is a form of love,"food-versatile wines: Vietti Barbera d'Asti, dry Riesling",draft
+Queen of Pentacles,P13,III,,An heirloom line,what's treasured gets replanted,heritage mother-vine clones: Swan and Calera heritage Pinot Noir,draft
+King of Pentacles,P14,I,nudge,A blue-chip name,some reputations are currency,"blue-chip icons: Château Lafite Rothschild, Harlan Estate",draft
+King of Pentacles,P14,II,,A crown jewel,mastery has a masterpiece,"flagship achievements: Penfolds Grange, Vérité",draft
+King of Pentacles,P14,III,,Worth more every year,wise purchases repay the wait,appreciating icons: older vintages of top Bordeaux and Napa,draft

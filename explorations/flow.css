@@ -1,0 +1,162 @@
+/* ============================================================
+   FLOW PROTOTYPE — full-journey app chrome.
+   Reuses round10.css (tokens/status/reading/approach) + round13.css (reveal).
+   .va wraps the app; tweak values land as CSS vars on .va.
+   ============================================================ */
+
+.va { position: fixed; inset: 0; overflow: hidden; }
+.va .rx-dark, .va .rx-light { position: absolute; inset: 0; width: auto; height: auto; }
+
+/* screen crossfade */
+/* screen crossfade is JS-driven (FadeScreen): base state visible, transition on a state class */
+.va-screen { position: absolute; inset: 0; transition: opacity 0.55s ease; }
+
+/* ---- tweak-var hooks (defaults mirror the locked v13 values) ---- */
+.va .rx-grain { background-size: var(--va-grain-size, 300px) var(--va-grain-size, 300px); opacity: var(--va-grain-o-light, 0.16); }
+.va .rx-dark .rx-grain { opacity: var(--va-grain-o-dark, 0.18); }
+.va .rx-dark .rx-veil img { opacity: var(--va-veil-o-dark, 0.11); }
+.va .rx-light .rx-veil img { opacity: var(--va-veil-o-light, 0.09); }
+.va .rx-knowing { font-size: var(--va-knowing-size, 21px); }
+.va .rx-lens-name { font-size: var(--va-lens-size, 17px); }
+.va .rx-lens { padding-top: var(--va-lens-pad, 12px); padding-bottom: var(--va-lens-pad, 12px); }
+.va .rx-whisper-region { height: var(--va-whisper-h, 200px); }
+.va .rx-deck .backimg { width: var(--va-deck-w, 206px); }
+
+/* ---- interactive affordances ---- */
+.va .rx-lens { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color 0.15s; }
+.va .rx-lens:active { background-image: none; background-color: rgba(245, 170, 93, 0.13); }
+.va .rx-light .rx-lens:active { background-color: rgba(198, 127, 65, 0.15); }
+.va .rx-deck { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.25s ease; }
+.va .rx-deck:hover { transform: translateY(-4px); }
+.va .rv-btn { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.va .rv-btn:active { transform: scale(0.97); }
+.va .rx-status .links .rx-mono { cursor: pointer; }
+
+/* whisper input as a real field */
+.va .rx-whisper-input { font-family: "Instrument Sans", sans-serif; font-style: italic; font-size: 14.5px;
+  background: transparent; border: none; outline: none; text-align: center; width: 100%; color: var(--bone); caret-color: var(--apri); }
+.va .rx-light .rx-whisper-input { color: var(--navy); caret-color: var(--amber); }
+.va .rx-whisper-input::placeholder { color: rgba(239, 236, 228, 0.4); }
+.va .rx-light .rx-whisper-input::placeholder { color: rgba(21, 34, 49, 0.42); }
+.va .rx-whisper-kept { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--apri); margin-top: 11px; }
+.va .rx-light .rx-whisper-kept { color: var(--amber); }
+
+/* toast for stub links */
+@keyframes vaToastIn { from { opacity: 0; } }
+.va-toast { position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 40;
+  font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 11px 18px; border-radius: 100px; white-space: nowrap;
+  background: rgba(24, 23, 23, 0.92); color: rgba(239, 236, 228, 0.75); border: 1px solid rgba(245, 170, 93, 0.25);
+  animation: vaToastIn 0.25s ease; }
+.va-toast.light { background: rgba(221, 219, 214, 0.95); color: rgba(21, 34, 49, 0.75); border-color: rgba(198, 127, 65, 0.35); }
+
+/* short-viewport safety: deck never crosses the status bar.
+   Constrain WIDTH only (34vh * 816/1285 ≈ 21.6vh) — height stays auto, no distortion. */
+.va .rx-status { width: 100%; box-sizing: border-box; align-self: stretch; }
+.va .rx-deck { max-height: 34vh; }
+.va .rx-deck .backimg { width: min(var(--va-deck-w, 206px), 21.6vh); height: auto; }
+.va .rx-approach-hero { min-height: 0; }
+.va .rx-approach-invite { flex: none; }
+.va .rx-whisper-region { height: min(var(--va-whisper-h, 200px), 26vh); }
+.va .rx-draw-hint { white-space: nowrap; }
+
+/* ============================================================
+   THE DRAW RITUAL — "One Breath": tap, card rises, smoke parts.
+   Card front is the aha; no name shown before the face.
+   ============================================================ */
+.va-ritual { display: flex; align-items: center; justify-content: center; height: 100%; position: relative; z-index: 3; perspective: 1200px; }
+.va-ritual-card { position: relative; width: min(58vw, 250px); aspect-ratio: 816 / 1285; transform-style: preserve-3d;
+  transform: translateY(46vh) scale(0.68) rotateY(0deg); }
+.va-ritual.rise .va-ritual-card { transition: transform 0.9s cubic-bezier(0.22, 0.9, 0.3, 1); transform: translateY(0) scale(1) rotateY(0deg); }
+.va-ritual.flip .va-ritual-card { transition: transform 0.9s cubic-bezier(0.6, 0, 0.2, 1); transform: translateY(0) scale(1) rotateY(180deg); }
+.va-ritual-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 34px 70px -24px rgba(0, 0, 0, 0.9); }
+.va-ritual-card img.face { transform: rotateY(180deg); }
+.rx-light .va-ritual-card img { box-shadow: 0 34px 70px -24px rgba(21, 34, 49, 0.45); }
+
+/* the smoke that parts */
+.va-smoke { position: absolute; width: 46vmin; height: 46vmin; border-radius: 50%; pointer-events: none; z-index: 4;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(245, 170, 93, 0.14) 0%, rgba(239, 236, 228, 0.05) 45%, transparent 70%);
+  filter: blur(26px); opacity: 0; }
+.rx-light .va-smoke { background: radial-gradient(50% 50% at 50% 50%, rgba(198, 127, 65, 0.2) 0%, rgba(21, 34, 49, 0.06) 45%, transparent 70%); }
+.va-ritual.rise .va-smoke { opacity: 1; transition: opacity 0.7s ease; }
+.va-ritual.flip .va-smoke { opacity: 0; transition: opacity 1.1s ease, transform 1.3s cubic-bezier(0.2, 0.6, 0.3, 1); }
+.va-ritual.flip .va-smoke.s1 { transform: translate(-34vmin, -10vmin) scale(1.25); }
+.va-ritual.flip .va-smoke.s2 { transform: translate(32vmin, -16vmin) scale(1.35); }
+.va-ritual.flip .va-smoke.s3 { transform: translate(-20vmin, 22vmin) scale(1.2); }
+.va-ritual.flip .va-smoke.s4 { transform: translate(26vmin, 18vmin) scale(1.3); }
+.va-ritual-hint { position: absolute; bottom: 34px; left: 0; right: 0; text-align: center;
+  font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: 0.26em; text-transform: uppercase;
+  color: rgba(239, 236, 228, 0.35); opacity: 0; transition: opacity 0.6s ease; }
+.rx-light .va-ritual-hint { color: rgba(21, 34, 49, 0.4); }
+.va-ritual.rise .va-ritual-hint { opacity: 1; }
+
+/* ============================================================
+   REVEAL — swipeable pours (scroll-snap), dots outside
+   ============================================================ */
+.va .rv-pours { flex: 1; min-height: 0; display: flex; overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory; scrollbar-width: none; }
+.va .rv-pours::-webkit-scrollbar { display: none; }
+.va .rv-pane { flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; display: flex; flex-direction: column; min-height: 0; }
+.va .rv-scroll { min-height: 110px; }
+/* short viewports: hero and headline yield so the scroll region survives */
+@media (max-height: 640px) {
+  .va .rv-headline { font-size: 24px !important; padding-top: 8px; }
+  .va .rv-hero { height: 190px !important; margin-top: 10px; }
+  .va .rv-hero .hero-scale { transform: scale(0.76); transform-origin: 20px 0; }
+}
+.va .rv-dots .dot { cursor: pointer; transition: background 0.2s; }
+
+/* ============================================================
+   DESKTOP ≥ 900px
+   ============================================================ */
+@media (min-width: 900px) {
+  .va .rx-deck .backimg { width: min(var(--va-deck-w-desk, 250px), 21.6vh); }
+  .va .rx-approach-invite { font-size: 42px; }
+  .va .rx-read-foot .rx-mono { font-size: 9.5px; }
+
+  /* Reading = ORBIT: lenses float around a bigger card */
+  .va-orbit { position: relative; flex: 1; min-height: 0; }
+  .va-orbit-card { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%);
+    height: var(--va-orbit-card, 52vh); border-radius: 12px; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.9); }
+  .rx-light .va-orbit-card { box-shadow: 0 40px 90px -30px rgba(21, 34, 49, 0.45); }
+  .va-orbit-knowing { position: absolute; left: 50%; top: calc(44% + var(--va-orbit-card, 52vh) / 2); transform: translateX(-50%);
+    padding-top: 26px; width: 60ch; max-width: 80vw; text-align: center;
+    font-family: "DM Serif Display", serif; font-size: var(--va-knowing-desk, 25px); line-height: 1.26; text-wrap: pretty; }
+  .rx-dark .va-orbit-knowing { color: rgba(239, 236, 228, 0.9); }
+  .rx-light .va-orbit-knowing { color: rgba(21, 34, 49, 0.9); }
+  .va-orbit-lens { position: absolute; transform: translate(-50%, -50%); max-width: 300px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; padding: 14px 18px; }
+  .va-orbit-lens.side-l { text-align: right; }
+  .va-orbit-lens.side-r { text-align: left; }
+  /* optional anti-lens-flare: blurred dark shape lifting text off the card */
+  .va-orbit-flare { position: absolute; inset: -30px -60px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(10, 9, 9, 0.5) 0%, transparent 70%); filter: blur(18px); }
+  .rx-light .va-orbit-flare { background: radial-gradient(50% 50% at 50% 50%, rgba(221, 219, 214, 0.75) 0%, transparent 70%); }
+  .va-orbit-lens .body { position: relative; }
+  .va-orbit-lens .rx-lens-name { font-size: 21px; transition: color 0.2s; }
+  .va-orbit-lens .rx-lens-whis { font-size: 13px; margin-top: 4px; }
+  .va-orbit-lens:hover .rx-lens-name { color: var(--bone); }
+  .rx-light .va-orbit-lens:hover .rx-lens-name { color: var(--navy); }
+  .va-orbit-lens .rx-lens-dot { display: inline-block; margin: 0 0 1px 8px; }
+  /* nudge on orbit: soft shimmer halo, no colored title */
+  @keyframes vaOrbitBreath { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  .va-orbit-lens.nudge::after { content: ""; position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
+    width: 58%; height: 1px; background: linear-gradient(90deg, transparent, rgba(245, 170, 93, 0.75), transparent);
+    animation: vaOrbitBreath 3.6s ease-in-out infinite; }
+  .rx-light .va-orbit-lens.nudge::after { background: linear-gradient(90deg, transparent, rgba(198, 127, 65, 0.8), transparent); }
+
+  /* Reveal: centered column, display-shout headline, bigger hero */
+  .va .rv-screen { max-width: 780px; margin: 0 auto; }
+  .va .rv-headline { font-size: min(var(--va-shout, 54px), 7vh); padding-top: 22px; }
+  .va .rv-hero .hero-scale { position: absolute; inset: 0 24px; }
+}
+@media (min-width: 900px) and (min-height: 760px) {
+  .va .rv-hero { height: 330px; margin-top: 26px; }
+  .va .rv-hero .hero-scale { transform: scale(1.32); transform-origin: 20px 0; }
+  .va .rv-body { font-size: 15.5px; columns: 1; }
+  .va .rv-wine { font-size: 30px; }
+}
+@media (max-width: 899.5px) {
+  .va .rv-hero .hero-scale { position: absolute; inset: 0 24px; }
+}

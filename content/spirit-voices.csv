@@ -1,0 +1,79 @@
+card,number,status,spirit_voice,notes
+The Fool,0,approved,"No map, no plan, no safety net. The start of every good story.",user-edited final
+The Magician,I,approved,"Nothing here is chance. Every piece, placed exactly where it needed to be.",user-edited final round 7 (app-fit tweak)
+The High Priestess,II,approved,"The truth isn't hiding, it's waiting for someone quiet enough to hear it.",approved round 4; horoscope-principle exemplar
+The Empress,III,approved,"The world is feeling generous tonight. It would be rude not to accept.",graded well round 2
+The Emperor,IV,approved,"Every empire began with someone who refused to leave things to chance.",approved round 3
+The Hierophant,V,approved,"The old ways have outlasted every clever new idea. That is no accident.",approved round 3; the register calibration example
+The Lovers,VI,approved,"The heart made its choice long before the head was consulted.",graded perfect round 2
+The Chariot,VII,approved,"They call the stubborn impossible. Until the victory lap, that is.",user-edited final round 7
+Strength,VIII,approved,"Anything can be tamed with a soft enough touch. Even that.",approved round 4
+The Hermit,IX,approved,"Silence has a way of saying more than the room ever did.",
+Wheel of Fortune,X,approved,"Luck has been circling for a while. Tonight, it lands.",graded perfect round 2
+Justice,XI,approved,"The scales take their time, but they never lose count.",approved round 4
+The Hanged Man,XII,approved,"Bit stuck, are we? Good. Some things can only be seen from down here.",user-edited final round 7
+Death,XIII,approved,"All things must come to an end. The interesting part is what comes next.","user-edited final; alt retained for prototype-stage decision: ""Everything ends. The interesting part is what comes next."""
+Temperance,XIV,approved,"Restraint, of all things, turns out to be where the finest pleasures hide.",approved round 6
+The Devil,XV,draft,"Everyone has a price. It appears tonight found yours.","primary per user round 5; final call at showcase flow; contenders: ""Temptation only wins when it knows exactly what to offer. And it knows."" / ""Finally, a little indulgence. Come on, let's be bad."" / ""Everyone has a price. Temptation, to its credit, never guesses wrong."""
+The Tower,XVI,approved,"A spectacular downfall. Strange how light one feels in the rubble.",
+The Star,XVII,approved,"Even the longest night runs out of dark eventually.","r5 version restored round 7 (the bare trim felt incomplete); optional micro-variant if the echo ever bothers again: comma before ""eventually"" turns it into a spoken afterthought"
+The Moon,XVIII,approved,"Things are not as they seem tonight. Good. They rarely are.",the gold standard; em-dash-free variant selected by user round 5
+The Sun,XIX,approved,"Every so often, the world simply says yes.",approved round 5
+Judgement,XX,draft,"Old chapters don't stay closed forever. Seems a reckoning's afoot.","promoted to primary round 7 (sexier, more mysterious); tossup with alt, final call when lenses are paired: ""Everyone dreads the reckoning, but a second chance doesn't knock twice."""
+The World,XXI,approved,"Every last piece, finally in place. This is what the whole road was for.",approved round 3
+Ace of Wands,W01,draft,"The first spark never asks if the timing is right. It just catches.","alts: ""Every wildfire in history began as one small, stubborn spark."" / ""Something new wants in. It picked its moment well."""
+Two of Wands,W02,draft,"The whole map is on the table. Choosing is the delicious part.","alts: ""Comfort keeps asking to stay. The horizon keeps writing back."" / ""Plans made by a window always end up bigger than the room."""
+Three of Wands,W03,draft,"What went out into the world is coming back with interest.","alts: ""Foresight looks like luck to everyone who wasn't watching."" / ""Ships sent with conviction have a habit of returning heavier."""
+Four of Wands,W04,draft,"The hard part held. Somewhere, a table is already being set.","alts: ""Home is wherever the welcome is this loud."" / ""Every foundation worth laying earns one proper celebration."""
+Five of Wands,W05,draft,"All that noise is just ambition bumping into itself. It sorts itself out.","alts: ""Rivals make better whetstones than admirers ever do."" / ""Five hands on one idea gets loud before it gets good."""
+Six of Wands,W06,draft,"Recognition runs late as a rule. It still knows the address.","alts: ""The laurels took their time. They usually do for the deserving."" / ""Word travels slowly, then all at once, when the news is this good."""
+Seven of Wands,W07,draft,"The high ground was earned. Anyone who wants it can climb.","alts: ""Conviction only counts once somebody tests it. Somebody will."" / ""One person with a reason beats a crowd with an opinion."""
+Eight of Wands,W08,draft,"Everything is moving at once, and for once, in the same direction.","alts: ""News this fast rarely bothers to knock."" / ""What stalled for months is about to happen in a week."""
+Nine of Wands,W09,draft,"Tired is not the same as finished. Ask anyone still standing.","alts: ""The last stretch always asks one more time if you mean it."" / ""Scars are just proof the wall held."""
+Ten of Wands,W10,draft,"The reward for carrying it all is, somehow, more to carry.","alts: ""Nobody counts the load until the door is in sight."" / ""Even triumph weighs something when it's carried alone."""
+Page of Wands,W11,draft,"Wandering off is an underrated way to arrive somewhere wonderful.","alts: ""Every discovery on record started as somebody wandering off."" / ""New enthusiasm burns bright and reads no instructions."""
+Knight of Wands,W12,draft,"Fortune keeps favoring the bold. At some point that stops being luck.","alts: ""The cautious arrive eventually. The daring arrive first."" / ""Some doors open politely. Others were made for kicking."""
+Queen of Wands,W13,draft,"Some people light the room just by deciding to stay in it.","alts: ""Charm gets the door open. Staying welcome is the rarer talent."" / ""A fire that knows itself never needs to advertise."""
+King of Wands,W14,draft,"A vision held long enough starts giving the orders itself.","alts: ""Passion ages into authority when it keeps its nerve."" / ""The big picture belongs to whoever refuses to blink first."""
+Ace of Cups,C01,draft,"The heart keeps no schedule. When it decides to open, it pours.","alts: ""What overflows was never meant to be rationed."" / ""New feelings arrive like weather: unannounced, then everywhere."""
+Two of Cups,C02,draft,"Once in a while, the feeling is mutual in the fullest sense of the word.","alts: ""The best partnerships never keep score. They lose count early."" / ""Attraction is common. Being understood back is the rarity."""
+Three of Cups,C03,draft,"Joy has one flaw. It refuses to stay a private matter.","alts: ""The best nights are never planned past the first toast."" / ""Good company multiplies whatever it's given."""
+Four of Cups,C04,draft,"While the eyes are on the empty cups, something keeps offering a full one.","alts: ""Discontent has good taste. It only visits people ready for more."" / ""Not every offer comes around twice."""
+Five of Cups,C05,draft,"Grief counts what spilled with great care. It never audits what remains.","alts: ""What's lost gets the eulogy. What's left gets the morning."" / ""Even the worst nights leave something in the cup."""
+Six of Cups,C06,draft,"The past keeps a spare key under the mat for nights like this.","alts: ""The sweetest things were learned young and never unlearned."" / ""The past sends gifts to those who stayed kind to it."""
+Seven of Cups,C07,draft,"Every door tonight is beautifully painted. Only one has a room behind it.","alts: ""Wishes come in bouquets. Choices come one at a time."" / ""The imagination sets a lavish table. Not everything on it is dinner."""
+Eight of Cups,C08,draft,"Some things can only be found by leaving where they aren't.","alts: ""The tide goes out quietly when it's done with the shore."" / ""Walking away is just walking toward, seen from behind."""
+Nine of Cups,C09,draft,"Contentment rarely announces itself. Tonight it pulled up a chair.","alts: ""Some satisfactions are earned. The sweetest ones are simply granted."" / ""It turns out the wish was listening the whole time."""
+Ten of Cups,C10,draft,"Most joys pass through. This kind unpacks.","alts: ""The rarest fortune is the one already home by dinner."" / ""Full circles are quiet. The whole family fits inside this one."""
+Page of Cups,C11,draft,"The softest messages need the sharpest listening. One just arrived.","alts: ""Every daydream is a note from somewhere that knows things."" / ""What the heart whispers first, life confirms later."""
+Knight of Cups,C12,draft,"The heart makes a terrible strategist and an unbeatable messenger.","alts: ""Grand gestures get laughed at until one lands."" / ""Chasing beauty looks foolish only to those it never chose."""
+Queen of Cups,C13,draft,"The calmest person in the room is usually the one who felt it all first.","alts: ""Compassion is what wisdom looks like once it stops performing."" / ""A few people hold space the way harbors hold ships."""
+King of Cups,C14,draft,"Anyone can feel deeply. Feeling deeply and steering anyway is the art.","alts: ""Feelings make fine advisors once they stop driving."" / ""Wisdom is mostly feelings that learned their manners."""
+Ace of Swords,S01,draft,"Clarity arrives like a blade: all at once, and nothing looks the same.","alts: ""One clean thought can cut through a year of tangles."" / ""The truth, once seen, declines to be unseen."""
+Two of Swords,S02,draft,"A decision delayed is still a decision. It just picks its own timing.","alts: ""Both options wait politely. Neither intends to wait forever."" / ""Not choosing keeps both doors lovely and both doors shut."""
+Three of Swords,S03,draft,"Sharp truths go straight for the heart. That way they're sure to be heard.","alts: ""Heartbreak is just the truth arriving without an appointment."" / ""Some pains are precise. Those are the ones that teach."""
+Four of Swords,S04,draft,"The mind wins more battles asleep than anyone admits.","alts: ""Rest is the part of the plan nobody brags about."" / ""Even wars keep a quiet room somewhere."""
+Five of Swords,S05,draft,"The spoils went to one name only. The party, notably, is quiet.","alts: ""Winning an argument and winning are different sports."" / ""Being right gets expensive when it's all that's left."""
+Six of Swords,S06,draft,"Calmer water is real, and the boat is already pointed at it.","alts: ""Melancholy makes good ballast. It steadies the crossing."" / ""The heaviest part of leaving is the shoreline. It lightens from there."""
+Seven of Swords,S07,draft,"Not everything missing was lost. Some things were quietly collected.","alts: ""Every clean getaway leaves exactly one witness."" / ""Strategy is just mischief with a plan."""
+Eight of Swords,S08,draft,"The ropes are looser than they feel. They usually are.","alts: ""Most cages are furnished by the tenant."" / ""The door was never locked. Checking is the hard part."""
+Nine of Swords,S09,draft,"The three a.m. mind tells the worst stories. Daylight rarely confirms them.","alts: ""Worry is imagination with the lights off."" / ""Fear does its best work unsupervised."""
+Ten of Swords,S10,draft,"It is over, completely and utterly. Which means the worst is, too.","alts: ""Every rock bottom doubles as a foundation."" / ""Endings this thorough leave remarkably clear mornings."""
+Page of Swords,S11,draft,"A mind this curious never met a secret it could leave alone.","alts: ""New eyes find what tired ones filed away."" / ""Vigilance looks like restlessness until the day it's proven right."""
+Knight of Swords,S12,draft,"An idea in a hurry clears its own road.","alts: ""Some minds reach the answer before the question sits down."" / ""Full tilt works, provided the aim is true."""
+Queen of Swords,S13,draft,"Honesty this clean costs extra. It was paid for years ago.","alts: ""A sharp eye is kindness that skips the flattery."" / ""Clear boundaries are old lessons standing guard."""
+King of Swords,S14,draft,"The clearest heads rule longest. Feelings get a vote, never the throne.","alts: ""Truth makes a cold counselor and an undefeated one."" / ""Reason wins slowly, which is to say it wins."""
+Ace of Pentacles,P01,draft,"The seed in the palm is small. So was every orchard, once.","alts: ""What's offered today is small, patient, and fully intending to grow."" / ""Firm ground has a way of appearing exactly one step ahead."""
+Two of Pentacles,P02,draft,"Juggling looks like chaos to everyone but the juggler.","alts: ""Balance is less a state than a dance step."" / ""Two of everything and one pair of hands, yet somehow nothing drops."""
+Three of Pentacles,P03,draft,"Nothing built to last was built alone. Even cathedrals took a committee.","alts: ""Skill draws exactly the crowd it deserves: the ones taking notes."" / ""Good work speaks quietly and gets overheard by the right people."""
+Four of Pentacles,P04,draft,"What's held too tightly starts holding back. Coins included.","alts: ""Security and a cage differ mainly in who keeps the key."" / ""Thrift is a virtue until it starts spending you."""
+Five of Pentacles,P05,draft,"Hard times narrow the eyes. That's exactly when the lit window gets missed.","alts: ""Every winter swears it's permanent. None has kept that promise yet."" / ""Empty pockets teach what full ones never could."""
+Six of Pentacles,P06,draft,"Giving and receiving were never two things. Ask any open hand.","alts: ""Kindness keeps flawless books and never sends a bill."" / ""Fair hands are remembered far longer than full ones."""
+Seven of Pentacles,P07,draft,"What was planted is doing fine. The hovering is for the planter's nerves.","alts: ""Patience is just faith with dirt under its nails."" / ""The long game only looks like waiting from the outside."""
+Eight of Pentacles,P08,draft,"Mastery is repetition that never got bored.","alts: ""Talent is the polite word for a thousand quiet repetitions."" / ""Hands that repeat a thing long enough start to think with it."""
+Nine of Pentacles,P09,draft,"A garden this fine took years. It was never meant for a crowd.","alts: ""Independence is the one luxury that appreciates."" / ""Solitude, when chosen, is just success being savored."""
+Ten of Pentacles,P10,draft,"The best fortunes outlive their makers. That was the point of making them.","alts: ""What lasts three generations stopped being money a while ago."" / ""Old wealth is mostly old love of a place, compounding."""
+Page of Pentacles,P11,draft,"Every master in history was once this new and this serious about it.","alts: ""A dream with mud on its boots tends to come true."" / ""Study is ambition being patient."""
+Knight of Pentacles,P12,draft,"Steady never makes headlines. It makes everything else.","alts: ""The same furrow, every day, is how fields become fortunes."" / ""Reliability is a dull word for keeping every promise."""
+Queen of Pentacles,P13,draft,"A well-kept hearth feeds more than the people at the table.","alts: ""Comfort on this scale takes craft and makes it look like ease."" / ""Warmth, managed well, outlasts the season."""
+King of Pentacles,P14,draft,"Wealth this settled stopped counting itself years ago.","alts: ""The golden touch is mostly calluses underneath."" / ""Abundance done properly looks effortless and never was."""

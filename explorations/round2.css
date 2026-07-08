@@ -1,0 +1,225 @@
+/* ============================================================
+   ROUND 2 — "EMBER & INK"
+   Stark ember orange on black · weathered Rider–Waite · Bodoni
+   Type: Bodoni Moda (display) + EB Garamond (voice) + IBM Plex Mono (micro)
+   ============================================================ */
+
+.r2 {
+  width: 100%; height: 100%;
+  position: relative; overflow: hidden;
+  background: radial-gradient(130% 110% at 50% -5%, #14100b 0%, #0b0806 55%, #070504 100%);
+  color: #eae0cc;
+  font-family: "EB Garamond", serif;
+}
+
+/* ---- atmosphere: warm smoke ---- */
+.r2-smoke { position: absolute; inset: 0; pointer-events: none; }
+.r2-smoke::before, .r2-smoke::after {
+  content: ""; position: absolute; border-radius: 50%; filter: blur(46px);
+}
+.r2-smoke::before {
+  width: 56%; height: 46%; left: 6%; top: 26%;
+  background: radial-gradient(closest-side, rgba(140, 84, 38, 0.16), transparent 72%);
+  animation: r2Drift 17s ease-in-out infinite alternate;
+}
+.r2-smoke::after {
+  width: 48%; height: 40%; right: 2%; top: 42%;
+  background: radial-gradient(closest-side, rgba(95, 58, 28, 0.13), transparent 72%);
+  animation: r2Drift 23s ease-in-out infinite alternate-reverse;
+}
+.r2-smoke .wisp {
+  position: absolute; border-radius: 50%; filter: blur(30px);
+  width: 30%; height: 22%; left: 38%; top: 12%;
+  background: radial-gradient(closest-side, rgba(210, 150, 90, 0.07), transparent 70%);
+  animation: r2Drift 20s ease-in-out infinite alternate;
+}
+@keyframes r2Drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-2.5%, -3%) scale(1.12); }
+}
+.r2-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 160px 50px rgba(4, 2, 1, 0.85); }
+
+/* ---- micro / mono ---- */
+.r2-mono {
+  font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: rgba(234, 224, 204, 0.42);
+}
+.r2-mono .lit { color: #e0571c; }
+.r2-emberdot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: #e0571c; box-shadow: 0 0 12px rgba(224, 87, 28, 0.9);
+  vertical-align: middle;
+}
+
+/* eyebrow with rules: — XVIII · THE MOON — */
+.r2-eyebrow { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.r2-eyebrow .rule { width: 44px; height: 1px; background: linear-gradient(90deg, transparent, rgba(224, 87, 28, 0.75)); }
+.r2-eyebrow .rule.r { background: linear-gradient(270deg, transparent, rgba(224, 87, 28, 0.75)); }
+.r2-eyebrow .txt { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.34em; padding-left: 0.34em; color: rgba(224, 87, 28, 0.9); text-transform: uppercase; }
+
+/* ---- chrome ---- */
+.r2-top {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 6;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 30px 44px 0;
+}
+.r2-brand { display: flex; align-items: center; gap: 13px; }
+.r2-crescent {
+  width: 17px; height: 17px; border-radius: 50%; position: relative; overflow: hidden;
+  background: #e0571c;
+}
+.r2-crescent::before {
+  content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+  background: #0b0806; left: 26%; top: -14%;
+}
+.r2-navlinks { display: flex; gap: 36px; }
+
+/* ---- display type ---- */
+.r2-display {
+  font-family: "Bodoni Moda", serif; font-style: italic; font-weight: 500;
+  color: #f0e7d3; line-height: 1.12; text-wrap: pretty;
+}
+.r2-voice {
+  font-family: "EB Garamond", serif; font-style: italic;
+  color: rgba(234, 224, 204, 0.62); line-height: 1.5; text-wrap: pretty;
+}
+
+/* ---- the deck (card back) ---- */
+.r2-deckwrap { position: relative; }
+.r2-deckcard {
+  width: 300px; height: 514px; border-radius: 16px; position: relative;
+  background: linear-gradient(168deg, #16100c 0%, #0e0907 70%);
+  border: 1px solid rgba(224, 87, 28, 0.55);
+  box-shadow:
+    0 40px 90px -24px rgba(0, 0, 0, 0.95),
+    0 0 90px -16px rgba(224, 87, 28, 0.35),
+    inset 0 0 50px rgba(0, 0, 0, 0.6);
+  display: flex; align-items: center; justify-content: center;
+}
+.r2-deckcard::before { content: ""; position: absolute; inset: 9px; border-radius: 9px; border: 1px solid rgba(224, 87, 28, 0.26); }
+.r2-deckcard::after { content: ""; position: absolute; inset: 14px; border-radius: 6px; border: 1px solid rgba(234, 224, 204, 0.07); }
+.r2-deck-under {
+  position: absolute; inset: 0; border-radius: 16px;
+  border: 1px solid rgba(224, 87, 28, 0.22); background: #0d0907;
+}
+.r2-deckglyph { position: relative; display: flex; flex-direction: column; align-items: center; gap: 26px; }
+.r2-deckmoon {
+  width: 64px; height: 64px; border-radius: 50%; position: relative; overflow: hidden;
+  background: rgba(224, 87, 28, 0.85); box-shadow: 0 0 34px rgba(224, 87, 28, 0.5);
+}
+.r2-deckmoon::before {
+  content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+  background: #100b08; left: 28%; top: -12%;
+}
+.r2-deckdiamond { width: 8px; height: 8px; transform: rotate(45deg); border: 1px solid rgba(224, 87, 28, 0.8); }
+
+/* ---- whisper field ---- */
+.r2-whisper { width: 430px; text-align: center; }
+.r2-whisper-line {
+  border-bottom: 1px solid rgba(234, 224, 204, 0.28);
+  padding: 10px 6px 12px;
+  font-family: "EB Garamond", serif; font-style: italic; font-size: 21px;
+  color: rgba(234, 224, 204, 0.4);
+  display: flex; align-items: baseline; justify-content: center; gap: 12px;
+}
+.r2-whisper-line .caret { width: 1px; height: 20px; background: #e0571c; align-self: center; }
+.r2-whisper-note { margin-top: 14px; }
+
+/* ---- the consuming bleed ---- */
+.r2-bleedwrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.r2-bleed {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(1.0);
+  width: 760px; height: auto;
+  filter: blur(22px) saturate(0.85) brightness(0.9);
+  opacity: 0.26; border-radius: 40px;
+  -webkit-mask-image: radial-gradient(58% 58% at 50% 50%, black 30%, transparent 78%);
+  mask-image: radial-gradient(58% 58% at 50% 50%, black 30%, transparent 78%);
+  pointer-events: none;
+}
+.r2-cardimg {
+  position: relative; border-radius: 14px;
+  box-shadow:
+    0 50px 110px -28px rgba(0, 0, 0, 0.95),
+    0 0 100px -18px rgba(224, 87, 28, 0.32);
+}
+
+/* ---- reading: orbit lenses ---- */
+.r2-lens { position: absolute; }
+.r2-lens-tag { display: flex; align-items: center; gap: 10px; }
+.r2-lens-num { font-family: "Bodoni Moda", serif; font-style: italic; font-size: 17px; color: #e0571c; }
+.r2-lens-name {
+  font-family: "Bodoni Moda", serif; font-weight: 500; font-size: 27px;
+  color: #f0e7d3; margin-top: 8px; line-height: 1.1;
+}
+.r2-lens-whisper { font-size: 16.5px; font-style: italic; color: rgba(234, 224, 204, 0.5); margin-top: 7px; line-height: 1.4; }
+.r2-lens-cta {
+  margin-top: 12px; font-family: "EB Garamond", serif; font-style: italic; font-size: 15.5px;
+  color: rgba(224, 87, 28, 0.95);
+}
+.r2-lens-rule { width: 54px; height: 1px; background: rgba(224, 87, 28, 0.5); margin-top: 14px; }
+.r2-lens.dim { opacity: 0.82; }
+.r2-lens-lean { display: flex; align-items: center; gap: 9px; margin-top: 12px; }
+
+/* ---- the pour ---- */
+.r2-pour-art {
+  position: absolute; left: -120px; top: 50%; transform: translateY(-50%);
+  width: 560px; opacity: 0.85;
+  -webkit-mask-image: linear-gradient(100deg, black 30%, transparent 82%);
+  mask-image: linear-gradient(100deg, black 30%, transparent 82%);
+  border-radius: 18px;
+}
+.r2-pour-col { position: absolute; left: 560px; right: 120px; top: 110px; }
+.r2-pourlabel { margin-top: 34px; }
+.r2-winename {
+  font-family: "Bodoni Moda", serif; font-weight: 500; font-size: 74px; line-height: 1.0;
+  color: #f0e7d3; margin-top: 12px; letter-spacing: 0.005em;
+}
+.r2-winename em { font-style: italic; font-weight: 500; }
+.r2-details { margin-top: 30px; max-width: 560px; border-top: 1px solid rgba(234, 224, 204, 0.14); }
+.r2-detail-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 12px 2px; border-bottom: 1px solid rgba(234, 224, 204, 0.09);
+}
+.r2-detail-v { font-size: 18px; color: rgba(234, 224, 204, 0.88); }
+.r2-cellarmatch { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+.r2-actions { display: flex; gap: 16px; margin-top: 30px; }
+.r2-btn {
+  padding: 16px 34px 15px; text-align: center;
+  font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.26em; padding-left: calc(34px + 0.26em);
+  text-transform: uppercase;
+}
+.r2-btn.primary { background: #e0571c; color: #120a06; box-shadow: 0 14px 40px -10px rgba(224, 87, 28, 0.55); }
+.r2-btn.ghost { border: 1px solid rgba(234, 224, 204, 0.25); color: rgba(234, 224, 204, 0.75); }
+
+/* ---- style tile ---- */
+.r2-tile { padding: 36px 36px 30px; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
+.r2-tile-name { font-family: "Bodoni Moda", serif; font-style: italic; font-weight: 500; font-size: 30px; color: #f0e7d3; }
+.r2-tile-desc { font-size: 16.5px; font-style: italic; color: rgba(234, 224, 204, 0.55); margin-top: 10px; line-height: 1.5; text-wrap: pretty; }
+.r2-tile-section { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(224, 87, 28, 0.9); margin: 26px 0 12px; }
+.r2-swatches { display: flex; gap: 8px; }
+.r2-swatch { flex: 1; height: 56px; border: 1px solid rgba(234, 224, 204, 0.12); position: relative; }
+.r2-swatch span {
+  position: absolute; bottom: -19px; left: 0;
+  font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: 0.08em;
+  color: rgba(234, 224, 204, 0.42); text-transform: uppercase;
+}
+.r2-type-display { font-family: "Bodoni Moda", serif; font-weight: 500; font-size: 34px; color: #f0e7d3; line-height: 1.1; }
+.r2-type-display em { font-style: italic; }
+.r2-type-voice { font-size: 19px; font-style: italic; color: rgba(234, 224, 204, 0.8); margin-top: 8px; }
+.r2-type-note { font-size: 14px; color: rgba(234, 224, 204, 0.42); margin-top: 8px; line-height: 1.5; text-wrap: pretty; }
+
+/* ---- mobile (390) ---- */
+.r2-m { display: flex; flex-direction: column; }
+.r2-m-top { display: flex; justify-content: space-between; align-items: center; padding: 24px 22px 0; position: relative; z-index: 4; }
+.r2-m-facets { margin: 6px 24px 0; position: relative; z-index: 4; }
+.r2-m-facet {
+  display: flex; align-items: baseline; gap: 14px;
+  padding: 14px 2px; border-bottom: 1px solid rgba(234, 224, 204, 0.1);
+}
+.r2-m-facet:first-child { border-top: 1px solid rgba(234, 224, 204, 0.1); }
+.r2-m-facet-num { font-family: "Bodoni Moda", serif; font-style: italic; font-size: 14px; color: #e0571c; width: 24px; flex: none; }
+.r2-m-facet-name { font-family: "Bodoni Moda", serif; font-weight: 500; font-size: 18.5px; color: #f0e7d3; }
+.r2-m-facet-whisper { font-size: 14.5px; font-style: italic; color: rgba(234, 224, 204, 0.48); margin-top: 2px; }
+.r2-m-facet .lean { margin-left: auto; align-self: center; }

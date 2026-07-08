@@ -1,0 +1,190 @@
+/* ============================================================
+   ROUND 3 — MATERIALS · LETTERING · MOBILE READINGS
+   Stamped leather + daylight parchment + four type voices
+   ============================================================ */
+
+/* ─────────── MATERIAL: STAMPED LEATHER ─────────── */
+.lthr {
+  width: 100%; height: 100%; position: relative; overflow: hidden;
+  background:
+    radial-gradient(110% 80% at 28% 8%, #221509 0%, #190f07 45%, #120a05 100%);
+  color: #e9dec6;
+  font-family: "EB Garamond", serif;
+}
+.lthr-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(34% 26% at 72% 18%, rgba(255, 200, 150, 0.035), transparent 70%),
+    radial-gradient(40% 30% at 18% 64%, rgba(120, 70, 30, 0.06), transparent 70%),
+    radial-gradient(26% 20% at 60% 80%, rgba(0, 0, 0, 0.2), transparent 70%),
+    repeating-linear-gradient(37deg, rgba(255, 235, 210, 0.013) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(-29deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 4px);
+}
+.lthr-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 130px 40px rgba(5, 3, 1, 0.9); }
+
+/* the corrected orange — stamped, not glowing */
+.stamp {
+  color: var(--stamp, #f4500a);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 -1px 1px rgba(255, 240, 220, 0.04);
+}
+.stamp-blind {
+  color: rgba(233, 222, 198, 0.1);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55), 0 -1px 0 rgba(255, 240, 220, 0.05);
+}
+.lthr-mono {
+  font-family: "IBM Plex Mono", monospace; font-size: 10px;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: rgba(233, 222, 198, 0.4);
+}
+
+/* ─────────── ORANGE CALIBRATION ─────────── */
+.cal { display: flex; height: 100%; box-sizing: border-box; padding: 34px 36px; gap: 18px; position: relative; z-index: 2; }
+.cal-col { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 14px; border: 1px solid rgba(233, 222, 198, 0.08); }
+.cal-col.pick { border-color: rgba(233, 222, 198, 0.22); }
+.cal-stamp { font-family: "Cinzel Decorative", serif; font-size: 26px; line-height: 1.25; }
+.cal-num { font-family: "Sorts Mill Goudy", serif; font-style: italic; font-size: 19px; margin-top: 2px; }
+.cal-chip { width: 44px; height: 44px; border-radius: 50%; margin-top: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.18); }
+.cal-name { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(233, 222, 198, 0.75); margin-top: 14px; }
+.cal-hex { font-family: "IBM Plex Mono", monospace; font-size: 9px; color: rgba(233, 222, 198, 0.38); margin-top: 4px; }
+.cal-note { font-size: 13.5px; font-style: italic; color: rgba(233, 222, 198, 0.5); margin: 10px 14px 16px; line-height: 1.4; text-wrap: pretty; }
+
+/* ─────────── MATERIAL: DAYLIGHT PARCHMENT ─────────── */
+.day {
+  width: 100%; height: 100%; position: relative; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #f7f0df 0%, #f1e8d2 55%, #e9dec4 100%);
+  color: #2a2012;
+  font-family: "EB Garamond", serif;
+}
+.day-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(84deg, rgba(120, 90, 50, 0.02) 0 1px, transparent 1px 6px),
+    radial-gradient(40% 26% at 76% 12%, rgba(150, 110, 60, 0.05), transparent 70%);
+}
+.day-mono {
+  font-family: "IBM Plex Mono", monospace; font-size: 10px;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: rgba(42, 32, 18, 0.45);
+}
+.day .stamp { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 -1px 0 rgba(0, 0, 0, 0.1); }
+.day-rule { height: 1px; background: rgba(42, 32, 18, 0.18); }
+
+/* ─────────── LETTERING TILES ─────────── */
+.tt {
+  width: 100%; height: 100%; box-sizing: border-box; position: relative; overflow: hidden;
+  padding: 30px 32px;
+  background: radial-gradient(110% 80% at 30% 0%, #1d1209 0%, #140d06 55%, #0f0904 100%);
+  color: #e9dec6; display: flex; flex-direction: column;
+}
+.tt-label { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(233, 222, 198, 0.45); }
+.tt-fonts { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: 0.08em; color: rgba(233, 222, 198, 0.35); margin-top: 5px; }
+.tt-stage { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.tt-note { font-size: 14px; font-style: italic; color: rgba(233, 222, 198, 0.5); line-height: 1.45; text-wrap: pretty; }
+
+.tt-display { line-height: 1.05; }
+.tt-knowing { margin-top: 16px; }
+.tt-lens { margin-top: 22px; }
+.tt-lens-label { font-family: "IBM Plex Mono", monospace; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 6px; }
+
+/* T1 — The Modern Tongue: Instrument Serif */
+.tt.t1 .tt-display { font-family: "Instrument Serif", serif; font-style: italic; font-size: 64px; font-weight: 400; color: #f0e7d0; }
+.tt.t1 .tt-knowing { font-family: "Instrument Serif", serif; font-style: italic; font-size: 23px; color: rgba(233, 222, 198, 0.7); }
+.tt.t1 .tt-lensname { font-family: "Instrument Serif", serif; font-size: 30px; color: #f0e7d0; }
+
+/* T2 — The Flourish: Cormorant light + Pinyon Script */
+.tt.t2 .tt-display { font-family: Cormorant, serif; font-weight: 300; font-size: 62px; letter-spacing: 0.02em; color: #f0e7d0; }
+.tt.t2 .tt-display .fl { font-family: "Pinyon Script", cursive; font-size: 72px; font-weight: 400; }
+.tt.t2 .tt-knowing { font-family: Cormorant, serif; font-style: italic; font-weight: 400; font-size: 24px; color: rgba(233, 222, 198, 0.7); }
+.tt.t2 .tt-lensname { font-family: "Pinyon Script", cursive; font-size: 40px; color: #f0e7d0; }
+
+/* T3 — The Old Press: Sorts Mill Goudy */
+.tt.t3 .tt-display { font-family: "Sorts Mill Goudy", serif; font-style: italic; font-size: 56px; color: #f0e7d0; }
+.tt.t3 .tt-knowing { font-family: "Sorts Mill Goudy", serif; font-style: italic; font-size: 22px; color: rgba(233, 222, 198, 0.7); }
+.tt.t3 .tt-lensname { font-family: "Sorts Mill Goudy", serif; font-size: 28px; letter-spacing: 0.04em; color: #f0e7d0; }
+
+/* T4 — The Engraver's Tendril: Cinzel Decorative + Cormorant */
+.tt.t4 .tt-display { font-family: "Cinzel Decorative", serif; font-size: 44px; line-height: 1.15; color: #f0e7d0; }
+.tt.t4 .tt-knowing { font-family: Cormorant, serif; font-style: italic; font-size: 23px; color: rgba(233, 222, 198, 0.7); }
+.tt.t4 .tt-lensname { font-family: "Cinzel Decorative", serif; font-size: 24px; color: #f0e7d0; }
+
+/* ─────────── MOBILE READING VARIANTS ─────────── */
+.mv { display: flex; flex-direction: column; }
+.mv-top { display: flex; justify-content: center; padding-top: 22px; position: relative; z-index: 5; }
+.mv-cardimg { border-radius: 10px; box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.9); position: relative; z-index: 3; }
+
+/* V1 — The Ledger (Instrument Serif) */
+.v1-title { font-family: "Instrument Serif", serif; font-style: italic; font-size: 38px; text-align: center; color: #f0e7d0; }
+.v1-row { display: flex; align-items: baseline; gap: 14px; padding: 14px 2px; border-bottom: 1px solid rgba(233, 222, 198, 0.1); }
+.v1-row:first-child { border-top: 1px solid rgba(233, 222, 198, 0.1); }
+.v1-num { font-family: "Instrument Serif", serif; font-style: italic; font-size: 15px; width: 24px; flex: none; }
+.v1-name { font-family: "Instrument Serif", serif; font-size: 21px; color: #f0e7d0; }
+.v1-whisper { font-size: 14px; font-style: italic; color: rgba(233, 222, 198, 0.45); margin-top: 1px; }
+
+/* V2 — The Veil (Cormorant; artwork as faint full-bleed texture) */
+.v2-veil {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.v2-veil img {
+  position: absolute; left: 50%; top: 50%;
+  width: 200%; transform: translate(-50%, -50%);
+  opacity: 0.09; filter: grayscale(0.35) sepia(0.25) contrast(1.05);
+}
+.v2-anchor { position: absolute; width: 150px; z-index: 5; }
+.v2-anchor .num { font-family: Cormorant, serif; font-style: italic; font-size: 17px; }
+.v2-anchor .name { font-family: Cormorant, serif; font-weight: 500; font-size: 19.5px; line-height: 1.15; color: #f0e7d0; margin-top: 3px; }
+.v2-anchor .whis { font-family: Cormorant, serif; font-style: italic; font-size: 13.5px; color: rgba(233, 222, 198, 0.5); margin-top: 4px; line-height: 1.3; }
+.v2-anchor.r { text-align: right; }
+
+/* V3 — The Letter (Sorts Mill Goudy; choose the phrase) */
+.v3-letter { margin: 0 30px; font-family: "Sorts Mill Goudy", serif; font-size: 19.5px; line-height: 1.75; color: rgba(233, 222, 198, 0.85); text-wrap: pretty; }
+.v3-letter .ph { font-style: italic; border-bottom: 1px solid; padding-bottom: 1px; white-space: nowrap; }
+.v3-letter .ph.lit { border-bottom-width: 2px; }
+.v3-sig { font-family: "Pinyon Script", cursive; font-size: 30px; margin: 22px 30px 0; text-align: right; color: rgba(233, 222, 198, 0.7); }
+
+/* V4 — The Procession (Cinzel Decorative; one lens at a time) */
+.v4-rail { display: flex; gap: 14px; align-items: stretch; margin-top: 22px; padding-left: 56px; position: relative; z-index: 4; }
+.v4-card {
+  flex: none; width: 262px; box-sizing: border-box; padding: 22px 22px 18px;
+  border: 1px solid rgba(233, 222, 198, 0.16); border-radius: 6px;
+  background: rgba(14, 9, 4, 0.72);
+}
+.v4-card.peek { opacity: 0.4; width: 220px; }
+.v4-name { font-family: "Cinzel Decorative", serif; font-size: 19px; line-height: 1.3; color: #f0e7d0; margin-top: 10px; }
+.v4-whis { font-family: "EB Garamond", serif; font-style: italic; font-size: 15px; color: rgba(233, 222, 198, 0.55); margin-top: 8px; line-height: 1.4; }
+.v4-cta { font-family: "EB Garamond", serif; font-style: italic; font-size: 15px; margin-top: 14px; }
+.v4-dots { display: flex; gap: 8px; justify-content: center; margin-top: 18px; position: relative; z-index: 4; }
+.v4-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(233, 222, 198, 0.22); }
+
+/* shared mobile bits */
+.mv-eyebrow { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.mv-eyebrow .rule { width: 30px; height: 1px; background: rgba(233, 222, 198, 0.25); }
+.mv-eyebrow .txt { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: 0.3em; padding-left: 0.3em; text-transform: uppercase; }
+.mv-caption { font-family: "IBM Plex Mono", monospace; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(233, 222, 198, 0.4); text-align: center; }
+
+/* whisper line (leather draw screen) */
+.lthr-whisper {
+  border-bottom: 1px solid rgba(233, 222, 198, 0.25);
+  padding: 8px 4px 10px; text-align: center;
+  font-family: "EB Garamond", serif; font-style: italic; font-size: 17.5px;
+  color: rgba(233, 222, 198, 0.4);
+}
+.lthr-deck {
+  width: 210px; height: 356px; border-radius: 12px; position: relative; margin: 0 auto;
+  background: linear-gradient(168deg, #1f1309 0%, #150d06 70%);
+  border: 1px solid color-mix(in srgb, var(--stamp, #f4500a) 60%, transparent);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.95), inset 0 0 40px rgba(0, 0, 0, 0.6);
+  display: flex; align-items: center; justify-content: center;
+}
+.lthr-deck::before { content: ""; position: absolute; inset: 8px; border-radius: 7px; border: 1px solid color-mix(in srgb, var(--stamp, #f4500a) 28%, transparent); }
+.lthr-deck-moon {
+  width: 46px; height: 46px; border-radius: 50%; position: relative; overflow: hidden;
+  background: var(--stamp, #f4500a); opacity: 0.92;
+}
+.lthr-deck-moon::before { content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: #150d06; left: 27%; top: -13%; }
+
+/* leather material tile */
+.lthr-tile { padding: 32px 34px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%; }
+.lthr-tile-name { font-family: "Sorts Mill Goudy", serif; font-style: italic; font-size: 30px; color: #f0e7d0; }
+.lthr-tile-desc { font-size: 16px; font-style: italic; color: rgba(233, 222, 198, 0.55); margin-top: 9px; line-height: 1.5; text-wrap: pretty; }
+.lthr-tile-section { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(233, 222, 198, 0.45); margin: 24px 0 12px; }
