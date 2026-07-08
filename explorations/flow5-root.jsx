@@ -9,7 +9,7 @@ const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
   "mode": "night", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
   "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
-  "deckTop": 18, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12,
+  "deckTop": 18, "deckTopMob": 10, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12,
   "orbitCardVh": 51, "knowingDesk": 32, "lensFlare": false, "shoutSize": 56, "pourShift": -16, "rvCol": 620,
   "orbFloat": true, "orbAmp": 7, "orbSpeed": 1, "orbBreath": 0.014, "orbRadius": 210, "orbPull": 0.1, "orbGrow": 0.055, "orbSpread": 1,
   "centerY": 47, "bleedWarp": 140, "dUiExit": 620, "lensStep": 140, "ffSpeed": 4, "settleScale": 1.08, "flipScale": 1.1,
@@ -113,6 +113,17 @@ function exportTokens(t) {
 // up exactly as before so design sessions are unaffected.
 function isEmbedded() {
   try { return !!(window.parent && window.parent !== window); } catch (e) { return true; }
+}
+
+// True on an actual touch mobile browser (phone/tablet with browser chrome),
+// false on desktop AND on desktop showing the phone-frame preview. Used to give
+// the deck a mobile-only top offset that accounts for Safari's chrome, without
+// pushing the deck down on desktop or in the frame.
+function isMobileBrowser() {
+  try {
+    return window.matchMedia("(pointer: coarse)").matches
+      && window.matchMedia("(hover: none)").matches;
+  } catch (e) { return false; }
 }
 
 // The design tweak panel ships hidden on the standalone (deployed) site. Unlock
@@ -275,6 +286,10 @@ function App() {
     return Math.ceil(S * 100 + 4) + "%";
   }, [vaW, vaH]);
   const imgWarp = desktop ? t.veilWarpDesk : t.veilWarpMob;
+  // Deck top offset: mobile browsers get their own value (accounts for Safari
+  // chrome); desktop and the phone-frame preview use the standard value.
+  const mobileBrowser = isMobileBrowser();
+  const deckTopEff = mobileBrowser ? t.deckTopMob : t.deckTop;
 
   const showToast = (msg) => {
     setToast(msg);
@@ -337,7 +352,7 @@ function App() {
     });
     return () => cancelAnimationFrame(id);
   }, [phase, vaH, phoneFrame, desktop, shellScale, fontsTick,
-    t.deckW, t.deckWDesk, t.deckTop, t.orbitCardVh, t.knowingSize, t.lensSize, t.lensPad, t.knowingDesk, t.orbSpread]);
+    t.deckW, t.deckWDesk, t.deckTop, t.deckTopMob, t.orbitCardVh, t.knowingSize, t.lensSize, t.lensPad, t.knowingDesk, t.orbSpread]);
 
   React.useEffect(() => {
     const el = vaRoot() && vaRoot().querySelector('[data-va-slot="deck-top"]');
@@ -599,7 +614,7 @@ function App() {
     "--va-grain-o-dark": t.grainNight, "--va-grain-o-light": t.grainDay,
     "--va-veil-o-dark": t.veilNight, "--va-veil-o-light": t.veilDay,
     "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskUrl,
-    "--va-deck-top": t.deckTop / 100,
+    "--va-deck-top": deckTopEff / 100,
     "--va-deck-w": t.deckW + "px", "--va-deck-w-desk": t.deckWDesk + "px",
     "--va-knowing-size": t.knowingSize + "px", "--va-lens-size": t.lensSize + "px", "--va-lens-pad": t.lensPad + "px",
     "--va-orbit-vh": t.orbitCardVh / 100, "--va-knowing-desk": t.knowingDesk + "px", "--va-shout": t.shoutSize + "px",
@@ -712,7 +727,7 @@ function FlowPanel({ t, setTweak, replay, light, manual, onMode, onFollowDevice,
             <TweakSlider label="Distortion · desktop" value={t.veilWarpDesk} min={0} max={240} step={5} onChange={(v) => setTweak("veilWarpDesk", v)}></TweakSlider>
           </TweakFold>
           <TweakFold key="d-approach" id="d-approach" label="The Approach" hint="deck">
-            <TweakSlider label="Deck top" value={t.deckTop} min={2} max={26} step={0.5} unit="%" onChange={(v) => setTweak("deckTop", v)}></TweakSlider>
+            <TweakSlider label={"Deck top" + (isMobileBrowser() ? " · mobile" : "")} value={isMobileBrowser() ? t.deckTopMob : t.deckTop} min={2} max={26} step={0.5} unit="%" onChange={(v) => setTweak(isMobileBrowser() ? "deckTopMob" : "deckTop", v)}></TweakSlider>
             <TweakSlider label="Deck width · mobile" value={t.deckW} min={160} max={340} step={2} unit="px" onChange={(v) => setTweak("deckW", v)}></TweakSlider>
             <TweakSlider label="Deck width · desktop" value={t.deckWDesk} min={200} max={360} step={2} unit="px" onChange={(v) => setTweak("deckWDesk", v)}></TweakSlider>
           </TweakFold>
