@@ -205,6 +205,10 @@ function App() {
   const ffRef = React.useRef(1);
   const [vaH, setVaH] = React.useState(800);
   const [vaW, setVaW] = React.useState(400);
+  // in document-flow the .va grows with scroll content; every consumer of
+  // vaH means "the screen", so clamp to the visual viewport
+  const clampVaH = (el) => document.documentElement.classList.contains("va-flow")
+    ? Math.min(el.offsetHeight, window.innerHeight) : el.offsetHeight;
   const [shellScale, setShellScale] = React.useState(1);
   const [fontsTick, setFontsTick] = React.useState(0);
   const vaRef = React.useRef(null);
@@ -283,9 +287,9 @@ function App() {
 
   React.useLayoutEffect(() => {
     const el = vaRef.current; if (!el) return;
-    const ro = new ResizeObserver(() => { setVaH(el.offsetHeight); setVaW(el.offsetWidth); });
+    const ro = new ResizeObserver(() => { setVaH(clampVaH(el)); setVaW(el.offsetWidth); });
     ro.observe(el);
-    setVaH(el.offsetHeight); setVaW(el.offsetWidth);
+    setVaH(clampVaH(el)); setVaW(el.offsetWidth);
     return () => ro.disconnect();
   }, []);
 
@@ -399,51 +403,36 @@ function App() {
 
   const onDeckHover = (h) => { if (phaseRef.current === "approach") placeOnDeck(false, h); };
 
-  // ---- iOS 26 immersion: the DOCUMENT is the scroller (flow6-docflow.css) ----
-  // Safari 26 letterboxes full-viewport fixed surfaces; it only composites
-  // the page behind the status bar / toolbar pill for real in-flow content,
-  // and only collapses chrome for real document scrolls. On real phones the
-  // shell sits in flow, and the two resting scroll views (Deck grid, Pour
-  // panes) unwrap into the document. scrollTop transplants between the inner
-  // scroller and the window on every engage/disengage so pixels never move.
+  // ---- iOS 26 immersion: constant three-layer construction ----
+  // (flow6-docflow.css) The field scrolls in the document; the veil + glow
+  // pin to the viewport; UI floats. Deck / Pour unwrap into the document
+  // WHENEVER MOUNTED — driven by the mounts, not the phase, so layouts
+  // never re-wrap mid-choreography (that re-wrap was the "wild background
+  // jump"). Leaving a scrolled view glides the window home as part of the
+  // choreography instead of teleporting it.
   const docMode = isRealMobile && !phoneFrame && !desktop;
-  const activeInnerScroller = () => {
-    const va = vaRoot(); if (!va) return null;
-    const dk = va.querySelector(".dk-scroll");
-    if (dk) return dk;
-    const pours = va.querySelector(".rv-pours");
-    if (!pours || !pours.children.length) return null;
-    const i = Math.max(0, Math.min(pours.children.length - 1,
-      Math.round(pours.scrollLeft / Math.max(1, pours.clientWidth))));
-    return pours.children[i].querySelector(".rv-vscroll");
-  };
-  // synchronous exit from document-flow — call BEFORE any sequence that
-  // measures slots or flies the actor, so all choreography runs in the
-  // contained coordinate space it was designed for. Returns nothing the
-  // caller needs: the transplant keeps the same pixels on screen.
-  const snapDocFlow = () => {
+  const pourMounted = !!(mounts.reveal && card && lens);
+  React.useEffect(() => {
     const H = document.documentElement;
-    if (!H.classList.contains("va-flow")) return;
-    const y = window.scrollY;
-    H.classList.remove("va-flow", "va-flow-deck", "va-flow-pour");
-    window.scrollTo(0, 0);
-    const inner = activeInnerScroller();
-    if (inner) inner.scrollTop = y;
-  };
-  React.useEffect(() => {
-    document.documentElement.classList.toggle("va-doc", docMode);
-  }, [docMode]);
-  React.useEffect(() => {
+    H.classList.toggle("va-doc", docMode);
+    H.classList.toggle("va-flow-deck", docMode && mounts.deck);
+    H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.deck);
+    H.classList.toggle("va-flow", docMode && (mounts.deck || pourMounted));
+  }, [docMode, mounts.deck, pourMounted]);
+  const glideScrollTop = (dur) => {
     if (!docMode) return;
-    const grow = phase === "deck" ? "deck" : phase === "reveal" ? "pour" : null;
-    if (!grow) return;
-    const H = document.documentElement;
-    const inner = activeInnerScroller();
-    const st = inner ? inner.scrollTop : 0;
-    H.classList.add("va-flow", "va-flow-" + grow);
-    window.scrollTo(0, st);
-    return () => snapDocFlow();
-  }, [phase, docMode]);
+    const y0 = window.scrollY;
+    if (y0 < 2) return;
+    const D = dur || Math.min(520, 240 + y0 * 0.08);
+    const t0 = performance.now();
+    const step = (now) => {
+      const u = Math.min(1, (now - t0) / D);
+      const e = 1 - Math.pow(1 - u, 3);
+      window.scrollTo(0, Math.round(y0 * (1 - e)));
+      if (u < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
 
   // idle beckon: a resting stage + a stretch of inaction reads as “I don't
   // know what to do” — the hint text catches a slow pass of light until the
@@ -642,7 +631,7 @@ function App() {
   const release = (pour, kept) => {
     const from = phaseRef.current;
     if (from === "approach" || from === "release" || from === "reform") return;
-    snapDocFlow();
+    glideScrollTop();
     // a Choice clock may still be running (fade tapped mid-transition) — its
     // end callback would setPhase("reveal") OVER our release. Kill it first.
     clock.cancel();
@@ -683,7 +672,7 @@ function App() {
   const toDeck = () => {
     const p = phaseRef.current;
     if (p === "deck" || p === "todeck" || p === "deckfly") return;
-    snapDocFlow();
+    glideScrollTop();
     clock.cancel();
     if (p === "approach" || p === "reform" || p === "pull") {
       // from the approach: UI + deck fade on the UI-exit curve, grid rises
@@ -722,12 +711,9 @@ function App() {
   // flying from the tile's own rect instead of pulling from the deck
   const runDeckDraw = (id, r) => {
     if (phaseRef.current !== "deck") return;
-    // exit document-flow BEFORE measuring anything: the flight choreography
-    // runs in the contained coordinate space. The tile rect was measured in
-    // grown space — rebase it by the scroll the transplant just absorbed.
-    const preY = window.scrollY;
-    snapDocFlow();
-    r = { ...r, top: r.top - preY };
+    // the tile rect and the actor share the document coordinate space; the
+    // window glides home DURING the flight — the card rides the collapse
+    glideScrollTop();
     setCard(id);
     setReleasing(false);
     setVoiceOn(false); setVeilOn(false); setLensesOn(false);
@@ -791,7 +777,7 @@ function App() {
     const p = phaseRef.current;
     if (!cardRef.current || p === "approach" || p === "reform") { showToast("PULL A CARD FIRST"); return; }
     const id = cardRef.current;
-    snapDocFlow();
+    glideScrollTop();
     clock.cancel();
     setReleasing(false);
     setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false });

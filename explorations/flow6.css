@@ -114,32 +114,26 @@
    together; deckfly (a tile was tapped) needs the actor back on top. */
 .va.p-todeck .va-card-actor, .va.p-deck .va-card-actor { z-index: 2; }
 
-/* ---- one card, ONE shadow ----
-   The actor stacks 2\u20133 imgs (back + poster thumb + full face) and
-   flow2.css puts the box-shadow on EACH img \u2014 identical overlapping
-   shadows composite darker (light mode: two 0.4-alpha shadows \u2248 0.64
-   effective vs the real Pour card's single 0.4), so every actor\u2192layout
-   swap read as the shadow visibly dropping opacity for a frame. AND the
-   shadow must ride the flip: painted on the actor root (or a ::before) it
-   does not rotate - only the inner .flip3d does - so the card visibly
-   turned inside a static rectangle shadow. Fix: shadow exactly the two
-   imgs whose backface-visibility makes them mutually exclusive - the BACK
-   (first child) and the LAST face img. At any flip angle exactly ONE of
-   them is painted, so there is always one shadow and it turns with the
-   card; the poster face (the sandwiched duplicate) never carries one. */
-.va .rx .va-card-actor img { box-shadow: none; }
-.va .va-card-actor.sh-deck img:first-child, .va .va-card-actor.sh-deck img.face:last-of-type {
-  box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.65); }
-.va .va-card-actor.sh-air img:first-child, .va .va-card-actor.sh-air img.face:last-of-type {
-  box-shadow: 0 70px 120px -40px rgba(0, 0, 0, 0.95); }
-.va .va-card-actor.sh-rest img:first-child, .va .va-card-actor.sh-rest img.face:last-of-type {
-  box-shadow: 0 30px 64px -22px rgba(0, 0, 0, 0.88); }
-.rx-light .va-card-actor.sh-deck img:first-child, .rx-light .va-card-actor.sh-deck img.face:last-of-type {
-  box-shadow: 0 10px 26px -12px rgba(21, 34, 49, 0.4); }
-.rx-light .va-card-actor.sh-air img:first-child, .rx-light .va-card-actor.sh-air img.face:last-of-type {
-  box-shadow: 0 70px 120px -40px rgba(21, 34, 49, 0.5); }
-.rx-light .va-card-actor.sh-rest img:first-child, .rx-light .va-card-actor.sh-rest img.face:last-of-type {
-  box-shadow: 0 30px 64px -22px rgba(21, 34, 49, 0.42); }
+/* ---- one card, ONE shadow, on ONE persistent element ----
+   History, so nobody regresses it: shadows on the actor's imgs
+   double-composite when two imgs overlap (opacity bump at every handoff);
+   the shadowed img IDENTITY changes when the full face mounts (an
+   element's first paint doesn't transition, so it appears with a full
+   shadow while the old one fades on flow2's fixed 600ms ease - the
+   "jumps, then drifts lighter" flash); and a shadow on the actor root
+   doesn't rotate with the flip. So: one .shdw div INSIDE .flip3d -
+   persistent (never mounts/unmounts), rotates and foreshortens with the
+   card, and CardActor drives its box-shadow transition with the SAME
+   duration/ease as the actor's move, so the shadow always travels on the
+   beat's own curve, never its own. */
+.va .rx .va-card-actor img { box-shadow: none; transition: none; }
+.va .va-card-actor .shdw { position: absolute; inset: 0; border-radius: inherit; }
+.va .va-card-actor.sh-deck .shdw { box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.65); }
+.va .va-card-actor.sh-air .shdw { box-shadow: 0 70px 120px -40px rgba(0, 0, 0, 0.95); }
+.va .va-card-actor.sh-rest .shdw { box-shadow: 0 30px 64px -22px rgba(0, 0, 0, 0.88); }
+.rx-light .va-card-actor.sh-deck .shdw { box-shadow: 0 10px 26px -12px rgba(21, 34, 49, 0.4); }
+.rx-light .va-card-actor.sh-air .shdw { box-shadow: 0 70px 120px -40px rgba(21, 34, 49, 0.5); }
+.rx-light .va-card-actor.sh-rest .shdw { box-shadow: 0 30px 64px -22px rgba(21, 34, 49, 0.42); }
 
 /* ---- actor shadow during the slide → Pour handoff ----
    The real Pour card lives inside .hero-scale, whose transform SCALES its
@@ -150,9 +144,9 @@
    live hero-scale transform) pre-shrinks the actor's shadow to what the
    real card's will render as. Loads after flow2.css: equal specificity,
    later wins. */
-.va .va-card-actor.sh-rev img:first-child, .va .va-card-actor.sh-rev img.face:last-of-type {
+.va .va-card-actor.sh-rev .shdw {
   box-shadow: 0 calc(22px * var(--rvShSc, 1)) calc(48px * var(--rvShSc, 1)) calc(-18px * var(--rvShSc, 1)) rgba(0, 0, 0, 0.85); }
-.rx-light .va-card-actor.sh-rev img:first-child, .rx-light .va-card-actor.sh-rev img.face:last-of-type {
+.rx-light .va-card-actor.sh-rev .shdw {
   box-shadow: 0 calc(22px * var(--rvShSc, 1)) calc(48px * var(--rvShSc, 1)) calc(-18px * var(--rvShSc, 1)) rgba(21, 34, 49, 0.4); }
 
 /* ---- bottle shadow flicker (mobile Pour transition) ----

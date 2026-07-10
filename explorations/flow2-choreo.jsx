@@ -22,7 +22,11 @@ function slotRect(name) {
 
 function vaSize() {
   const va = vaRoot(); if (!va) return { w: 390, h: 800 };
-  return { w: va.offsetWidth, h: va.offsetHeight };
+  let h = va.offsetHeight;
+  // document-flow mode: the .va grows with the scroll content — stage
+  // choreography wants the VISUAL viewport, not the document height
+  if (document.documentElement.classList.contains("va-flow")) h = Math.min(h, window.innerHeight);
+  return { w: va.offsetWidth, h };
 }
 
 // Static (layout-tree) rect: sums offsetLeft/Top up to .va. Ignores transforms
@@ -58,6 +62,7 @@ function CardActor({ a, face, poster, rPct }) {
         opacity: a.o, borderRadius: rad + "px",
         transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ")", transition: tr }}>
       <div className="flip3d" style={{ transform: "rotateY(" + (a.flip || 0) + "deg)", transition: ftr }}>
+        <div className="shdw" style={{ transition: a.instant ? "none" : "box-shadow " + a.dur + "ms " + ease }}></div>
         <img src="assets/card-back.webp" alt="" draggable="false" decoding="async" />
         {poster ? <img className="face" src={poster} alt="" draggable="false" decoding="async" /> : null}
         {face ? <img className="face" src={face} alt="" draggable="false" decoding="async" /> : null}
