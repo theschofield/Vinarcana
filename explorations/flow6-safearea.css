@@ -45,19 +45,5 @@
   padding-bottom: calc(44px + env(safe-area-inset-bottom));
 }
 
-/* ============================================================
-   DOCUMENT-SCROLL PROXY — Safari only collapses its chrome (and
-   only lets the page run beneath the status bar / behind the
-   toolbar pill) when the DOCUMENT scrolls; inner overflow divs
-   never trigger it, which kept the app letterboxed between the
-   bars. On real phones flow6-root mirrors the Deck / Pour scroll
-   range onto a body spacer, drives the inner scrollTop from the
-   window scroll, and flags the root with .scroll-proxy so the
-   inner scrollers release the touch gesture to the document.
-   The shell is position:fixed, so nothing moves — Safari just
-   sees a real page scroll and grants the edge-to-edge treatment.
-   ============================================================ */
-@media (hover: none) and (pointer: coarse) {
-  html, body { height: auto; min-height: 100%; }
-}
-.va.scroll-proxy .dk-scroll, .va.scroll-proxy .rv-vscroll { overflow-y: hidden; }
+/* (the scroll-proxy experiment that lived here is gone — it fought Safari
+   instead of giving it what it wants. See flow6-docflow.css.) */

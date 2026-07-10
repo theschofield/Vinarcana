@@ -58,9 +58,9 @@ function CardActor({ a, face, poster, rPct }) {
         opacity: a.o, borderRadius: rad + "px",
         transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ")", transition: tr }}>
       <div className="flip3d" style={{ transform: "rotateY(" + (a.flip || 0) + "deg)", transition: ftr }}>
-        <img src="assets/card-back.webp" alt="" draggable="false" />
-        {poster ? <img className="face" src={poster} alt="" draggable="false" /> : null}
-        {face ? <img className="face" src={face} alt="" draggable="false" /> : null}
+        <img src="assets/card-back.webp" alt="" draggable="false" decoding="async" />
+        {poster ? <img className="face" src={poster} alt="" draggable="false" decoding="async" /> : null}
+        {face ? <img className="face" src={face} alt="" draggable="false" decoding="async" /> : null}
       </div>
     </div>
   );

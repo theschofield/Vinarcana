@@ -399,60 +399,51 @@ function App() {
 
   const onDeckHover = (h) => { if (phaseRef.current === "approach") placeOnDeck(false, h); };
 
-  // ---- mobile Safari immersion: the DOCUMENT is the scroller ----
-  // Safari collapses its chrome (and runs the page under the status bar /
-  // behind the toolbar pill) only on real document scrolls — never for
-  // inner overflow divs. On real phones the Deck grid and the active Pour
-  // pane hand their gesture to the document: a body spacer recreates their
-  // scroll range, window scroll drives the inner scrollTop (so masks, the
-  // pinned card, and every onScroll behavior keep working unchanged), and
-  // .scroll-proxy turns off the inner overflow so the pan reaches the
-  // document. The shell is position:fixed — nothing visually moves.
+  // ---- iOS 26 immersion: the DOCUMENT is the scroller (flow6-docflow.css) ----
+  // Safari 26 letterboxes full-viewport fixed surfaces; it only composites
+  // the page behind the status bar / toolbar pill for real in-flow content,
+  // and only collapses chrome for real document scrolls. On real phones the
+  // shell sits in flow, and the two resting scroll views (Deck grid, Pour
+  // panes) unwrap into the document. scrollTop transplants between the inner
+  // scroller and the window on every engage/disengage so pixels never move.
+  const docMode = isRealMobile && !phoneFrame && !desktop;
+  const activeInnerScroller = () => {
+    const va = vaRoot(); if (!va) return null;
+    const dk = va.querySelector(".dk-scroll");
+    if (dk) return dk;
+    const pours = va.querySelector(".rv-pours");
+    if (!pours || !pours.children.length) return null;
+    const i = Math.max(0, Math.min(pours.children.length - 1,
+      Math.round(pours.scrollLeft / Math.max(1, pours.clientWidth))));
+    return pours.children[i].querySelector(".rv-vscroll");
+  };
+  // synchronous exit from document-flow — call BEFORE any sequence that
+  // measures slots or flies the actor, so all choreography runs in the
+  // contained coordinate space it was designed for. Returns nothing the
+  // caller needs: the transplant keeps the same pixels on screen.
+  const snapDocFlow = () => {
+    const H = document.documentElement;
+    if (!H.classList.contains("va-flow")) return;
+    const y = window.scrollY;
+    H.classList.remove("va-flow", "va-flow-deck", "va-flow-pour");
+    window.scrollTo(0, 0);
+    const inner = activeInnerScroller();
+    if (inner) inner.scrollTop = y;
+  };
   React.useEffect(() => {
-    if (!isRealMobile || phoneFrame) return;
-    if (!(phase === "deck" || phase === "pour" || phase === "reveal")) return;
-    const va = vaRoot(); if (!va) return;
-    let spacer = document.getElementById("va-scroll-spacer");
-    if (!spacer) {
-      spacer = document.createElement("div");
-      spacer.id = "va-scroll-spacer";
-      spacer.style.cssText = "width:1px;visibility:hidden;pointer-events:none;";
-      document.body.appendChild(spacer);
-    }
-    let scroller = null;
-    const findScroller = () => {
-      if (phase === "deck") return va.querySelector(".dk-scroll");
-      const pours = va.querySelector(".rv-pours");
-      if (!pours || !pours.children.length) return null;
-      const i = Math.max(0, Math.min(pours.children.length - 1,
-        Math.round(pours.scrollLeft / Math.max(1, pours.clientWidth))));
-      return pours.children[i].querySelector(".rv-vscroll");
-    };
-    const sync = () => {
-      const s = findScroller();
-      if (s !== scroller) { scroller = s; if (scroller) window.scrollTo(0, scroller.scrollTop); }
-      if (!scroller) { va.classList.remove("scroll-proxy"); spacer.style.height = "0px"; return; }
-      va.classList.add("scroll-proxy");
-      const range = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
-      spacer.style.height = Math.round(window.innerHeight + range) + "px";
-    };
-    const onWinScroll = () => { if (scroller) scroller.scrollTop = window.scrollY; };
-    // horizontal pane swipes retarget the proxy (scroll doesn't bubble; capture)
-    const onInnerScroll = (e) => { if (e.target && e.target.classList && e.target.classList.contains("rv-pours")) sync(); };
-    const raf = requestAnimationFrame(() => requestAnimationFrame(sync));
-    window.addEventListener("scroll", onWinScroll, { passive: true });
-    window.addEventListener("resize", sync);
-    document.addEventListener("scroll", onInnerScroll, true);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onWinScroll);
-      window.removeEventListener("resize", sync);
-      document.removeEventListener("scroll", onInnerScroll, true);
-      va.classList.remove("scroll-proxy");
-      spacer.style.height = "0px";
-      window.scrollTo(0, 0);
-    };
-  }, [phase, isRealMobile, phoneFrame]);
+    document.documentElement.classList.toggle("va-doc", docMode);
+  }, [docMode]);
+  React.useEffect(() => {
+    if (!docMode) return;
+    const grow = phase === "deck" ? "deck" : phase === "reveal" ? "pour" : null;
+    if (!grow) return;
+    const H = document.documentElement;
+    const inner = activeInnerScroller();
+    const st = inner ? inner.scrollTop : 0;
+    H.classList.add("va-flow", "va-flow-" + grow);
+    window.scrollTo(0, st);
+    return () => snapDocFlow();
+  }, [phase, docMode]);
 
   // idle beckon: a resting stage + a stretch of inaction reads as “I don't
   // know what to do” — the hint text catches a slow pass of light until the
@@ -605,10 +596,33 @@ function App() {
         setMounts((m) => ({ ...m, reading: false })); setHandoffOn(true);
         setActor((a) => a && ({ ...a, o: 0, oDur: 0, instant: false }));
       };
+      // final truth pass: on device the viewport can shift mid-flight (chrome
+      // collapse, dvh resize), so the slide-beat targets can be stale by a few
+      // px — the eyebrow visibly jumped at the cut. Re-measure both slots
+      // against the SETTLED pane; if drifted, glide there before cutting.
+      const doCut = () => {
+        const va2 = vaRoot();
+        const rr = slotRect("reveal-card"), er2 = slotRect("eyeb-rev");
+        let drift = false;
+        const cardEl = va2 && va2.querySelector(".va-card-actor");
+        if (rr && cardEl && Math.abs(parseFloat(cardEl.style.left) - rr.left)
+          + Math.abs(parseFloat(cardEl.style.top) - rr.top)
+          + Math.abs(parseFloat(cardEl.style.width) - rr.width) > 1.5) {
+          drift = true;
+          setActor((a) => a && ({ ...a, left: rr.left, top: rr.top, width: rr.width, ar: rr.height / rr.width, dur: 220, ease: "ease", instant: false }));
+        }
+        const eyebEl = va2 && va2.querySelector(".va-eyeb-actor");
+        if (er2 && eyebEl && Math.abs(parseFloat(eyebEl.style.left) - er2.left)
+          + Math.abs(parseFloat(eyebEl.style.top) - er2.top) > 1) {
+          drift = true;
+          setEyeb((e) => e && ({ ...e, left: er2.left, top: er2.top, dur: 220, instant: false }));
+        }
+        if (drift) setTimeout(doSwap, 240); else doSwap();
+      };
       const va = vaRoot(); const el = va && va.querySelector(".va-card-actor");
-      if (!el) { doSwap(); return; }
+      if (!el) { doCut(); return; }
       let done = false;
-      const finish = () => { if (done) return; done = true; el.removeEventListener("transitionend", onEnd); doSwap(); };
+      const finish = () => { if (done) return; done = true; el.removeEventListener("transitionend", onEnd); doCut(); };
       const onEnd = (e2) => { if (e2.target === el && (e2.propertyName === "left" || e2.propertyName === "top" || e2.propertyName === "width")) finish(); };
       el.addEventListener("transitionend", onEnd);
       setTimeout(finish, dv(700));
@@ -628,6 +642,7 @@ function App() {
   const release = (pour, kept) => {
     const from = phaseRef.current;
     if (from === "approach" || from === "release" || from === "reform") return;
+    snapDocFlow();
     // a Choice clock may still be running (fade tapped mid-transition) — its
     // end callback would setPhase("reveal") OVER our release. Kill it first.
     clock.cancel();
@@ -668,6 +683,7 @@ function App() {
   const toDeck = () => {
     const p = phaseRef.current;
     if (p === "deck" || p === "todeck" || p === "deckfly") return;
+    snapDocFlow();
     clock.cancel();
     if (p === "approach" || p === "reform" || p === "pull") {
       // from the approach: UI + deck fade on the UI-exit curve, grid rises
@@ -706,6 +722,12 @@ function App() {
   // flying from the tile's own rect instead of pulling from the deck
   const runDeckDraw = (id, r) => {
     if (phaseRef.current !== "deck") return;
+    // exit document-flow BEFORE measuring anything: the flight choreography
+    // runs in the contained coordinate space. The tile rect was measured in
+    // grown space — rebase it by the scroll the transplant just absorbed.
+    const preY = window.scrollY;
+    snapDocFlow();
+    r = { ...r, top: r.top - preY };
     setCard(id);
     setReleasing(false);
     setVoiceOn(false); setVeilOn(false); setLensesOn(false);
@@ -769,6 +791,7 @@ function App() {
     const p = phaseRef.current;
     if (!cardRef.current || p === "approach" || p === "reform") { showToast("PULL A CARD FIRST"); return; }
     const id = cardRef.current;
+    snapDocFlow();
     clock.cancel();
     setReleasing(false);
     setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false });
@@ -852,6 +875,11 @@ function App() {
 
   const c = card ? ARCANA[card] : null;
   const face = c ? "assets/cards/" + c.file + ".webp" : null;
+  // the actor carries the poster thumb (sharp at flight sizes, warm from the
+  // boot preload) through every MOVING beat; the full-res face only mounts
+  // once the card is at rest (bleed onward). Painting a 400KB decode the
+  // moment it arrives mid-flip was the visible stutter before the apex.
+  const actorFace = ["pull", "lift", "drop", "settle", "deckfly"].includes(phase) ? null : face;
   const faceBg = c ? "assets/cards/" + c.file + "-bg.webp" : null;
   const vaCls = "va p-" + phase + (releasing ? " p-release" : "") +
     (desktop ? " vw-desk" : "") + (phoneFrame ? " vw-phone" : "") +
@@ -896,7 +924,7 @@ function App() {
             <DeckGrid F={F} drawingId={card} onPick={runDeckDraw}></DeckGrid>
           ) : null}
 
-          <CardActor a={actor} face={face} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
+          <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
           {c ? <EyebrowActor e={eyeb} num={c.num} name={c.name} lens={lens ? lens.name : ""}></EyebrowActor> : null}
           <SmokeFX light={light}></SmokeFX>
 
