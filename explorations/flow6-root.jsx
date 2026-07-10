@@ -130,6 +130,31 @@ const BECKON_COLORS = {
 };
 const bkMix = (a, b, u) => "rgba(" + [0, 1, 2].map((i) => Math.round(a[i] + (b[i] - a[i]) * u)).join(",") + "," + (a[3] + (b[3] - a[3]) * u).toFixed(3) + ")";
 
+// Running inside a parent frame (the Claude design canvas embeds this app in an
+// iframe and drives the panel over postMessage). True => keep the host-driven
+// panel behaviour so design sessions are unaffected.
+function isEmbedded() {
+  try { return !!(window.parent && window.parent !== window); } catch (e) { return true; }
+}
+
+// The design tweak panel ships hidden on the standalone (deployed) site. Unlock
+// with ?studio in the URL (remembered per-browser), ?studio=off to re-hide, or
+// Ctrl+Shift+E to toggle. No visible affordance, so a visitor can't find it.
+// Inside the design canvas the panel stays available as always.
+function readStudioUnlock() {
+  try {
+    if (isEmbedded()) return true;
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("studio")) {
+      const v = (q.get("studio") || "").toLowerCase();
+      const on = v !== "off" && v !== "0" && v !== "false";
+      try { on ? localStorage.setItem("va-studio", "1") : localStorage.removeItem("va-studio"); } catch (e) {}
+      return on;
+    }
+    return localStorage.getItem("va-studio") === "1";
+  } catch (e) { return false; }
+}
+
 function App() {
   // Token layering: design-tokens.json (fetched at boot) is the portable base;
   // the EDITMODE block is the live layer the sliders persist into, so it wins
@@ -153,7 +178,55 @@ function App() {
   // so the sink fade can never be cut short (or skipped) by reform — or by a
   // still-running Choice clock overwriting the phase.
   const [releasing, setReleasing] = React.useState(false);
-  const light = t.mode === "day";
+  // Light/dark follows the device's prefers-color-scheme LIVE — it flips the
+  // instant the OS theme changes, no reload. The panel's Day field toggle sets a
+  // persisted manual override that wins until "Follow device". (The theme-color
+  // effect below keys off `light`, so Safari's chrome tint follows too.)
+  const [autoMode, setAutoMode] = React.useState(
+    () => (!window.matchMedia || window.matchMedia("(prefers-color-scheme: dark)").matches) ? "night" : "day");
+  const [modeManual, setModeManual] = React.useState(() => {
+    try { return localStorage.getItem("va-mode-manual") === "1"; } catch (e) { return false; }
+  });
+  React.useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => setAutoMode(mq.matches ? "night" : "day");
+    mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", onChange) : mq.removeListener(onChange); };
+  }, []);
+  const setManualMode = (v) => {
+    try { localStorage.setItem("va-mode-manual", "1"); } catch (e) {}
+    setModeManual(true); setTweak("mode", v ? "day" : "night");
+  };
+  const followDevice = () => {
+    try { localStorage.removeItem("va-mode-manual"); } catch (e) {}
+    setModeManual(false);
+  };
+  const light = (modeManual ? t.mode : autoMode) === "day";
+
+  // Secret studio unlock (see readStudioUnlock): ?studio in the URL, ?studio=off
+  // to re-hide, or Ctrl+Shift+E to toggle. Embedded => host drives the panel.
+  const embedded = isEmbedded();
+  const [studio, setStudio] = React.useState(readStudioUnlock);
+  const lockStudio = () => {
+    try { localStorage.removeItem("va-studio"); } catch (e) {}
+    setStudio(false);
+  };
+  React.useEffect(() => {
+    const onKey = (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === "E" || e.key === "e")) {
+        e.preventDefault();
+        setStudio((s) => {
+          const n = !s;
+          try { n ? localStorage.setItem("va-studio", "1") : localStorage.removeItem("va-studio"); } catch (x) {}
+          return n;
+        });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const desktopMQ = useDesktopMQ();
   const phoneFrame = t.viewport === "phone" && desktopMQ;
   const desktop = t.viewport === "auto" && desktopMQ;
@@ -815,19 +888,22 @@ function App() {
       </div>
       {phoneFrame ? <div className="va-frame-tag">393 × 852 · phone frame</div> : null}
 
-      <FlowPanel t={t} setTweak={setTweak} replay={replay}></FlowPanel>
+      {studio ? <FlowPanel t={t} setTweak={setTweak} replay={replay}
+        light={light} manual={modeManual} onMode={setManualMode} onFollowDevice={followDevice}
+        forceOpen={!embedded} onClose={lockStudio}></FlowPanel> : null}
     </div>
   );
 }
 
 // ---------- the panel ----------
-function FlowPanel({ t, setTweak, replay }) {
+function FlowPanel({ t, setTweak, replay, light, manual, onMode, onFollowDevice, forceOpen, onClose }) {
   const [tab, setTab] = usePanelPref("tab", "Design");
   return (
-    <TweaksPanel>
+    <TweaksPanel forceOpen={forceOpen} onDismiss={onClose}>
       <Flow3PanelStyle></Flow3PanelStyle>
       <TweakButton label="Export design-tokens.json" onClick={() => exportTokens(t)}></TweakButton>
-      <TweakToggle label="Day field" value={t.mode === "day"} onChange={(v) => setTweak("mode", v ? "day" : "night")}></TweakToggle>
+      <TweakToggle label={"Day field" + (manual ? "" : " · auto")} value={light} onChange={onMode}></TweakToggle>
+      {manual ? <TweakButton label="Follow device theme" onClick={onFollowDevice}></TweakButton> : null}
       <TweakToggle label="Phone frame" value={t.viewport === "phone"} onChange={(v) => setTweak("viewport", v ? "phone" : "auto")}></TweakToggle>
       <TweakTabs tabs={["Design", "Motion"]} value={tab} onChange={setTab}></TweakTabs>
 
