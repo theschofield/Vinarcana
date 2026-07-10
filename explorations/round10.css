@@ -128,7 +128,10 @@
 .rx-light .rx-whisper-circle:hover { border-color: rgba(198,127,65,0.5); color: var(--amber); }
 .rx-whisper-hint { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(239,236,228,0.3); margin-top: 11px; }
 .rx-light .rx-whisper-hint { color: rgba(21,34,49,0.35); }
-.rx-whisper-open { width: 100%; max-width: 300px; text-align: center; }
+.rx-whisper-open { width: 100%; max-width: 300px; text-align: center;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1), transform 320ms cubic-bezier(0.22, 1, 0.36, 1); }
+.rx-whisper-open.in { opacity: 1; transform: translateY(0); }
 .rx-whisper-field { display: flex; align-items: center; justify-content: center; gap: 8px; border-bottom: 1px solid rgba(239,236,228,0.32); padding: 7px 4px 9px; }
 .rx-whisper-field .txt { font-family: "Instrument Sans", sans-serif; font-style: italic; font-size: 14.5px; color: rgba(239,236,228,0.4); }
 .rx-whisper-field .caret { width: 1px; height: 15px; background: var(--apri); animation: rxblink 1.1s step-end infinite; }

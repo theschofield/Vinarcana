@@ -77,12 +77,33 @@ function WhisperGlyph() {
   );
 }
 
+// whisper field: fades in + slides up on mount (the tap on the circle swaps
+// it in instantly via React state, so the entrance has to be a mount-transition
+// — two rAFs to guarantee the browser paints the pre-transition state first)
+function WhisperOpen({ light, whisper, setWhisper, onClose, inputRef }) {
+  const [inCls, setInCls] = React.useState(false);
+  React.useEffect(() => {
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setInCls(true)));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return (
+    <div className={"rx-whisper-open" + (inCls ? " in" : "")}>
+      <div className="rx-whisper-field" style={{ borderBottomColor: light ? "rgba(21,34,49,0.32)" : undefined }}>
+        <input ref={inputRef} className="rx-whisper-input" placeholder="something on your mind?"
+          value={whisper} onChange={(e) => setWhisper(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") onClose(); }}
+          onBlur={onClose} />
+      </div>
+      <div className="rx-whisper-sub" style={{ color: light ? "rgba(21,34,49,0.4)" : undefined }}>THE DECK LISTENS · IT DOESN'T REPEAT</div>
+    </div>
+  );
+}
+
 // ---------- THE APPROACH ----------
 function Approach({ light, invite, whisper, setWhisper, onDraw, onDeckHover, F, spd }) {
   const [open, setOpen] = React.useState(false);
   const inputRef = React.useRef(null);
-  React.useEffect(() => { if (open && inputRef.current) inputRef.current.focus(); }, [open]);
-  const inCls = F.approachUiIn ? " in" : "";
+  React.useEffect(() => { if (open && inputRef.current) inputRef.current.focus(); }, [open]);  const inCls = F.approachUiIn ? " in" : "";
   const reform = F.phase === "reform";
   // entering (reform): waits for the deck to fall; exiting (pull): quick stagger
   const dly = (inMs, outMs) => ({ transitionDelay: Math.round((F.approachUiIn ? (reform ? inMs : 0) : outMs) / spd) + "ms", "--fxd": "var(--dUiExit)" });
@@ -105,15 +126,7 @@ function Approach({ light, invite, whisper, setWhisper, onDraw, onDeckHover, F, 
             {whisper ? <div className="rx-whisper-kept">THE DECK HEARD YOU</div> : null}
           </React.Fragment>
         ) : (
-          <div className="rx-whisper-open">
-            <div className="rx-whisper-field" style={{ borderBottomColor: light ? "rgba(21,34,49,0.32)" : undefined }}>
-              <input ref={inputRef} className="rx-whisper-input" placeholder="something on your mind?"
-                value={whisper} onChange={(e) => setWhisper(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") setOpen(false); }}
-                onBlur={() => setOpen(false)} />
-            </div>
-            <div className="rx-whisper-sub" style={{ color: light ? "rgba(21,34,49,0.4)" : undefined }}>THE DECK LISTENS · IT DOESN'T REPEAT</div>
-          </div>
+          <WhisperOpen light={light} whisper={whisper} setWhisper={setWhisper} onClose={() => setOpen(false)} inputRef={inputRef}></WhisperOpen>
         )}
       </div>
       <div className={"rx-draw-hint fx" + inCls} style={dly(780, 160)} data-va-fx="hint"><span className="lit">TAP THE DECK</span> WHEN YOU'RE READY</div>

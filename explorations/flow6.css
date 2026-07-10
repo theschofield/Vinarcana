@@ -1,0 +1,201 @@
+/* ============================================================
+   FLOW v6 — THE DECK view. Loads after flow5.css.
+   · dk-screen is a va-layer (so the p-release sink covers its
+     graceful exit); its own entrance is per-tile mount animation.
+   · p-deckfly: the grid melts away while the tapped card (now the
+     actor) flies to the read slot.
+   · Tilt + shine ride CSS vars written by pointermove — the tile
+     itself never re-renders.
+   ============================================================ */
+
+/* ============================================================
+   CARD CORNER RADIUS — one token: --va-card-r (% of card width),
+   set from the Tweaks panel (cardRadius). The horizontal radius is
+   --va-card-r % of width; the vertical radius is scaled by the
+   element's aspect ratio so corners stay CIRCULAR at any size.
+   The flying card actor derives its px radius from the same token
+   (CardActor rPct). Face AR 2100/3600 → ×0.5833 · back AR 816/1285
+   → ×0.635.
+   ============================================================ */
+.va { --va-card-r: 5; }
+.va .rx-deck .stack, .va .rx-deck .backimg {
+  border-radius: calc(var(--va-card-r) * 1%) / calc(var(--va-card-r) * 0.635%); }
+.va .rx-read-card img, .va .va-orbit-card, .va .rv-hero .card, .va .dk-tilt {
+  border-radius: calc(var(--va-card-r) * 1%) / calc(var(--va-card-r) * 0.5833%); }
+
+.va .dk-screen { z-index: 4; }
+
+.va .dk-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch; box-sizing: border-box;
+  padding: 56px 18px 36px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 52px, #000 calc(100% - 26px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0px, #000 52px, #000 calc(100% - 26px), transparent 100%); }
+.va .dk-scroll::-webkit-scrollbar { display: none; }
+.va.vw-desk .dk-scroll { padding: 60px 40px 44px; }
+
+.va .dk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(102px, 1fr)); gap: 14px;
+  max-width: 1240px; margin: 0 auto; }
+.va.vw-desk .dk-grid { grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 22px; }
+
+/* ---- tile ---- */
+/* entrance: rushing up into position from the depths below */
+@keyframes dkIn { from { opacity: 0; transform: translateY(74px); } }
+.va .dk-tile { position: relative; aspect-ratio: 2100 / 3600; cursor: pointer;
+  perspective: 640px; -webkit-tap-highlight-color: transparent;
+  animation: dkIn 760ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; animation-delay: var(--dki, 0ms);
+  transition: opacity var(--dUiExit, 620ms) var(--eUiExit, ease), transform var(--dUiExit, 620ms) var(--eUiExit, ease); }
+.va .dk-tile:hover { z-index: 2; }
+
+.va .dk-tilt { position: absolute; inset: 0; transform-style: preserve-3d;
+  transform: rotateX(var(--dk-rx, 0deg)) rotateY(var(--dk-ry, 0deg)) scale(var(--dk-s, 1));
+  transition: transform 160ms cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 300ms ease;
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.7); }
+.va .dk-tile:hover .dk-tilt { --dk-s: 1.05;
+  box-shadow: 0 30px 52px -18px rgba(0, 0, 0, 0.85); }
+.rx-light .dk-tilt { box-shadow: 0 10px 24px -12px rgba(21, 34, 49, 0.35); }
+.rx-light .dk-tile:hover .dk-tilt { box-shadow: 0 30px 52px -18px rgba(21, 34, 49, 0.42); }
+
+.va .dk-tilt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  border-radius: inherit; display: block; opacity: 0; transition: opacity 240ms ease; }
+.va .dk-tilt img.ld { opacity: 1; }
+/* card-shaped placeholder beneath — an unloaded tile reads as a quiet
+   blank card, never a hole that pops */
+.va .dk-tilt { background: rgba(239, 236, 228, 0.055); }
+.rx-light .dk-tilt { background: rgba(21, 34, 49, 0.07); }
+
+/* ambient-light shine — a specular pool that follows the cursor */
+.va .dk-shine { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: radial-gradient(130% 95% at var(--dk-mx, 50%) var(--dk-my, 45%),
+    rgba(255, 243, 222, 0.30), rgba(255, 243, 222, 0.08) 42%, transparent 68%);
+  mix-blend-mode: screen; transition: opacity 300ms ease; }
+.va .dk-tile:hover .dk-shine { opacity: 1; }
+.rx-light .dk-shine { background: radial-gradient(130% 95% at var(--dk-mx, 50%) var(--dk-my, 45%),
+    rgba(255, 250, 240, 0.5), rgba(255, 250, 240, 0.14) 42%, transparent 68%); mix-blend-mode: soft-light; }
+
+/* ---- leaving: a card was tapped — the rest of the grid sinks away as it
+   fades, on the same clock + curve as the Approach UI exit. Keyed to the
+   grid's OWN lifecycle (.leaving rides drawingId until unmount), not to the
+   transient p-deckfly phase — later beats (bleed, settle) change the phase
+   while the grid is still mounted, which used to flash the tiles back in. */
+.va .dk-screen.leaving .dk-tile { opacity: 0; transform: translateY(28px); pointer-events: none; }
+/* the tapped tile hands off to the card actor the same frame */
+.va .dk-tile.picked .dk-tilt { visibility: hidden; }
+.va .dk-tile.picked { transition: none; }
+
+/* ---- header: DECK link active state ---- */
+.rx-dark .rx-status .dk-link.on { color: var(--apri); }
+.rx-light .rx-status .dk-link.on { color: var(--amber); }
+
+/* ---- desktop Reveal centering vs. the release sink ----
+   .va.vw-desk .rv-screen sets transform:translateX(-50%) to center the
+   column; .va.p-release .va-layer sets transform:translateY(22px) for the
+   release sink. Same specificity (3 classes each) means whichever stylesheet
+   loads last silently wins and the OTHER transform never applies \u2014 on
+   desktop that killed the downward slide on "let it fade"/Keep/deck-exit
+   (opacity still faded since that property isn't contested). Compose both
+   explicitly at higher specificity so neither gets clobbered. */
+.va.vw-desk.p-release .rv-screen { transform: translateX(-50%) translateY(22px); }
+
+/* ---- approach → deck: the card stack sinks as it fades, matching the
+   UI below it (the top-of-deck actor gets the same move from the root) */
+.va.p-todeck .rx-deck { opacity: 0; transform: translateY(14px);
+  transition: opacity var(--dUiExit, 620ms) var(--eUiExit, ease), transform var(--dUiExit, 620ms) var(--eUiExit, ease); }
+
+/* ---- the fading top-of-deck actor must not visually sit IN FRONT of the
+   incoming grid (it used to — the actor's z-index is 20, the grid's is 4 —
+   which read as the new cards "loading behind" the old card). Drop the actor
+   below the grid for exactly the two beats where both are on screen
+   together; deckfly (a tile was tapped) needs the actor back on top. */
+.va.p-todeck .va-card-actor, .va.p-deck .va-card-actor { z-index: 2; }
+
+/* ---- bottle shadow flicker (mobile Pour transition) ----
+   The bottle's drop-shadow is a filter on the same img whose opacity +
+   transform transition in; when the transition ends the browser drops the
+   temporary compositing layer and re-rasterizes the filtered image — the
+   shadow visibly “pops” darker for a frame. Keeping the layer alive for the
+   element's whole life removes the end-of-transition re-raster. */
+.va .rv-hero .bottle { will-change: transform, opacity, filter; }
+
+/* ---- idle beckon: the hint text catches a slow pass of light ----
+   ALL geometry is in absolute px so both stages render identically for
+   the same slider values (the old %-based gradient scaled with each
+   hint's box width — the invisible multiplier). The gradient strip
+   overhangs the box by a fixed 460px; one pass slides exactly that
+   460px, centered on the text, regardless of element size. --bkBand is
+   the band's half-width in px. Band colors arrive pre-blended toward
+   the resting text color (Intensity), so a soft band never punches
+   see-through holes in the clip-text lettering. */
+@keyframes vaBeckon {
+  0% { background-position-x: 100%; }
+  30% { background-position-x: 0%; }
+  100% { background-position-x: 0%; }
+}
+/* Pre-arm the SAME render mode (background-clip:text, flat 2-stop gradient
+   matching the resting color) on the hint elements at rest, so arming .beckon
+   never flips -webkit-text-fill-color on/off — that mode switch is what
+   caused the visible flash the instant the shimmer first kicked in, since
+   browsers rasterize clip-text glyphs slightly differently from plain
+   painted text even at an identical color. THIS BLOCK MUST COME BEFORE
+   .va .beckon below: both selectors are equal specificity (2 classes), so
+   the later one in source order wins outright. If this rest rule loaded
+   after .beckon, its flat gradient permanently overrides the moving
+   shimmer gradient and the animation runs invisibly forever (the actual
+   bug this reordering fixes). */
+.va .rx-draw-hint, .va .rx-read-foot .rx-mono {
+  background-image: linear-gradient(105deg, rgba(239, 236, 228, 0.5) 0%, rgba(239, 236, 228, 0.5) 100%);
+  background-size: calc(100% + 460px) 100%; background-position-x: 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.rx-light .rx-draw-hint, .rx-light .rx-read-foot .rx-mono {
+  background-image: linear-gradient(105deg, rgba(21, 34, 49, 0.5) 0%, rgba(21, 34, 49, 0.5) 100%);
+}
+/* the foot line's resting mono color is 0.45 alpha in dark mode (round10.css
+   .rx-dark .rx-mono) — a hair dimmer than the draw-hint's 0.5; match it so
+   arming the shimmer doesn't also nudge the resting brightness up */
+.rx-dark .rx-read-foot .rx-mono {
+  background-image: linear-gradient(105deg, rgba(239, 236, 228, 0.45) 0%, rgba(239, 236, 228, 0.45) 100%);
+}
+
+.va .beckon {
+  --bkBase: rgba(239, 236, 228, 0.5);
+  background-image: linear-gradient(105deg,
+    var(--bkBase) 0%, var(--bkBase) calc(50% - var(--bkBand, 34px)),
+    var(--bkHot, rgba(245, 170, 93, 0.95)) calc(50% - var(--bkBand, 34px) * 0.35),
+    var(--bkPeak, #ffeacb) 50%,
+    var(--bkHot, rgba(245, 170, 93, 0.95)) calc(50% + var(--bkBand, 34px) * 0.35),
+    var(--bkBase) calc(50% + var(--bkBand, 34px)), var(--bkBase) 100%);
+  background-size: calc(100% + 460px) 100%; background-position-x: 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: vaBeckon var(--bkDur, 7s) ease-in-out 400ms infinite;
+}
+.rx-light .beckon { --bkBase: rgba(21, 34, 49, 0.5); }
+.va .rx-draw-hint.beckon { --bkBand: var(--bkBandA, 34px); --bkDur: var(--bkDurA, 7s); }
+.va .rx-read-foot .rx-mono.beckon { --bkBand: var(--bkBandL, 34px); --bkDur: var(--bkDurL, 7s); }
+
+/* ---- whisper: circle → field is a crossfade, not a swap ----
+   Both states live in the same grid cell (flow6-approach.jsx keeps them
+   both mounted). Opening: the circle settles away quickly, the field
+   rises in behind it on the app's usual unhurried curve, slightly
+   delayed so the two never fight. Closing reverses the roles: field
+   drops out first, circle returns after a beat. */
+.va .rx-whisper-stack { display: grid; place-items: center; width: 100%; }
+.va .rx-whisper-stack > div { grid-area: 1 / 1; }
+.va .wh-rest { display: flex; flex-direction: column; align-items: center;
+  transition: opacity 460ms ease 170ms, transform 560ms cubic-bezier(0.16, 0.72, 0.18, 1) 170ms; }
+.va .wh-field { width: 100%; display: flex; justify-content: center;
+  opacity: 0; transform: translateY(10px); pointer-events: none;
+  transition: opacity 300ms ease, transform 300ms ease; }
+.va .rx-whisper-stack.open .wh-rest { opacity: 0; transform: translateY(-7px) scale(0.94);
+  pointer-events: none; transition: opacity 300ms ease, transform 300ms ease; }
+.va .rx-whisper-stack.open .wh-field { opacity: 1; transform: none; pointer-events: auto;
+  transition: opacity 620ms cubic-bezier(0.16, 0.72, 0.18, 1) 150ms, transform 620ms cubic-bezier(0.16, 0.72, 0.18, 1) 150ms; }
+/* the inner rx-whisper-open keeps a static .in — round10's mount-transition
+   rules would otherwise hold it at opacity 0; the wrapper owns the fade now */
+
+@media (prefers-reduced-motion: reduce) {
+  .va .dk-tile { animation: none; }
+  .va .dk-tilt { transition: none; }
+  .va .wh-rest, .va .wh-field { transition: opacity 200ms ease; transform: none; }
+}

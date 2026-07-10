@@ -37,11 +37,15 @@ function slotRectStatic(name) {
 }
 
 // ---------- THE CARD ACTOR ----------
-// a = { left, top, width, ar, rot, flip, o, dur, ease, flipDur, oDur, radius, shadow, instant }
+// a = { left, top, width, ar, rot, sc, flip, o, dur, ease, flipDur, oDur, radius, shadow, instant }
 // ar = height/width of the box; morphs back-aspect → face-aspect during the flip
-function CardActor({ a, face }) {
+// sc: composited scale — use for mid-flight swells so width (layout) stays put
+// rPct (optional): corner radius as % of card width — the tokenized form.
+// When given it overrides a.radius, so one value rules every placement.
+function CardActor({ a, face, poster, rPct }) {
   if (!a) return null;
   const h = a.width * (a.ar || CARD_AR);
+  const rad = rPct != null ? a.width * rPct / 100 : (a.radius != null ? a.radius : 12);
   const ease = a.ease || "ease";
   const tr = a.instant ? "none" :
     "left " + a.dur + "ms " + ease + ", top " + a.dur + "ms " + ease + ", width " + a.dur + "ms " + ease +
@@ -51,10 +55,11 @@ function CardActor({ a, face }) {
   return (
     <div className={"va-card-actor " + (a.shadow || "sh-deck")}
       style={{ left: a.left + "px", top: a.top + "px", width: a.width + "px", height: h + "px",
-        opacity: a.o, borderRadius: (a.radius != null ? a.radius : 12) + "px",
-        transform: "rotate(" + (a.rot || 0) + "deg)", transition: tr }}>
+        opacity: a.o, borderRadius: rad + "px",
+        transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ")", transition: tr }}>
       <div className="flip3d" style={{ transform: "rotateY(" + (a.flip || 0) + "deg)", transition: ftr }}>
         <img src="assets/card-back.webp" alt="" draggable="false" />
+        {poster ? <img className="face" src={poster} alt="" draggable="false" /> : null}
         {face ? <img className="face" src={face} alt="" draggable="false" /> : null}
       </div>
     </div>

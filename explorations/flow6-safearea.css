@@ -1,0 +1,46 @@
+/* ============================================================
+   FLOW v6 — mobile Safari chrome handling. Loads after flow6.css.
+   · .va-shell tracks the DYNAMIC viewport (100dvh) instead of a
+     stale 100%/100vh snapshot, so our own textured background is
+     what's ever visible behind Safari's collapsing bottom bar and
+     home-indicator area — never a flat, mismatched gap.
+   · Interactive bottom-anchored elements (hint text, foot line,
+     pour actions) pad out by env(safe-area-inset-bottom) so they
+     never sit under the toolbar / home indicator, while the
+     backgrounds and scroll content behind them are free to run
+     all the way to the true viewport edge underneath.
+   · env()/dvh are 0 / a no-op on desktop and non-Safari browsers,
+     so none of this is gated behind device detection.
+   ============================================================ */
+
+.va-shell {
+  height: 100dvh;
+}
+
+.va .rx-status {
+  padding-top: max(24px, env(safe-area-inset-top));
+}
+
+/* Approach: the idle hint sits just above the safe area, not fused to it */
+.va .rx-draw-hint {
+  margin-bottom: calc(30px + env(safe-area-inset-bottom));
+}
+
+/* The Lenses: "turn toward the one that knows you" foot line */
+.va .rx-read-foot {
+  padding-bottom: calc(22px + env(safe-area-inset-bottom)) !important;
+}
+
+/* The Pour: buttons stay clear of the safe area; the scroll content above
+   them (mask-faded already) is free to run right up to them */
+.va .rv-actions {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+/* The Deck: grid content clears the home-indicator area */
+.va .dk-scroll {
+  padding-bottom: calc(36px + env(safe-area-inset-bottom));
+}
+.va.vw-desk .dk-scroll {
+  padding-bottom: calc(44px + env(safe-area-inset-bottom));
+}

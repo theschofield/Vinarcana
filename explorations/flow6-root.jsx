@@ -1,4 +1,12 @@
-// FLOW v5 — root App (fork of flow4-root). Desktop/texture polish pass:
+// FLOW v6 — root App (fork of flow5-root). Adds THE DECK view:
+// · DECK in the header opens a browsable grid of every card face
+//   (flow6-deck.jsx / flow6.css). New phases: todeck → deck → deckfly.
+// · Tapping a tile runs the tail of The Draw timeline (the card is
+//   already face-up): fly → settle → bleed → voice → lenses — from
+//   there the flow is the normal one (pick a lens → The Pour).
+// · Exits reuse the Return machinery so everything sinks and the
+//   deck reforms exactly like a release.
+// Original flow5 notes:
 // · Vignette masks are SVG data-URIs built here (edge + distortion tweakable
 //   per breakpoint); the veil IMAGE gets its own opt-in distortion filter.
 // · Card slot + eyebrow re-place on any relayout (sliders, breakpoint flips)
@@ -6,10 +14,12 @@
 // · Actor→layout handoffs are same-frame swaps (no crossfade doubling).
 
 const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "mode": "night", "viewport": "phone", "uiExit": "fade",
+  "mode": "night", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
   "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
-  "deckTop": 18, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12,
+  "deckTop": 18, "deckTopMobile": 10, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
+  "beckonDelay": 3, "beckonColorN": "bone", "beckonColorD": "bone", "beckonAlpha": 0.9,
+  "beckonDurA": 7, "beckonBandA": 100, "beckonDurL": 7, "beckonBandL": 100,
   "orbitCardVh": 51, "knowingDesk": 32, "lensFlare": false, "shoutSize": 56, "pourShift": -16, "rvCol": 620,
   "orbFloat": true, "orbAmp": 7, "orbSpeed": 1, "orbBreath": 0.014, "orbRadius": 210, "orbPull": 0.1, "orbGrow": 0.055, "orbSpread": 1,
   "centerY": 47, "bleedWarp": 140, "dUiExit": 620, "lensStep": 140, "ffSpeed": 4, "settleScale": 1.08, "flipScale": 1.1,
@@ -108,6 +118,18 @@ function exportTokens(t) {
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
 
+// shimmer band colors — drawn from the app's own palette, as [r,g,b,a] so the
+// Intensity slider can blend the band toward the resting text color (a plain
+// alpha fade would punch see-through holes in clip-text lettering). Night and
+// day each pick their own color; a white pass on the day field would vanish,
+// so bone carries a navy rendering there.
+const BECKON_COLORS = {
+  apricot: { label: "Apricot", hot: [245, 170, 93, 0.95], peak: [255, 234, 203, 1], hotL: [198, 127, 65, 1], peakL: [232, 166, 98, 1] },
+  bone: { label: "Bone white", hot: [239, 236, 228, 0.98], peak: [255, 255, 255, 1], hotL: [21, 34, 49, 0.9], peakL: [21, 34, 49, 1] },
+  amber: { label: "Amber", hot: [198, 127, 65, 0.95], peak: [240, 197, 146, 1], hotL: [163, 90, 42, 1], peakL: [198, 127, 65, 1] },
+};
+const bkMix = (a, b, u) => "rgba(" + [0, 1, 2].map((i) => Math.round(a[i] + (b[i] - a[i]) * u)).join(",") + "," + (a[3] + (b[3] - a[3]) * u).toFixed(3) + ")";
+
 function App() {
   // Token layering: design-tokens.json (fetched at boot) is the portable base;
   // the EDITMODE block is the live layer the sliders persist into, so it wins
@@ -135,10 +157,18 @@ function App() {
   const desktopMQ = useDesktopMQ();
   const phoneFrame = t.viewport === "phone" && desktopMQ;
   const desktop = t.viewport === "auto" && desktopMQ;
+  // real-device capability check (independent of the viewport tweak / window
+  // width) — a touch device with no hover is a phone/tablet even when the
+  // "auto" viewport tweak renders the plain mobile layout on it. Used only to
+  // pick the Deck-top offset that reads right on an actual phone's Safari
+  // chrome vs. the same layout previewed in a desktop browser window.
+  const isRealMobile = React.useMemo(() => (
+    typeof window !== "undefined" && window.matchMedia("(hover: none) and (pointer: coarse)").matches
+  ), []);
 
   const [phase, setPhase] = React.useState("approach");
   const phaseRef = React.useRef("approach"); phaseRef.current = phase;
-  const [mounts, setMounts] = React.useState({ approach: true, reading: false, reveal: false });
+  const [mounts, setMounts] = React.useState({ approach: true, reading: false, reveal: false, deck: false });
   const [card, setCard] = React.useState(null);
   const cardRef = React.useRef(null); cardRef.current = card;
   const [lens, setLens] = React.useState(null);
@@ -169,6 +199,32 @@ function App() {
   const bleedMaskUrl = React.useMemo(
     () => bleedMask(t.bleedWarp, desktop ? t.vigWarpDesk : t.vigWarpMob),
     [t.bleedWarp, desktop, t.vigWarpDesk, t.vigWarpMob]);
+  // Bake the turbulence-distorted mask to a plain raster PNG once per config,
+  // instead of animating mask-size on the live filtered SVG. A filtered SVG
+  // mask-image must be re-rasterized by the browser at EVERY intermediate
+  // mask-size during the transition (expensive, especially on mobile Safari);
+  // a flat PNG mask is just cheaply resampled like any other image. The blob
+  // shape is identical either way — only the per-frame cost changes.
+  const [bleedPngUrl, setBleedPngUrl] = React.useState(null);
+  React.useEffect(() => {
+    setBleedPngUrl(null);
+    const m = /^url\("(.*)"\)$/.exec(bleedMaskUrl);
+    if (!m) return;
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      if (cancelled) return;
+      const size = 640;
+      const cv = document.createElement("canvas");
+      cv.width = size; cv.height = size;
+      const ctx = cv.getContext("2d");
+      ctx.drawImage(img, 0, 0, size, size);
+      try { setBleedPngUrl('url("' + cv.toDataURL("image/png") + '")'); } catch (e) {}
+    };
+    img.src = m[1];
+    return () => { cancelled = true; };
+  }, [bleedMaskUrl]);
+  const bleedMaskFinal = bleedPngUrl || bleedMaskUrl;
   // Honest bleed endpoint: the blob's fully-opaque core reaches the farthest
   // viewport corner EXACTLY at the end of the Veil-bleed duration — so the
   // number on the timeline is the time it takes to reach the edge.
@@ -218,6 +274,14 @@ function App() {
     window.addEventListener("load", bump);
     return () => { alive = false; window.removeEventListener("load", bump); };
   }, []);
+
+  // Safari samples the page's own background near the chrome edges to tint
+  // its translucent toolbar — keep theme-color honest as the mode toggles.
+  React.useEffect(() => {
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) { meta = document.createElement("meta"); meta.name = "theme-color"; document.head.appendChild(meta); }
+    meta.content = light ? "#dddbd6" : "#121110";
+  }, [light]);
 
   React.useEffect(() => {
     if (!phoneFrame) { setShellScale(1); return; }
@@ -270,22 +334,70 @@ function App() {
     return () => ro.disconnect();
   }, [mounts.reading, desktop]);
 
-  // warm the whole deck's card faces in the background so a draw never
-  // catches an unloaded image mid-flip (card tier only — ~400KB each)
+  // warm the whole deck in the background so a draw never catches an
+  // unloaded image mid-flip. Thumbs FIRST and in PARALLEL (8 lanes) — the
+  // DECK view wants all 78 at once, and the old one-at-a-time waterfall
+  // (12ms gap + a full round-trip per thumb) took long enough that a user
+  // tapping DECK early watched tiles trickle in. Full-res faces amble
+  // behind on a single lane once every thumb is in cache.
   React.useEffect(() => {
-    const ids = (window.ARCANA_ORDER || []).slice(); let i = 0;
+    const ids = (window.ARCANA_ORDER || []).slice();
+    // the bottle PNGs render on The Pour mid-transition — a cold bottle
+    // pops in as it decodes (read as a flash). They're few and small: warm
+    // them before everything else.
+    const bottles = new Set(["assets/bottle-red.png"]);
+    Object.values(window.POURS || {}).forEach((byLens) =>
+      Object.values(byLens).forEach((arr) => (arr || []).forEach((p) => { if (p.bottle) bottles.add(p.bottle); })));
+    const thumbs = [...bottles].concat(ids.map((id) => "assets/cards/thumbs/" + ARCANA[id].file + ".webp"));
+    const faces = ids.map((id) => "assets/cards/" + ARCANA[id].file + ".webp");
     let cancelled = false;
-    const next = () => {
-      if (cancelled || i >= ids.length) return;
+    let ti = 0, fi = 0, lanes = 0;
+    const faceNext = () => {
+      if (cancelled || fi >= faces.length) return;
       const im = new Image();
-      im.onload = im.onerror = () => setTimeout(next, 40);
-      im.src = "assets/cards/" + ARCANA[ids[i++]].file + ".webp";
+      im.onload = im.onerror = () => setTimeout(faceNext, 40);
+      im.src = faces[fi++];
     };
-    const t0 = setTimeout(next, 1200);
+    const thumbNext = () => {
+      if (cancelled) return;
+      if (ti >= thumbs.length) { if (--lanes === 0) faceNext(); return; }
+      const im = new Image();
+      im.onload = im.onerror = thumbNext;
+      im.src = thumbs[ti++];
+    };
+    const t0 = setTimeout(() => { lanes = 8; for (let k = 0; k < 8; k++) thumbNext(); }, 250);
     return () => { cancelled = true; clearTimeout(t0); };
   }, []);
 
   const onDeckHover = (h) => { if (phaseRef.current === "approach") placeOnDeck(false, h); };
+
+  // idle beckon: a resting stage + a stretch of inaction reads as “I don't
+  // know what to do” — the hint text catches a slow pass of light until the
+  // user acts. Armed only on the two waiting stages; any press re-arms it.
+  React.useEffect(() => {
+    const va = vaRoot(); if (!va) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const sel = phase === "approach" ? ".rx-draw-hint"
+      : phase === "reading" ? ".rx-read-foot .rx-mono" : null;
+    if (!sel) return;
+    let timer = null;
+    const disarm = () => { const b = va.querySelector(".beckon"); if (b) b.classList.remove("beckon"); };
+    const arm = () => {
+      clearTimeout(timer); disarm();
+      timer = setTimeout(() => {
+        const el = va.querySelector(sel);
+        if (el) el.classList.add("beckon");
+      }, (tRef.current.beckonDelay || 10) * 1000);
+    };
+    va.addEventListener("pointerdown", arm, true);
+    window.addEventListener("keydown", arm, true);
+    arm();
+    return () => {
+      clearTimeout(timer); disarm();
+      va.removeEventListener("pointerdown", arm, true);
+      window.removeEventListener("keydown", arm, true);
+    };
+  }, [phase]);
 
   // ---------- sequences ----------
   const smokeUi = () => {
@@ -372,7 +484,7 @@ function App() {
   };
 
   const pick = (l) => {
-    if (phaseRef.current !== "reading") return;
+    if (phaseRef.current !== "reading" && phaseRef.current !== "lenses") return;
     setLens(l); setPicked(l.n);
     const TL = tRef.current.tlChoice;
     const ev = [];
@@ -388,9 +500,26 @@ function App() {
     // but the actor→pane card handoff must wait for the slide to finish, or an
     // echo dragged earlier than the slide teleports the card (visible flash).
     ev.push({ t: TL.echo.s, run: () => { setPhase("echo"); setEchoOn(true); setEyeb((e) => e && ({ ...e, lensOn: true })); } });
+    // actor→pane handoff: keyed to the actor's ACTUAL transitionend, not the
+    // nominal slide end — the CSS transition starts a couple frames after the
+    // state move and the slide ease has a long tail, so cutting at
+    // slide.s+slide.d catches the last ~3px mid-glide (the card visibly
+    // jumped / "crossfaded into itself" right at the end). The clock event
+    // only ARMS the listener (an echo dragged earlier than the slide must
+    // still not teleport the card); a timeout is the can't-hang fallback.
     ev.push({ t: Math.max(TL.echo.s, TL.slide.s + TL.slide.d), run: () => {
-      setMounts((m) => ({ ...m, reading: false })); setHandoffOn(true);
-      setActor((a) => a && ({ ...a, o: 0, oDur: 0, instant: false }));
+      const doSwap = () => {
+        if (!["choose", "slide", "echo", "pour", "reveal"].includes(phaseRef.current)) return;
+        setMounts((m) => ({ ...m, reading: false })); setHandoffOn(true);
+        setActor((a) => a && ({ ...a, o: 0, oDur: 0, instant: false }));
+      };
+      const va = vaRoot(); const el = va && va.querySelector(".va-card-actor");
+      if (!el) { doSwap(); return; }
+      let done = false;
+      const finish = () => { if (done) return; done = true; el.removeEventListener("transitionend", onEnd); doSwap(); };
+      const onEnd = (e2) => { if (e2.target === el && (e2.propertyName === "left" || e2.propertyName === "top" || e2.propertyName === "width")) finish(); };
+      el.addEventListener("transitionend", onEnd);
+      setTimeout(finish, dv(700));
     } });
     ev.push({ t: TL.bottle.s, run: () => setBottleOn(true) });
     ev.push({ t: TL.pour.s, run: () => { setPhase("pour"); setPourOn(true); } });
@@ -423,7 +552,7 @@ function App() {
     // beat is dragged earlier than the Release beat's end
     ev.push({ t: Math.max(TL.reform.s, TL.release.s + TL.release.d), run: () => {
       setReleasing(false);
-      setMounts((m) => ({ ...m, reading: false, reveal: false }));
+      setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false }));
       setVoiceOn(false); setVeilOn(false); setLensesOn(false);
       setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
       setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
@@ -442,6 +571,107 @@ function App() {
   };
 
   const home = () => { if (phaseRef.current !== "approach") release(null, false); };
+
+  // ---------- THE DECK ----------
+  const toDeck = () => {
+    const p = phaseRef.current;
+    if (p === "deck" || p === "todeck" || p === "deckfly") return;
+    clock.cancel();
+    if (p === "approach" || p === "reform" || p === "pull") {
+      // from the approach: UI + deck fade on the UI-exit curve, grid rises
+      setReleasing(false);
+      const dur = tRef.current.dUiExit;
+      const ev = [];
+      ev.push({ t: 0, run: () => { setPhase("todeck");
+        setMounts((m) => ({ ...m, deck: true }));
+        // the top-of-deck actor sinks with the stack beneath it
+        setActor((a) => a && ({ ...a, o: 0, top: a.top + 14, dur: dv(dur), oDur: dv(dur), ease: E("easeUiExit"), instant: false }));
+      } });
+      ev.push({ t: dur, run: () => setPhase("deck") });
+      clock.run(ev, dur + 40, ffRef, () => { if (phaseRef.current === "todeck") setPhase("deck"); });
+    } else {
+      // from reading / reveal (or mid-flight): the Release sink, landing on the grid
+      const TL = tRef.current.tlReturn;
+      const ev = [];
+      ev.push({ t: 0, run: () => { setPhase("release"); setReleasing(true); setVeilOn(false); setGlowOn(false);
+        setActor((a) => a && ({ ...a, o: 0, top: a.top + 36, dur: dv(TL.release.d), oDur: dv(TL.release.d), ease: E("easeRelease"), instant: false }));
+        setEyeb((e) => e && ({ ...e, o: 0, dur: dv(TL.release.d), oDur: dv(TL.release.d), instant: false }));
+      } });
+      ev.push({ t: TL.release.d, run: () => {
+        setReleasing(false);
+        setMounts((m) => ({ ...m, reading: false, reveal: false, deck: true }));
+        setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
+        setGlowOn(false); setBottleOn(false); setHandoffOn(false);
+        setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
+        setActor(null); setEyeb(null);
+        setPhase("deck");
+      } });
+      clock.run(ev, TL.release.d + 40, ffRef, () => { ffRef.current = 1; setFF(false); });
+    }
+  };
+
+  // tap a tile: the card is already face-up — run the tail of The Draw,
+  // flying from the tile's own rect instead of pulling from the deck
+  const runDeckDraw = (id, r) => {
+    if (phaseRef.current !== "deck") return;
+    setCard(id);
+    setReleasing(false);
+    setVoiceOn(false); setVeilOn(false); setLensesOn(false);
+    setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
+    setWhispered(false); setLens(null); setPicked(null);
+    const c = ARCANA[id];
+    const pre = new Image(); pre.src = "assets/cards/" + c.file + ".webp";
+    pre.onload = () => { if (pre.naturalWidth) faceARRef.current = pre.naturalHeight / pre.naturalWidth; };
+    if (pre.decode) pre.decode().catch(() => {});
+    const preBg = new Image(); preBg.src = "assets/cards/" + c.file + "-bg.webp";
+    if (preBg.decode) preBg.decode().catch(() => {});
+
+    // the actor takes over the tapped tile, face already showing
+    setActor({ left: r.left, top: r.top, width: r.width, ar: r.height / r.width, rot: 0, flip: 180, o: 1,
+      dur: 0, radius: 8, shadow: "sh-rest", instant: true });
+
+    const T = tRef.current, TL = T.tlDraw;
+    const off = TL.lift.s; // timeline starts at the lift — no pull, no flip
+    const sh = (x) => Math.max(0, x - off);
+    const ev = [];
+    ev.push({ t: 0, run: () => { setPhase("deckfly"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));
+      const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
+      const cy = S.h * (tRef.current.centerY / 100);
+      requestAnimationFrame(() => requestAnimationFrame(() =>
+        setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
+          dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
+    } });
+    ev.push({ t: sh(TL.settle.s), run: () => { setPhase("settle");
+      setMounts((m) => ({ ...m, reading: true, deck: false }));
+      const S = vaSize(); const rr = slotRect("read-card");
+      const ar = rr ? rr.height / rr.width : faceARRef.current;
+      const w = rr ? Math.min(rr.width * (tRef.current.settleScale || 1.16), S.w * 0.58) : S.w * 0.5;
+      const cy = S.h * (tRef.current.centerY / 100);
+      setActor((a) => ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
+        dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
+    } });
+    ev.push({ t: sh(TL.bleed.s), run: () => { setPhase("bleed"); setVeilOn(true);
+      const place = (tries) => {
+        const er = slotRect("eyeb-read");
+        if (!er) { if (tries > 0) requestAnimationFrame(() => place(tries - 1)); return; }
+        setEyeb({ left: er.left, top: er.top, fs: 9.5, ls: 0.3, o: 0, dur: 0, rules: true, lensOn: false, mode: "read", instant: true });
+        requestAnimationFrame(() => requestAnimationFrame(() =>
+          setEyeb((e) => e && ({ ...e, o: 1, dur: 650, oDur: 650, instant: false }))));
+      };
+      place(30);
+    } });
+    ev.push({ t: sh(TL.rest.s), run: () => { setPhase("rest");
+      const rr = slotRect("read-card");
+      if (rr) setActor((a) => ({ ...a, left: rr.left, top: rr.top, width: rr.width, ar: rr.height / rr.width,
+        dur: dv(TL.rest.d), ease: E("easeRest"), instant: false }));
+    } });
+    ev.push({ t: sh(TL.voice.s), run: () => { setPhase("voice"); setVoiceOn(true); } });
+    ev.push({ t: sh(TL.lenses.s), run: () => { setPhase("lenses"); setLensesOn(true); } });
+    const end = Math.max(
+      sh(TL.lift.s) + TL.lift.d, sh(TL.settle.s) + TL.settle.d, sh(TL.rest.s) + TL.rest.d,
+      sh(TL.voice.s) + TL.voice.d, sh(TL.lenses.s) + TL.lenses.d + T.lensStep * 5);
+    clock.run(ev, end, ffRef, () => { setPhase("reading"); ffRef.current = 1; setFF(false); });
+  };
 
   const replay = () => {
     const p = phaseRef.current;
@@ -464,6 +694,8 @@ function App() {
     draw: (id) => runDraw(id),
     pick: (i) => { const c = ARCANA[cardRef.current]; if (c && c.lenses[i]) pick(c.lenses[i]); },
     release: () => release(null, false),
+    deck: () => toDeck(),
+    deckDraw: (id, r) => runDeckDraw(id, r),
     hurry, phase: () => phaseRef.current,
   };
 
@@ -472,7 +704,7 @@ function App() {
     phase,
     canDraw: phase === "approach",
     approachUiIn: phase === "approach" || phase === "reform",
-    approachShown: ["approach", "pull", "lift", "drop", "reform"].includes(phase),
+    approachShown: ["approach", "pull", "lift", "drop", "reform", "todeck"].includes(phase),
     deckIn: ["approach", "pull", "lift", "reform"].includes(phase),
     veilIn: veilOn,
     voiceIn: voiceOn,
@@ -495,10 +727,17 @@ function App() {
     "--va-grain-size": t.grainSize + "px",
     "--va-grain-o-dark": t.grainNight, "--va-grain-o-light": t.grainDay,
     "--va-veil-o-dark": t.veilNight, "--va-veil-o-light": t.veilDay,
-    "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskUrl,
-    "--va-deck-top": t.deckTop / 100,
+    "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskFinal,
+    "--va-deck-top": (isRealMobile && !desktop && !phoneFrame ? t.deckTopMobile : t.deckTop) / 100,
     "--va-deck-w": t.deckW + "px", "--va-deck-w-desk": t.deckWDesk + "px",
     "--va-knowing-size": t.knowingSize + "px", "--va-lens-size": t.lensSize + "px", "--va-lens-pad": t.lensPad + "px",
+    "--va-card-r": t.cardRadius,
+    "--bkHot": bkMix(light ? [21, 34, 49, 0.5] : [239, 236, 228, 0.5],
+      (BECKON_COLORS[light ? t.beckonColorD : t.beckonColorN] || BECKON_COLORS.apricot)[light ? "hotL" : "hot"], t.beckonAlpha),
+    "--bkPeak": bkMix(light ? [21, 34, 49, 0.5] : [239, 236, 228, 0.5],
+      (BECKON_COLORS[light ? t.beckonColorD : t.beckonColorN] || BECKON_COLORS.apricot)[light ? "peakL" : "peak"], t.beckonAlpha),
+    "--bkDurA": t.beckonDurA + "s", "--bkBandA": t.beckonBandA + "px",
+    "--bkDurL": t.beckonDurL + "s", "--bkBandL": t.beckonBandL + "px",
     "--va-orbit-vh": t.orbitCardVh / 100, "--va-knowing-desk": t.knowingDesk + "px", "--va-shout": t.shoutSize + "px",
     "--rv-col": t.rvCol + "px",
     "--vaH": vaH + "px",
@@ -561,12 +800,16 @@ function App() {
             <Reveal card={card} lens={lens} light={light} F={F} spd={spd}
               onKeep={(p) => release(p, true)} onFade={(p) => release(p, false)}></Reveal>
           ) : null}
+          {mounts.deck ? (
+            <DeckGrid F={F} drawingId={card} onPick={runDeckDraw}></DeckGrid>
+          ) : null}
 
-          <CardActor a={actor} face={face}></CardActor>
+          <CardActor a={actor} face={face} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
           {c ? <EyebrowActor e={eyeb} num={c.num} name={c.name} lens={lens ? lens.name : ""}></EyebrowActor> : null}
           <SmokeFX light={light}></SmokeFX>
 
-          <StatusBar light={light} onHome={home} onToast={showToast}></StatusBar>
+          <StatusBar6 light={light} onHome={home} onDeck={toDeck} onToast={showToast}
+            deckOn={["todeck", "deck", "deckfly"].includes(phase)}></StatusBar6>
           {toast ? <div className={"va-toast" + (light ? " light" : "")}>{toast}</div> : null}
         </div>
       </div>
@@ -605,8 +848,24 @@ function FlowPanel({ t, setTweak, replay }) {
             <TweakSlider label="Distortion · mobile" value={t.veilWarpMob} min={0} max={240} step={5} onChange={(v) => setTweak("veilWarpMob", v)}></TweakSlider>
             <TweakSlider label="Distortion · desktop" value={t.veilWarpDesk} min={0} max={240} step={5} onChange={(v) => setTweak("veilWarpDesk", v)}></TweakSlider>
           </TweakFold>
+          <TweakFold key="d-card" id="d-card" label="The Card" hint="one token, every instance">
+            <TweakSlider label="Corner radius" value={t.cardRadius} min={2} max={9} step={0.1} unit="%" hint="of card width — deck, actor, reading, reveal, and grid all derive from it" onChange={(v) => setTweak("cardRadius", v)}></TweakSlider>
+          </TweakFold>
+          <TweakFold key="d-beckon" id="d-beckon" label="Hint shimmer" hint="idle nudge">
+            <TweakSlider label="Shimmer after" value={t.beckonDelay} min={3} max={30} step={1} unit="s" hint="idle time before the hint text catches the light" onChange={(v) => setTweak("beckonDelay", v)}></TweakSlider>
+            <TweakSelect label="Color · night" value={t.beckonColorN} options={Object.keys(BECKON_COLORS).map((k) => ({ value: k, label: BECKON_COLORS[k].label }))} onChange={(v) => setTweak("beckonColorN", v)}></TweakSelect>
+            <TweakSelect label="Color · day" value={t.beckonColorD} options={Object.keys(BECKON_COLORS).map((k) => ({ value: k, label: BECKON_COLORS[k].label }))} onChange={(v) => setTweak("beckonColorD", v)}></TweakSelect>
+            <TweakSlider label="Intensity" value={t.beckonAlpha} min={0.2} max={1} step={0.05} hint="blends the band toward the resting text color" onChange={(v) => setTweak("beckonAlpha", v)}></TweakSlider>
+            <TweakSection label="The Approach"></TweakSection>
+            <TweakSlider label="Pass every" value={t.beckonDurA} min={2} max={16} step={0.5} unit="s" onChange={(v) => setTweak("beckonDurA", v)}></TweakSlider>
+            <TweakSlider label="Band width" value={t.beckonBandA} min={8} max={120} step={2} unit="px" onChange={(v) => setTweak("beckonBandA", v)}></TweakSlider>
+            <TweakSection label="The Lenses"></TweakSection>
+            <TweakSlider label="Pass every" value={t.beckonDurL} min={2} max={16} step={0.5} unit="s" onChange={(v) => setTweak("beckonDurL", v)}></TweakSlider>
+            <TweakSlider label="Band width" value={t.beckonBandL} min={8} max={120} step={2} unit="px" onChange={(v) => setTweak("beckonBandL", v)}></TweakSlider>
+          </TweakFold>
           <TweakFold key="d-approach" id="d-approach" label="The Approach" hint="deck">
             <TweakSlider label="Deck top" value={t.deckTop} min={2} max={26} step={0.5} unit="%" onChange={(v) => setTweak("deckTop", v)}></TweakSlider>
+            <TweakSlider label="Deck top · mobile device" value={t.deckTopMobile} min={2} max={26} step={0.5} unit="%" hint="used instead of Deck top when a real phone renders the plain (non-orbit) layout" onChange={(v) => setTweak("deckTopMobile", v)}></TweakSlider>
             <TweakSlider label="Deck width · mobile" value={t.deckW} min={160} max={340} step={2} unit="px" onChange={(v) => setTweak("deckW", v)}></TweakSlider>
             <TweakSlider label="Deck width · desktop" value={t.deckWDesk} min={200} max={360} step={2} unit="px" onChange={(v) => setTweak("deckWDesk", v)}></TweakSlider>
           </TweakFold>

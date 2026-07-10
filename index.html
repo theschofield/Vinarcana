@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Vintner's Arcana — The Flow v5</title>
+<meta name="theme-color" content="#121110" />
+<title>Vintner's Arcana — The Flow v6</title>
 <!-- Favicons: desktop tabs (PNG), iOS home screen, Android/Chrome (manifest),
-     and Windows tiles (browserconfig). Covers every place the site is opened. -->
+     Windows tiles (browserconfig). NOTE: the design canvas regenerates <head>
+     and drops these on every rebuild — re-add this block after a canvas update. -->
 <link rel="icon" type="image/png" sizes="32x32" href="Favicon/favicon-32x32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="Favicon/favicon-16x16.png" />
 <link rel="icon" type="image/png" sizes="96x96" href="Favicon/favicon-96x96.png" />
@@ -23,8 +25,7 @@
 <link rel="apple-touch-icon" sizes="60x60" href="Favicon/apple-touch-icon-60x60.png" />
 <link rel="apple-touch-icon" sizes="57x57" href="Favicon/apple-touch-icon-57x57.png" />
 <link rel="manifest" href="site.webmanifest" />
-<meta name="theme-color" content="#181717" />
-<meta name="msapplication-TileColor" content="#181717" />
+<meta name="msapplication-TileColor" content="#121110" />
 <meta name="msapplication-config" content="browserconfig.xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
@@ -34,10 +35,11 @@
 <link rel="stylesheet" href="explorations/flow2.css" />
 <link rel="stylesheet" href="explorations/flow3.css" />
 <link rel="stylesheet" href="explorations/flow5.css" />
+<link rel="stylesheet" href="explorations/flow6.css" />
+<link rel="stylesheet" href="explorations/flow6-safearea.css" />
 <link rel="preload" as="image" href="assets/card-back.webp" />
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #181717; }
-  @media (prefers-color-scheme: light) { html, body { background: #dddbd6; } }
+  html, body { margin: 0; padding: 0; height: 100%; background: #0c0b0b; }
   #root { height: 100%; }
 </style>
 </head>
@@ -55,6 +57,8 @@
 <script type="text/babel" src="explorations/flow2-app.jsx"></script>
 <script type="text/babel" src="explorations/flow5-app.jsx"></script>
 <script type="text/babel" src="explorations/flow5-reveal.jsx"></script>
-<script type="text/babel" src="explorations/flow5-root.jsx"></script>
+<script type="text/babel" src="explorations/flow6-deck.jsx"></script>
+<script type="text/babel" src="explorations/flow6-approach.jsx"></script>
+<script type="text/babel" src="explorations/flow6-root.jsx"></script>
 </body>
 </html>

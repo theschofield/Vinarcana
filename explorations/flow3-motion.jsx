@@ -29,6 +29,26 @@ function springParams(e) {
   return SPRINGS[(e && e.p)] || SPRINGS.silk;
 }
 
+// Plain cubic-bezier curve (x1,y1,x2,y2) — unlike a spring, it reaches its
+// endpoint EXACTLY when the duration ends: no asymptotic tail. Use this for
+// any beat whose end gates user interaction (e.g. the veil bleed blocking
+// lens taps) where a spring's long invisible settle reads as "broken".
+function sampleCubicBezier(x1, y1, x2, y2, steps = 72) {
+  const bx = (t) => 3 * (1 - t) * (1 - t) * t * x1 + 3 * (1 - t) * t * t * x2 + t * t * t;
+  const by = (t) => 3 * (1 - t) * (1 - t) * t * y1 + 3 * (1 - t) * t * t * y2 + t * t * t;
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const xt = i / steps;
+    let lo = 0, hi = 1;
+    for (let iter = 0; iter < 24; iter++) {
+      const mid = (lo + hi) / 2;
+      if (bx(mid) < xt) lo = mid; else hi = mid;
+    }
+    pts.push(by((lo + hi) / 2));
+  }
+  return pts;
+}
+
 // Simulate x'' = (-k(x-1) - c·x')/m from rest, find settle time, resample to
 // `steps` evenly-spaced points over [0, settle]. Time axis is then normalized —
 // the curve SHAPE is the spring; the transition duration stretches it.
@@ -58,6 +78,11 @@ const __easeCache = {};
 // Ease value → CSS timing-function string.
 function easeCss(e) {
   if (e && CSS_EASES[e.p]) return CSS_EASES[e.p].css;
+  if (e && e.p === "cbez") {
+    const x1 = e.x1 == null ? 0.22 : e.x1, y1 = e.y1 == null ? 1 : e.y1;
+    const x2 = e.x2 == null ? 0.36 : e.x2, y2 = e.y2 == null ? 1 : e.y2;
+    return "cubic-bezier(" + x1 + ", " + y1 + ", " + x2 + ", " + y2 + ")";
+  }
   const p = springParams(e);
   const key = p.t + "/" + p.f + "/" + p.m;
   if (__easeCache[key]) return __easeCache[key];
@@ -127,6 +152,7 @@ function TweakFold({ id, label, hint, defaultOpen = false, children }) {
 // ── curve preview ────────────────────────────────────────────────────────────
 function CurvePreview({ ease }) {
   const cssPreset = ease && CSS_EASES[ease.p];
+  const isBez = ease && ease.p === "cbez";
   const p = springParams(ease);
   const pts = React.useMemo(() => {
     if (cssPreset) {
@@ -137,8 +163,11 @@ function CurvePreview({ ease }) {
       }
       return out;
     }
+    if (isBez) return sampleCubicBezier(ease.x1 == null ? 0.22 : ease.x1, ease.y1 == null ? 1 : ease.y1,
+      ease.x2 == null ? 0.36 : ease.x2, ease.y2 == null ? 1 : ease.y2, 72);
     return sampleSpring(p.t, p.f, p.m, 72);
-  }, [cssPreset ? ease.p : null, p.t, p.f, p.m]);
+  }, [cssPreset ? ease.p : null, isBez, isBez ? ease.x1 : null, isBez ? ease.y1 : null,
+    isBez ? ease.x2 : null, isBez ? ease.y2 : null, p.t, p.f, p.m]);
   let lo = 0, hi = 1;
   for (const v of pts) { if (v < lo) lo = v; if (v > hi) hi = v; }
   lo -= 0.06; hi += 0.06;
@@ -160,11 +189,15 @@ function EasePicker({ value, onChange, label = "Curve" }) {
     ...Object.keys(SPRINGS).map((k) => ({ value: k, label: SPRINGS[k].label })),
     ...Object.keys(CSS_EASES).map((k) => ({ value: k, label: CSS_EASES[k].label })),
     { value: "custom", label: "Custom spring…" },
+    { value: "cbez", label: "Custom bezier…" },
   ];
   const cur = (value && value.p) || "silk";
   const p = springParams(value);
   const pick = (k) => {
     if (k === "custom") onChange({ p: "custom", t: p.t, f: p.f, m: p.m || 1 });
+    else if (k === "cbez") onChange({ p: "cbez",
+      x1: (value && value.x1 != null) ? value.x1 : 0.22, y1: (value && value.y1 != null) ? value.y1 : 1,
+      x2: (value && value.x2 != null) ? value.x2 : 0.36, y2: (value && value.y2 != null) ? value.y2 : 1 });
     else onChange({ p: k });
   };
   return (
@@ -178,7 +211,15 @@ function EasePicker({ value, onChange, label = "Curve" }) {
           <TweakSlider label="Mass" value={value.m || 1} min={0.5} max={3} step={0.1} onChange={(v) => onChange({ ...value, m: v })}></TweakSlider>
         </React.Fragment>
       ) : null}
-      <div className="mtl-note">spring shape · stretched to the beat's duration</div>
+      {cur === "cbez" ? (
+        <React.Fragment>
+          <TweakSlider label="X1" value={value.x1} min={0} max={1} step={0.01} onChange={(v) => onChange({ ...value, x1: v })}></TweakSlider>
+          <TweakSlider label="Y1" value={value.y1} min={-0.5} max={1.5} step={0.01} onChange={(v) => onChange({ ...value, y1: v })}></TweakSlider>
+          <TweakSlider label="X2" value={value.x2} min={0} max={1} step={0.01} onChange={(v) => onChange({ ...value, x2: v })}></TweakSlider>
+          <TweakSlider label="Y2" value={value.y2} min={-0.5} max={1.5} step={0.01} onChange={(v) => onChange({ ...value, y2: v })}></TweakSlider>
+        </React.Fragment>
+      ) : null}
+      <div className="mtl-note">{cur === "cbez" ? "fixed curve · reaches 100% exactly at the beat's duration, no tail" : "spring shape · stretched to the beat's duration"}</div>
     </React.Fragment>
   );
 }
@@ -399,7 +440,7 @@ const __FLOW3_CSS = `
 function Flow3PanelStyle() { return <style>{__FLOW3_CSS}</style>; }
 
 Object.assign(window, {
-  SPRINGS, springParams, sampleSpring, easeCss,
+  SPRINGS, springParams, sampleSpring, sampleCubicBezier, easeCss,
   usePanelPref, TweakTabs, TweakFold, CurvePreview, EasePicker,
   MotionTimeline, BeatInspector, StageMotion, useMotionClock, Flow3PanelStyle,
 });
