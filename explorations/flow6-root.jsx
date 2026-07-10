@@ -14,7 +14,7 @@
 // · Actor→layout handoffs are same-frame swaps (no crossfade doubling).
 
 const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "mode": "night", "viewport": "auto", "uiExit": "fade",
+  "mode": "system", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
   "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
   "deckTop": 18, "deckTopMobile": 10, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
@@ -130,31 +130,6 @@ const BECKON_COLORS = {
 };
 const bkMix = (a, b, u) => "rgba(" + [0, 1, 2].map((i) => Math.round(a[i] + (b[i] - a[i]) * u)).join(",") + "," + (a[3] + (b[3] - a[3]) * u).toFixed(3) + ")";
 
-// Running inside a parent frame (the Claude design canvas embeds this app in an
-// iframe and drives the panel over postMessage). True => keep the host-driven
-// panel behaviour so design sessions are unaffected.
-function isEmbedded() {
-  try { return !!(window.parent && window.parent !== window); } catch (e) { return true; }
-}
-
-// The design tweak panel ships hidden on the standalone (deployed) site. Unlock
-// with ?studio in the URL (remembered per-browser), ?studio=off to re-hide, or
-// Ctrl+Shift+E to toggle. No visible affordance, so a visitor can't find it.
-// Inside the design canvas the panel stays available as always.
-function readStudioUnlock() {
-  try {
-    if (isEmbedded()) return true;
-    const q = new URLSearchParams(window.location.search);
-    if (q.has("studio")) {
-      const v = (q.get("studio") || "").toLowerCase();
-      const on = v !== "off" && v !== "0" && v !== "false";
-      try { on ? localStorage.setItem("va-studio", "1") : localStorage.removeItem("va-studio"); } catch (e) {}
-      return on;
-    }
-    return localStorage.getItem("va-studio") === "1";
-  } catch (e) { return false; }
-}
-
 function App() {
   // Token layering: design-tokens.json (fetched at boot) is the portable base;
   // the EDITMODE block is the live layer the sliders persist into, so it wins
@@ -178,55 +153,29 @@ function App() {
   // so the sink fade can never be cut short (or skipped) by reform — or by a
   // still-running Choice clock overwriting the phase.
   const [releasing, setReleasing] = React.useState(false);
-  // Light/dark follows the device's prefers-color-scheme LIVE — it flips the
-  // instant the OS theme changes, no reload. The panel's Day field toggle sets a
-  // persisted manual override that wins until "Follow device". (The theme-color
-  // effect below keys off `light`, so Safari's chrome tint follows too.)
-  const [autoMode, setAutoMode] = React.useState(
-    () => (!window.matchMedia || window.matchMedia("(prefers-color-scheme: dark)").matches) ? "night" : "day");
-  const [modeManual, setModeManual] = React.useState(() => {
-    try { return localStorage.getItem("va-mode-manual") === "1"; } catch (e) { return false; }
-  });
+  // color field: follow the device (prefers-color-scheme) unless the studio
+  // switch pinned a mode — t.mode is "system" | "night" | "day"
+  const [sysLight, setSysLight] = React.useState(() =>
+    !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches));
   React.useEffect(() => {
     if (!window.matchMedia) return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => setAutoMode(mq.matches ? "night" : "day");
-    mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange);
-    return () => { mq.removeEventListener ? mq.removeEventListener("change", onChange) : mq.removeListener(onChange); };
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const on = (e) => setSysLight(e.matches);
+    if (mq.addEventListener) mq.addEventListener("change", on); else mq.addListener(on);
+    return () => { if (mq.removeEventListener) mq.removeEventListener("change", on); else mq.removeListener(on); };
   }, []);
-  const setManualMode = (v) => {
-    try { localStorage.setItem("va-mode-manual", "1"); } catch (e) {}
-    setModeManual(true); setTweak("mode", v ? "day" : "night");
-  };
-  const followDevice = () => {
-    try { localStorage.removeItem("va-mode-manual"); } catch (e) {}
-    setModeManual(false);
-  };
-  const light = (modeManual ? t.mode : autoMode) === "day";
-
-  // Secret studio unlock (see readStudioUnlock): ?studio in the URL, ?studio=off
-  // to re-hide, or Ctrl+Shift+E to toggle. Embedded => host drives the panel.
-  const embedded = isEmbedded();
-  const [studio, setStudio] = React.useState(readStudioUnlock);
-  const lockStudio = () => {
-    try { localStorage.removeItem("va-studio"); } catch (e) {}
-    setStudio(false);
-  };
+  const light = t.mode === "day" || (t.mode === "system" && sysLight);
+  // deploy gating: with no host toolbar the Tweaks panel never activates on
+  // its own — ?studio is the production key. It self-sends the same protocol
+  // message the design-tool toolbar sends, so both paths share one code path.
   React.useEffect(() => {
-    const onKey = (e) => {
-      if (e.ctrlKey && e.shiftKey && (e.key === "E" || e.key === "e")) {
-        e.preventDefault();
-        setStudio((s) => {
-          const n = !s;
-          try { n ? localStorage.setItem("va-studio", "1") : localStorage.removeItem("va-studio"); } catch (x) {}
-          return n;
-        });
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const activate = () => window.postMessage({ type: "__activate_edit_mode" }, "*");
+    let id = null;
+    if (/[?&]studio\b/.test(window.location.search)) id = setTimeout(activate, 80);
+    const kd = (e) => { if (e.ctrlKey && e.shiftKey && (e.key === "E" || e.key === "e")) { e.preventDefault(); activate(); } };
+    window.addEventListener("keydown", kd);
+    return () => { if (id) clearTimeout(id); window.removeEventListener("keydown", kd); };
   }, []);
-
   const desktopMQ = useDesktopMQ();
   const phoneFrame = t.viewport === "phone" && desktopMQ;
   const desktop = t.viewport === "auto" && desktopMQ;
@@ -348,12 +297,18 @@ function App() {
     return () => { alive = false; window.removeEventListener("load", bump); };
   }, []);
 
-  // Safari samples the page's own background near the chrome edges to tint
-  // its translucent toolbar — keep theme-color honest as the mode toggles.
+  // Safari shows the DOCUMENT's background behind the status bar and
+  // toolbar (the app shell only covers the layout viewport), and samples it
+  // to tint the translucent chrome. It must match the RENDERED field — base
+  // + veil + grain (sampled from device screenshots) — not the raw base
+  // token; the old #0c0b0b read as a black letterbox band around the app.
   React.useEffect(() => {
+    const bg = light ? "#d2cfc9" : "#201e1c";
     let meta = document.querySelector('meta[name="theme-color"]');
     if (!meta) { meta = document.createElement("meta"); meta.name = "theme-color"; document.head.appendChild(meta); }
-    meta.content = light ? "#dddbd6" : "#121110";
+    meta.content = bg;
+    document.documentElement.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg;
   }, [light]);
 
   React.useEffect(() => {
@@ -443,6 +398,61 @@ function App() {
   }, []);
 
   const onDeckHover = (h) => { if (phaseRef.current === "approach") placeOnDeck(false, h); };
+
+  // ---- mobile Safari immersion: the DOCUMENT is the scroller ----
+  // Safari collapses its chrome (and runs the page under the status bar /
+  // behind the toolbar pill) only on real document scrolls — never for
+  // inner overflow divs. On real phones the Deck grid and the active Pour
+  // pane hand their gesture to the document: a body spacer recreates their
+  // scroll range, window scroll drives the inner scrollTop (so masks, the
+  // pinned card, and every onScroll behavior keep working unchanged), and
+  // .scroll-proxy turns off the inner overflow so the pan reaches the
+  // document. The shell is position:fixed — nothing visually moves.
+  React.useEffect(() => {
+    if (!isRealMobile || phoneFrame) return;
+    if (!(phase === "deck" || phase === "pour" || phase === "reveal")) return;
+    const va = vaRoot(); if (!va) return;
+    let spacer = document.getElementById("va-scroll-spacer");
+    if (!spacer) {
+      spacer = document.createElement("div");
+      spacer.id = "va-scroll-spacer";
+      spacer.style.cssText = "width:1px;visibility:hidden;pointer-events:none;";
+      document.body.appendChild(spacer);
+    }
+    let scroller = null;
+    const findScroller = () => {
+      if (phase === "deck") return va.querySelector(".dk-scroll");
+      const pours = va.querySelector(".rv-pours");
+      if (!pours || !pours.children.length) return null;
+      const i = Math.max(0, Math.min(pours.children.length - 1,
+        Math.round(pours.scrollLeft / Math.max(1, pours.clientWidth))));
+      return pours.children[i].querySelector(".rv-vscroll");
+    };
+    const sync = () => {
+      const s = findScroller();
+      if (s !== scroller) { scroller = s; if (scroller) window.scrollTo(0, scroller.scrollTop); }
+      if (!scroller) { va.classList.remove("scroll-proxy"); spacer.style.height = "0px"; return; }
+      va.classList.add("scroll-proxy");
+      const range = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      spacer.style.height = Math.round(window.innerHeight + range) + "px";
+    };
+    const onWinScroll = () => { if (scroller) scroller.scrollTop = window.scrollY; };
+    // horizontal pane swipes retarget the proxy (scroll doesn't bubble; capture)
+    const onInnerScroll = (e) => { if (e.target && e.target.classList && e.target.classList.contains("rv-pours")) sync(); };
+    const raf = requestAnimationFrame(() => requestAnimationFrame(sync));
+    window.addEventListener("scroll", onWinScroll, { passive: true });
+    window.addEventListener("resize", sync);
+    document.addEventListener("scroll", onInnerScroll, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onWinScroll);
+      window.removeEventListener("resize", sync);
+      document.removeEventListener("scroll", onInnerScroll, true);
+      va.classList.remove("scroll-proxy");
+      spacer.style.height = "0px";
+      window.scrollTo(0, 0);
+    };
+  }, [phase, isRealMobile, phoneFrame]);
 
   // idle beckon: a resting stage + a stretch of inaction reads as “I don't
   // know what to do” — the hint text catches a slow pass of light until the
@@ -563,6 +573,15 @@ function App() {
     const ev = [];
     ev.push({ t: TL.choose.s, run: () => { setPhase("choose"); setVoiceOn(false); setLensesOn(false); setMounts((m) => ({ ...m, reveal: true })); } });
     ev.push({ t: TL.slide.s, run: () => { setPhase("slide");
+      // the actor's sh-rev shadow must render at the same scale as the real
+      // card's (which sits inside the transform-scaled .hero-scale) — read
+      // the live scale and let flow6.css shrink the shadow geometry to match
+      const hs = (vaRoot() || document).querySelector(".rv-hero .hero-scale");
+      if (vaRef.current) {
+        const m = hs ? getComputedStyle(hs).transform : "none";
+        const sc = m && m.indexOf("matrix(") === 0 ? parseFloat(m.slice(7)) : 1;
+        vaRef.current.style.setProperty("--rvShSc", String(sc > 0 ? sc : 1));
+      }
       const r = slotRect("reveal-card");
       if (r) setActor((a) => ({ ...a, left: r.left, top: r.top, width: r.width, ar: r.height / r.width, rot: -4,
         dur: dv(TL.slide.d), ease: E("easeSlide"), shadow: "sh-rev", radius: 8, instant: false }));
@@ -888,22 +907,19 @@ function App() {
       </div>
       {phoneFrame ? <div className="va-frame-tag">393 × 852 · phone frame</div> : null}
 
-      {studio ? <FlowPanel t={t} setTweak={setTweak} replay={replay}
-        light={light} manual={modeManual} onMode={setManualMode} onFollowDevice={followDevice}
-        forceOpen={!embedded} onClose={lockStudio}></FlowPanel> : null}
+      <FlowPanel t={t} setTweak={setTweak} replay={replay}></FlowPanel>
     </div>
   );
 }
 
 // ---------- the panel ----------
-function FlowPanel({ t, setTweak, replay, light, manual, onMode, onFollowDevice, forceOpen, onClose }) {
+function FlowPanel({ t, setTweak, replay }) {
   const [tab, setTab] = usePanelPref("tab", "Design");
   return (
-    <TweaksPanel forceOpen={forceOpen} onDismiss={onClose}>
+    <TweaksPanel>
       <Flow3PanelStyle></Flow3PanelStyle>
       <TweakButton label="Export design-tokens.json" onClick={() => exportTokens(t)}></TweakButton>
-      <TweakToggle label={"Day field" + (manual ? "" : " · auto")} value={light} onChange={onMode}></TweakToggle>
-      {manual ? <TweakButton label="Follow device theme" onClick={onFollowDevice}></TweakButton> : null}
+      <TweakRadio label="Color field" value={t.mode} options={["system", "night", "day"]} onChange={(v) => setTweak("mode", v)}></TweakRadio>
       <TweakToggle label="Phone frame" value={t.viewport === "phone"} onChange={(v) => setTweak("viewport", v ? "phone" : "auto")}></TweakToggle>
       <TweakTabs tabs={["Design", "Motion"]} value={tab} onChange={setTab}></TweakTabs>
 

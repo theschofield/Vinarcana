@@ -33,6 +33,12 @@
 .va .dk-scroll::-webkit-scrollbar { display: none; }
 .va.vw-desk .dk-scroll { padding: 60px 40px 44px; }
 
+/* .rx is overflow:hidden with layers extending past the viewport — hidden
+   still allows PROGRAMMATIC scrolling (focus(), scrollIntoView), and one
+   stray scroll permanently shifts the whole app and corrupts every slot
+   measurement after it. clip forbids scrolling outright. */
+.va .rx { overflow: clip; }
+
 .va .dk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(102px, 1fr)); gap: 14px;
   max-width: 1240px; margin: 0 auto; }
 .va.vw-desk .dk-grid { grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 22px; }
@@ -107,6 +113,38 @@
    below the grid for exactly the two beats where both are on screen
    together; deckfly (a tile was tapped) needs the actor back on top. */
 .va.p-todeck .va-card-actor, .va.p-deck .va-card-actor { z-index: 2; }
+
+/* ---- one card, ONE shadow ----
+   The actor stacks 2\u20133 imgs (back + poster thumb + full face) and
+   flow2.css puts the box-shadow on EACH img \u2014 identical overlapping
+   shadows composite darker (light mode: two 0.4-alpha shadows \u2248 0.64
+   effective vs the real Pour card's single 0.4), so every actor\u2192layout
+   swap read as the shadow visibly dropping opacity for a frame. Paint the
+   shadow ONCE on a ::before layer instead; the img copies are disabled at
+   .va .rx specificity so the .rx-light variants lose too. */
+.va .rx .va-card-actor img { box-shadow: none; }
+.va .va-card-actor::before { content: ""; position: absolute; inset: 0;
+  border-radius: inherit; transition: box-shadow 600ms ease; }
+.va .va-card-actor.sh-deck::before { box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.65); }
+.va .va-card-actor.sh-air::before { box-shadow: 0 70px 120px -40px rgba(0, 0, 0, 0.95); }
+.va .va-card-actor.sh-rest::before { box-shadow: 0 30px 64px -22px rgba(0, 0, 0, 0.88); }
+.rx-light .va-card-actor.sh-deck::before { box-shadow: 0 10px 26px -12px rgba(21, 34, 49, 0.4); }
+.rx-light .va-card-actor.sh-air::before { box-shadow: 0 70px 120px -40px rgba(21, 34, 49, 0.5); }
+.rx-light .va-card-actor.sh-rest::before { box-shadow: 0 30px 64px -22px rgba(21, 34, 49, 0.42); }
+
+/* ---- actor shadow during the slide → Pour handoff ----
+   The real Pour card lives inside .hero-scale, whose transform SCALES its
+   box-shadow's rendered geometry (0.76 on short-desktop); the actor sits
+   outside any scale wrapper, so identical shadow values render ~30% bigger
+   on it — the shadow visibly jumped at the swap even with the position
+   pixel-perfect. --rvShSc (set from JS at the slide beat, measured off the
+   live hero-scale transform) pre-shrinks the actor's shadow to what the
+   real card's will render as. Loads after flow2.css: equal specificity,
+   later wins. */
+.va .va-card-actor.sh-rev::before { box-shadow:
+  0 calc(22px * var(--rvShSc, 1)) calc(48px * var(--rvShSc, 1)) calc(-18px * var(--rvShSc, 1)) rgba(0, 0, 0, 0.85); }
+.rx-light .va-card-actor.sh-rev::before { box-shadow:
+  0 calc(22px * var(--rvShSc, 1)) calc(48px * var(--rvShSc, 1)) calc(-18px * var(--rvShSc, 1)) rgba(21, 34, 49, 0.4); }
 
 /* ---- bottle shadow flicker (mobile Pour transition) ----
    The bottle's drop-shadow is a filter on the same img whose opacity +

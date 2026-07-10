@@ -14,7 +14,11 @@ function Approach({ light, invite, whisper, setWhisper, onDraw, onDeckHover, F, 
   const openField = () => {
     if (!F.canDraw || open) return;
     setOpen(true);
-    if (inputRef.current) inputRef.current.focus(); // sync, inside the gesture
+    // synchronous focus inside the gesture (iOS keyboard requirement) — but
+    // preventScroll: a plain focus() scroll-into-views the overflow-hidden
+    // .rx container (scrollTop jumped 306px and never reset, corrupting all
+    // later actor geometry)
+    if (inputRef.current) inputRef.current.focus({ preventScroll: true });
   };
   const inCls = F.approachUiIn ? " in" : "";
   const reform = F.phase === "reform";
