@@ -1149,7 +1149,7 @@ function App() {
           ) : null}
           {deeper && card ? (
             <DeeperReading card={card} src={deeper} light={light} rPct={t.cardRadius}
-              flipDur={Math.max(360, Math.round(t.tlDraw.flip.d * 0.75 / spd))} flipEase={easeCss(t.easeFlip)}
+              flipDur={Math.max(360, Math.round(t.tlDraw.flip.d / spd))} flipEase={easeCss(t.easeFlip)}
               onClosed={() => setDeeper(null)}></DeeperReading>
           ) : null}
 

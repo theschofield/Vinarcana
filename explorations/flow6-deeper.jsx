@@ -15,7 +15,10 @@
 // Content: window.GUIDES (arcana-guide.js). Cards without a guide never
 // show the affordance.
 
-const DR_TILT = { rx: 9, ry: 11 };  // the deck's tilt vocabulary
+// The deck's tilt vocabulary, deepened: deck tiles whisper at 9°/11°; the
+// Reading card leans harder — it is ABOUT to be flipped, and the hand
+// should feel it give.
+const DR_TILT = { rx: 13, ry: 16 };
 const DR_PANEL_AR = 2100 / 3600;    // width / height of the card face
 
 function drPanelRect() {
@@ -45,7 +48,22 @@ function DeeperAffordance({ onOpen, hintArm, onHinted }) {
   const actorEls = () => {
     const va = vaRoot(); if (!va) return {};
     const actor = va.querySelector(".va-card-actor");
-    return { actor, flip: actor && actor.querySelector(".flip3d"), shine: actor && actor.querySelector(".dr-shine") };
+    return { actor, flip: actor && actor.querySelector(".flip3d"), shdw: actor && actor.querySelector(".shdw") };
+  };
+
+  // one writer for the whole pose: tilt + lift + shine origin, with the
+  // transition (duration AND curve) riding along so the shadow always
+  // travels on the same clock as the card (the actor law)
+  const setVars = ({ px, py, rx, ry, sc, ms, ease }) => {
+    const { actor, flip, shdw } = actorEls(); if (!actor || !flip) return;
+    const tf = "transform " + ms + "ms " + (ease || "cubic-bezier(0.2, 0.7, 0.3, 1)");
+    flip.style.transition = tf;
+    if (shdw) shdw.style.transition = "box-shadow " + ms + "ms " + (ease || "ease");
+    actor.style.setProperty("--drx", rx.toFixed(2) + "deg");
+    actor.style.setProperty("--dry", ry.toFixed(2) + "deg");
+    actor.style.setProperty("--ds", String(sc));
+    actor.style.setProperty("--dmx", (px * 100).toFixed(1) + "%");
+    actor.style.setProperty("--dmy", (py * 100).toFixed(1) + "%");
   };
 
   // track the read slot (the affordance hugs the card through relayouts)
@@ -59,36 +77,53 @@ function DeeperAffordance({ onOpen, hintArm, onHinted }) {
     return () => ro.disconnect();
   }, []);
 
-  const setPose = (px, py, on, ms) => {
-    const { actor, flip } = actorEls(); if (!actor || !flip) return;
-    flip.style.transition = "transform " + (ms || 200) + "ms cubic-bezier(0.2, 0.7, 0.3, 1)";
-    // signs calibrated for the pre-flipped card (flip3d already carries
-    // rotateY(180)): the edge under the pointer lifts toward the viewer
-    actor.style.setProperty("--drx", (on ? (-(py - 0.5) * DR_TILT.rx).toFixed(2) : 0) + "deg");
-    actor.style.setProperty("--dry", (on ? ((px - 0.5) * DR_TILT.ry).toFixed(2) : 0) + "deg");
-    actor.style.setProperty("--ds", on ? "1.05" : "1");
-    actor.style.setProperty("--dmx", (px * 100).toFixed(1) + "%");
-    actor.style.setProperty("--dmy", (py * 100).toFixed(1) + "%");
+  // interactive pose — signs calibrated for the pre-flipped card (flip3d
+  // already carries rotateY(180)): the edge under the pointer lifts TOWARD
+  // the viewer, exactly like a deck tile
+  const setPose = (px, py, on, ms, ease) => {
+    const { actor } = actorEls(); if (!actor) return;
+    setVars({ px, py,
+      rx: on ? -(py - 0.5) * DR_TILT.rx : 0,
+      ry: on ? -(px - 0.5) * DR_TILT.ry : 0,
+      sc: on ? 1.05 : 1, ms: ms || 200, ease });
     actor.style.setProperty("--dsh", on ? "1" : "0");
     actor.classList.toggle("dr-hov", !!on);
   };
   const clearAll = () => {
     hintTimers.current.forEach(clearTimeout); hintTimers.current = [];
-    const { actor, flip } = actorEls(); if (!actor) return;
+    const { actor, flip, shdw } = actorEls(); if (!actor) return;
     ["--drx", "--dry", "--ds", "--dmx", "--dmy", "--dsh"].forEach((v) => actor.style.removeProperty(v));
     actor.classList.remove("dr-hov", "dr-press");
     if (flip) flip.style.transition = "";
+    if (shdw) shdw.style.transition = "";
   };
 
-  // one-shot arrival hint: a hand seems to hover over the bottom-right
-  // corner — tilt + lift + a pass of light — then thinks better of it
+  // one-shot arrival hint, on the house curves: after a quiet beat the card
+  // leans up by its bottom-right corner (supple, a breath over), the light
+  // catches as the tilt develops, it holds a moment, then settles back down
+  // (gentle). Never loops; any real contact interrupts it.
   React.useEffect(() => {
     if (!hintArm || !rect) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { onHinted(); return; }
     const T = hintTimers.current;
-    T.push(setTimeout(() => setPose(0.86, 0.9, true, 950), 500));
-    T.push(setTimeout(() => setPose(0.86, 0.9, false, 800), 2000));
-    T.push(setTimeout(() => { onHinted(); }, 2900));
+    const cx = 0.88, cy = 0.93, boost = 1.2;  // the corner, a shade past hover amplitude
+    T.push(setTimeout(() => {
+      const { actor } = actorEls(); if (!actor) return;
+      setVars({ px: cx, py: cy,
+        rx: -(cy - 0.5) * DR_TILT.rx * boost, ry: -(cx - 0.5) * DR_TILT.ry * boost,
+        sc: 1.055, ms: 1600, ease: easeCss({ p: "supple" }) });
+      actor.classList.add("dr-hov");
+    }, 700));
+    T.push(setTimeout(() => {
+      const { actor } = actorEls(); if (actor) actor.style.setProperty("--dsh", "1");
+    }, 1400));
+    T.push(setTimeout(() => {
+      const { actor } = actorEls(); if (!actor) return;
+      setVars({ px: cx, py: cy, rx: 0, ry: 0, sc: 1, ms: 1300, ease: easeCss({ p: "gentle" }) });
+      actor.style.setProperty("--dsh", "0");
+      actor.classList.remove("dr-hov");
+    }, 2900));
+    T.push(setTimeout(() => { onHinted(); }, 4400));
     return () => { T.forEach(clearTimeout); hintTimers.current = []; };
   }, [!!rect, hintArm]);
 
@@ -158,6 +193,7 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
   const [atEnd, setAtEnd] = React.useState(false);
   const flipRef = React.useRef(null);
   const flipperRef = React.useRef(null);
+  const shdwRef = React.useRef(null);
   const stageRef = React.useRef("opening");
   const originRef = React.useRef(null);
 
@@ -177,29 +213,40 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
       radius: src === "pour" ? 8 : r.width * (rPct || 5.3) / 100, shadow };
   };
 
-  const apply = (el, pose, radius, shadow, rot) => {
+  const apply = (el, pose, radius, rot) => {
     el.style.left = pose.left + "px"; el.style.top = pose.top + "px";
     el.style.width = pose.width + "px"; el.style.height = pose.height + "px";
-    el.style.borderRadius = radius + "px"; el.style.boxShadow = shadow;
+    el.style.borderRadius = radius + "px";
     el.style.transform = "rotate(" + rot + "deg)";
   };
 
   React.useLayoutEffect(() => {
-    const flip = flipRef.current, flipper = flipperRef.current;
+    const flip = flipRef.current, flipper = flipperRef.current, shdw = shdwRef.current;
     const o = originPose();
     if (!flip || !flipper || !o) { onClosed(); return; }
     originRef.current = o;
-    flip.style.transition = "none"; flipper.style.transition = "none";
-    apply(flip, o.r, o.radius, o.shadow, o.rot);
+    // the content is laid out at its FINAL size before the first paint —
+    // the growing card only ever masks it, so the text never reflows
+    const t = drPanelRect();
+    flip.style.setProperty("--drPW", t.width + "px");
+    flip.style.setProperty("--drPH", t.height + "px");
+    flip.style.transition = "none"; flipper.style.transition = "none"; shdw.style.transition = "none";
+    apply(flip, o.r, o.radius, o.rot);
+    shdw.style.boxShadow = o.shadow;
     flipper.style.transform = "rotateY(0deg)";
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      const t = drPanelRect();
-      const tr = "left DURms EASE, top DURms EASE, width DURms EASE, height DURms EASE, border-radius DURms EASE, box-shadow DURms EASE, transform DURms EASE"
+      // the Approach flip's vocabulary: rect, rotation and shadow all ride
+      // the flip beat's own duration and curve, together
+      const tr = "left DURms EASE, top DURms EASE, width DURms EASE, height DURms EASE, border-radius DURms EASE, transform DURms EASE"
         .replace(/DUR/g, flipDur).replace(/EASE/g, flipEase);
       flip.style.transition = tr;
       flipper.style.transition = "transform " + flipDur + "ms " + flipEase;
-      apply(flip, t, 18, DR_PANEL_SHADOW[light ? "light" : "dark"], 0);
-      flipper.style.transform = "rotateY(180deg)";
+      shdw.style.transition = "box-shadow " + flipDur + "ms " + flipEase;
+      apply(flip, t, 18, 0);
+      shdw.style.boxShadow = DR_PANEL_SHADOW[light ? "light" : "dark"];
+      // continue the hinted motion: the lifted right corner keeps coming
+      // toward the viewer and the card turns over to the LEFT
+      flipper.style.transform = "rotateY(-180deg)";
       setInCls(true); setShown(true);
       setTimeout(() => { if (stageRef.current === "opening") stageRef.current = "open"; }, flipDur + 60);
     }));
@@ -208,11 +255,12 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
   const close = () => {
     if (stageRef.current === "closing") return;
     stageRef.current = "closing";
-    const flip = flipRef.current, flipper = flipperRef.current;
+    const flip = flipRef.current, flipper = flipperRef.current, shdw = shdwRef.current;
     const o = originPose() || originRef.current;
     setInCls(false); setShown(false);
     if (flip && flipper && o) {
-      apply(flip, o.r, o.radius, o.shadow, o.rot);
+      apply(flip, o.r, o.radius, o.rot);
+      if (shdw) shdw.style.boxShadow = o.shadow;
       flipper.style.transform = "rotateY(0deg)";
       setTimeout(onClosed, flipDur + 60);
     } else { onClosed(); }
@@ -231,9 +279,11 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
       <div className="gp-scrim" onClick={close}></div>
       <div ref={flipRef} className={"dr-flip" + (shown ? " shown" : "")}>
         <div ref={flipperRef} className="dr-flipper">
+          <div ref={shdwRef} className="shdw"></div>
           <div className="dr-face"><img src={face} alt="" draggable={false} /></div>
           <div className="dr-back">
             <div className="rx-grain"></div>
+            <div className="dr-panelfix" style={{ transitionDelay: shown ? Math.round(flipDur * 0.42) + "ms" : "0ms" }}>
             <div className={"dr5-xfloat" + (scrolled ? " scrolled" : "")} onClick={close}>
               <span className="halo"><span className="rx-grain"></span></span>
               <div className="gp-x">✕</div>
@@ -266,6 +316,7 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
                   <div className="gp-close-btn" onClick={close}>TURN THE CARD BACK</div>
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>

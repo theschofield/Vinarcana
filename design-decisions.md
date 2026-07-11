@@ -669,6 +669,32 @@ speak the DECK VIEW's material language instead (user's call, this session):
   round (the desktop pane can't emulate hover:none). Constructions follow the locked doc-flow
   laws (no fixed-bottom anything; layer eats the pan, panel scroll keeps pan-y).
 
+## Deeper Reading — POLISH PASS (Jul 11, 2026, user verdicts)
+First build's transitions were rejected ("treated like an afterthought"); corrected as follows.
+- **★ HARD CSS LAW (the broken-veil postmortem):** `.va .va-veilwrap`'s `transition` list in
+  flow5.css IS the v6 bleed (opacity + mask-size). Any later-loading sheet that redeclares a
+  transition on that selector at equal specificity silently replaces the whole list and kills
+  the veil reveal (it snaps to end mask-size — reads as wrong timing AND wrong vignette size).
+  flow6-deeper.css did exactly this and must never again; the dr-open veil raise lives on the
+  IMG's opacity only. When adding transitions near shared elements, check what transition list
+  the house sheets already own on that element first.
+- **Hint (final):** 700ms rest → 1600ms lean into the bottom-right corner pose on the SUPPLE
+  curve (the light catches at 1400ms) → ~600ms hold → 1300ms settle back on GENTLE. One-shot
+  per draw. Tilt vocabulary for the Reading card is DEEPER than the deck's by design:
+  DR_TILT 13°/16° (deck: 9°/11°), corner pose ×1.2 — the card should feel about to give.
+- **Flip (final):** full tlDraw.flip.d (1020ms) on easeFlip — the Approach flip's clock and
+  curve verbatim. Rotation is 0 → **−180°**: the hinted bottom-right corner keeps coming toward
+  the viewer and the card turns over to the LEFT (first build rotated the wrong way). The
+  shadow lives on a .shdw INSIDE the flipper (rotates/foreshortens with the card, box-shadow
+  transitioning on the flip's own duration+curve — the card-actor shadow law; the first build's
+  static root shadow read as a rectangle hanging behind a rotating card).
+- **Back-face text (final):** laid out at the panel's FINAL size from the first frame in a
+  fixed, centered layer (--drPW/--drPH); the growing card shape is purely a MASK over it, so
+  the text can never reflow mid-flip (verified: content width constant while the mask is still
+  growing). The text layer fades in and rises 18px into place (480ms/700ms on the house
+  entrance curve), delayed to 42% of the flip so it lands as the back face turns into view;
+  on close it fades down first, then the card flies home.
+
 ## Deeper Reading journey — FINAL "The Flip" (Jul 11, 2026)
 (Consolidated from the locked canvas — the session's verdicts weren't logged here as they landed.)
 Point Claude Code at **"Deeper Reading - Final.html"** (night + day each). Styles:
