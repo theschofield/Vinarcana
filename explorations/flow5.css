@@ -105,6 +105,14 @@
 .va.vw-desk.vh-tall .rv-namewrap { left: calc(240px + var(--rv-shift, 0px)); top: 119px; }
 
 /* ---- pinned shout + card for paginated pours ----
+   va-foot-pin: DOM-first wrapper for the dots + actions so mobile-Safari
+   document mode can sticky-pin them (flow6-docflow.css). display:contents
+   + flex order = zero layout change everywhere else. */
+.va-foot-pin { display: contents; }
+.va-foot-pin > .rv-dotswrap { order: 98; }
+.va-foot-pin > .rv-actions { order: 99; }
+
+/* ---- pinned shout + card for paginated pours ----
    The pin layer sits UNDER the panes (so each pane's bottle still
    passes in front of the card) and follows the active pane's
    vertical scroll; horizontal swipes never move it. */

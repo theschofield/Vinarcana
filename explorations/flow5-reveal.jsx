@@ -102,6 +102,19 @@ function Reveal({ card, lens, light, F, onKeep, onFade, spd }) {
   const d = (ms) => ({ transitionDelay: Math.round(ms / spd) + "ms" });
   return (
     <div className="rv-screen va-layer" data-screen-label="Flow — Reveal">
+      <div className="va-foot-pin">
+        {pours.length > 1 ? (
+          <div className={"rv-dotswrap fx" + (F.pourIn ? " in" : "")} style={{ "--fxd": "var(--dPour)", ...d(320) }}>
+            <div className="rv-dots">
+              {pours.map((_, i) => <div key={i} className={"dot" + (i === idx ? " on" : "")} onClick={() => jump(i)}></div>)}
+            </div>
+          </div>
+        ) : null}
+        <div className={"rv-actions fx up" + (F.pourIn ? " in" : "")} style={{ "--fxd": "var(--dPour)", ...d(400) }}>
+          <div className="rv-btn ghost" onClick={() => onFade(pours[idx])}>LET IT FADE</div>
+          <div className="rv-btn fill" onClick={() => onKeep(pours[idx])}>KEEP THIS MEMORY</div>
+        </div>
+      </div>
       <div className="rv-eyebrow">
         <span className="txt" style={{ visibility: F.handoff ? "visible" : "hidden" }} data-va-slot="eyeb-rev">
           <span className="card-part">{c.num} · {c.name.toUpperCase()}</span>
@@ -126,17 +139,6 @@ function Reveal({ card, lens, light, F, onKeep, onFade, spd }) {
         <div className="rv-pours" ref={ref} onScroll={onScroll}>
           {pours.map((p, i) => <PourPane key={i} p={p} hl={hl} light={light} i={i} F={F} spd={spd} pinned={pinned} onV={onV}></PourPane>)}
         </div>
-      </div>
-      {pours.length > 1 ? (
-        <div className={"rv-dotswrap fx" + (F.pourIn ? " in" : "")} style={{ "--fxd": "var(--dPour)", ...d(320) }}>
-          <div className="rv-dots">
-            {pours.map((_, i) => <div key={i} className={"dot" + (i === idx ? " on" : "")} onClick={() => jump(i)}></div>)}
-          </div>
-        </div>
-      ) : null}
-      <div className={"rv-actions fx up" + (F.pourIn ? " in" : "")} style={{ "--fxd": "var(--dPour)", ...d(400) }}>
-        <div className="rv-btn ghost" onClick={() => onFade(pours[idx])}>LET IT FADE</div>
-        <div className="rv-btn fill" onClick={() => onKeep(pours[idx])}>KEEP THIS MEMORY</div>
       </div>
     </div>
   );

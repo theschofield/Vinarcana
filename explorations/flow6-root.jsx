@@ -17,7 +17,7 @@ const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
   "mode": "system", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
   "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
-  "deckLift": 40, "deckLiftDesk": 32, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
+  "deckLift": 35, "deckLiftDesk": 32, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
   "beckonDelay": 3, "beckonColorN": "bone", "beckonColorD": "bone", "beckonAlpha": 0.9,
   "beckonDurA": 7, "beckonBandA": 100, "beckonDurL": 7, "beckonBandL": 100,
   "orbitCardVh": 51, "knowingDesk": 32, "lensFlare": false, "shoutSize": 56, "pourShift": -16, "rvCol": 620,
@@ -697,9 +697,9 @@ function App() {
         // the top-of-deck actor sinks with the stack beneath it
         setActor((a) => a && ({ ...a, o: 0, top: a.top + 14, dur: dv(dur), oDur: dv(dur), ease: E("easeUiExit"), instant: false }));
       } });
-      // the grid mounts only AFTER the approach has fully faded — same
-      // contract as the release path; mounting at t:0 crossfaded the two
-      ev.push({ t: dur, run: () => {
+      // the grid mounts only AFTER the approach has (nearly) faded — same
+      // contract as the release path, minus 150ms so it doesn't drag
+      ev.push({ t: Math.max(0, dur - 150), run: () => {
         setMounts((m) => ({ ...m, deck: true }));
         setPhase("deck");
       } });

@@ -215,6 +215,21 @@
 .va .rx-draw-hint.beckon { --bkBand: var(--bkBandA, 34px); --bkDur: var(--bkDurA, 7s); }
 .va .rx-read-foot .rx-mono.beckon { --bkBand: var(--bkBandL, 34px); --bkDur: var(--bkDurL, 7s); }
 
+/* iOS: pre-promote the clip-text hint layers. Fading an ancestor's opacity
+   promotes the subtree mid-transition, and Safari drops background-clip:text
+   for the ride — the text VANISHES instead of fading (device-only bug).
+   A standing translateZ keeps them on their own cached layer. */
+.va .rx-draw-hint, .va .rx-read-foot, .va .rx-read-foot .rx-mono {
+  transform: translateZ(0); will-change: opacity;
+}
+
+/* the Pour eyebrow reads at FULL strength — same ink as the Lenses.
+   Later-file override of flow2's mode-rev dim and round13's 0.8 card-part. */
+.rx-dark .va-eyeb-actor.mode-rev { color: var(--apri); }
+.rx-light .va-eyeb-actor.mode-rev { color: var(--amber); }
+.rx-dark .rv-eyebrow .card-part { color: var(--apri); }
+.rx-light .rv-eyebrow .card-part { color: var(--amber); }
+
 /* ---- whisper: circle → field is a crossfade, not a swap ----
    Both states live in the same grid cell (flow6-approach.jsx keeps them
    both mounted). Opening: the circle settles away quickly, the field

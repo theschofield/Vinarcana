@@ -113,14 +113,26 @@ html.va-flow-pour .va:not(.vw-desk) .rv-vscroll {
   -webkit-mask-image: none; mask-image: none;
   padding-bottom: calc(24px + env(safe-area-inset-bottom));
 }
-/* pour actions + dots: sticky footers — in-flow to Safari (no backdrop),
-   compositor-pinned (no jitter), and they ride the chrome via env() */
-html.va-flow-pour .va:not(.vw-desk) .rv-actions {
-  position: sticky; top: auto; left: auto; right: auto;
-  bottom: 0; z-index: 35; background: none;
+/* pour actions + dots: the VEIL RECIPE — a zero-height sticky pin at the
+   top of the pour flow; the bars hang from it at the 100svh line (where
+   the viewport bottom sits when chrome is tallest). Top-anchored sticky
+   is the ONE pinning method five device rounds have proven safe — fixed
+   (any anchor) and sticky-BOTTOM both summon the toolbar backdrop. */
+html.va-flow-pour .va:not(.vw-desk) .va-foot-pin {
+  display: block; position: sticky; top: 0; height: 0; overflow: visible;
+  z-index: 35; order: 0;
 }
-html.va-flow-pour .va:not(.vw-desk) .rv-dotswrap {
-  position: sticky; top: auto; left: auto; right: auto;
-  bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 35;
-  display: flex; justify-content: center;
+html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100svh;
+  box-sizing: border-box; display: flex; align-items: flex-end;
+  padding: 0 26px calc(24px + env(safe-area-inset-bottom)); margin: 0;
+  pointer-events: none; background: none;
 }
+html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions > * { pointer-events: auto; }
+html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap {
+  position: absolute; top: 0; left: 0; width: 100%;
+  height: calc(100svh - 84px); box-sizing: border-box;
+  display: flex; align-items: flex-end; justify-content: center; margin: 0;
+  pointer-events: none;
+}
+html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap > * { pointer-events: auto; }
