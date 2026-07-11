@@ -19,9 +19,14 @@
    relative raise of the app's own veil token). The raise lives on the IMG
    ONLY — never add a transition to .va-veilwrap here: its transition list
    IS the v6 bleed (mask-size, flow5.css) and an equal-specificity override
-   in this later-loading sheet silently kills the veil reveal. */
-.va.dr-open .rx-dark .rx-veil img { opacity: calc(var(--va-veil-o-dark, 0.11) * 1.45); }
-.va.dr-open .rx-light .rx-veil img { opacity: calc(var(--va-veil-o-light, 0.1) * 1.45); }
+   in this later-loading sheet silently kills the veil reveal.
+   Keyed to .dr-veil-up (component-managed), NOT .dr-open: the raise must
+   release on the CLOSE'S FIRST BEAT alongside the scrim — dr-open persists
+   until the layer unmounts, and holding the raise that long left a window
+   where the scrim was gone but the veil still lifted (the background
+   flashed brighter, then dimmed after the card settled). */
+.va.dr-veil-up .rx-dark .rx-veil img { opacity: calc(var(--va-veil-o-dark, 0.11) * 1.45); }
+.va.dr-veil-up .rx-light .rx-veil img { opacity: calc(var(--va-veil-o-light, 0.1) * 1.45); }
 .va .rx-veil img { transition: opacity 700ms ease; }
 
 /* while the flip container owns the card, the resting renditions hide */
@@ -37,6 +42,10 @@
    without touching the locked Pour entrance beats. */
 .va.dr-open .rv-screen .rv-hero .bottle {
   opacity: 0; transform: translateX(26px); pointer-events: none;
+  /* the EXIT is quick (user verdict) — gone within the flip's first third.
+     Transitions read from the destination state, so this list governs only
+     the exit; the return still glides home on the bottle-beat fx transition. */
+  transition: opacity 300ms ease, transform 480ms cubic-bezier(0.16, 0.72, 0.18, 1);
 }
 
 /* ---------- the flip container ---------- */

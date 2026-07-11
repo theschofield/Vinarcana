@@ -697,11 +697,20 @@ First build's transitions were rejected ("treated like an afterthought"); correc
 
 - **The Pour's bottle steps aside (user verdict):** flipping from the Pour clashed with the
   bottle in z-space — worst at close, where the settled card popped BEHIND the bottle at the
-  layer's same-frame swap. Fix: under dr-open the bottle slides right 26px and fades on its own
-  fx/bottle-beat transition while the card lifts away; it stays hidden through the whole open
-  AND close, and animates back only after the layer unmounts and the real card is settled
-  (verified: bottle at opacity 0 during the swap frame, mid-return 0.42/15px after). The flip
-  keeps its ONE direction (−180°) on both surfaces — the bottle yields, the grammar doesn't.
+  layer's same-frame swap. Fix: under dr-open the bottle slides right 26px and fades; it stays
+  hidden through the whole open AND close, and animates back only after the layer unmounts and
+  the real card is settled (verified: bottle at opacity 0 during the swap frame, mid-return
+  0.42/15px after). The flip keeps its ONE direction (−180°) on both surfaces — the bottle
+  yields, the grammar doesn't. Exit is QUICK (user verdict: 300ms fade / 480ms slide — gone in
+  the flip's first third; destination-state transitions make the exit fast while the return
+  keeps the bottle-beat fx glide).
+- **Veil raise release timing (user-caught mismatch):** the ×1.45 raise was keyed to dr-open,
+  which persists until the layer unmounts — so on close the scrim (620ms) cleared while the
+  veil was still raised: the background flashed BRIGHTER than rest, then dimmed after the card
+  settled. The raise is now keyed to a component-managed `dr-veil-up` class released on the
+  close's FIRST beat with the scrim (verified: veil back at its rest token by +720ms, before
+  the scrim finishes; no post-settle step). Law: everything the panel does to the field must
+  release on the close's first beat, not at unmount.
 
 ## Deeper Reading journey — FINAL "The Flip" (Jul 11, 2026)
 (Consolidated from the locked canvas — the session's verdicts weren't logged here as they landed.)

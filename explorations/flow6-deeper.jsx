@@ -247,16 +247,24 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
       // continue the hinted motion: the lifted right corner keeps coming
       // toward the viewer and the card turns over to the LEFT
       flipper.style.transform = "rotateY(-180deg)";
+      const va = vaRoot(); if (va) va.classList.add("dr-veil-up");
       setInCls(true); setShown(true);
       setTimeout(() => { if (stageRef.current === "opening") stageRef.current = "open"; }, flipDur + 60);
     }));
   }, []);
+
+  // the veil raise must never outlive the layer (release-path unmounts skip close())
+  React.useEffect(() => () => { const va = vaRoot(); if (va) va.classList.remove("dr-veil-up"); }, []);
 
   const close = () => {
     if (stageRef.current === "closing") return;
     stageRef.current = "closing";
     const flip = flipRef.current, flipper = flipperRef.current, shdw = shdwRef.current;
     const o = originPose() || originRef.current;
+    // scrim and veil raise release TOGETHER on the close's first beat —
+    // holding the raise until unmount left the background briefly brighter
+    // than rest, then dimming after the card settled
+    const va = vaRoot(); if (va) va.classList.remove("dr-veil-up");
     setInCls(false); setShown(false);
     if (flip && flipper && o) {
       apply(flip, o.r, o.radius, o.rot);
