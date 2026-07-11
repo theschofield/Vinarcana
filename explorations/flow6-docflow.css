@@ -2,27 +2,33 @@
    FLOW v6 — iOS 26 DOCUMENT-FLOW MODE. Loads after flow6-safearea.css.
 
    Safari 26 (liquid glass) letterboxes any full-viewport position:fixed
-   surface and only grants edge-to-edge + chrome collapse to real in-flow
-   document content scrolled by the DOCUMENT. So on real phones
-   (html.va-doc — set by flow6-root; never desktop or the phone-frame
-   preview) the app is built as three layers, constant across ALL phases
-   so nothing re-wraps or jumps between screens:
+   surface, only grants edge-to-edge + chrome collapse to in-flow content
+   scrolled by the DOCUMENT — and (learned empirically from the veil vs
+   the old actions bar) draws an opaque backdrop behind the bottom
+   toolbar the moment a fixed element is ANCHORED TO THE BOTTOM EDGE.
+   A top-anchored fixed layer that merely REACHES the bottom (like the
+   veil) does not summon it. So every piece of bottom UI here lives at
+   the bottom of a top-anchored, viewport-tall, pointer-events:none
+   layer — never `bottom: 0`.
 
-   1. THE FIELD (in flow, scrolls): .va/.rx sit in the document,
-      min-height 100lvh, grain riding along. Deck grid and Pour panes
-      unwrap into it WHENEVER MOUNTED (html.va-flow-deck / -pour), so
-      the document is the scroller and transitions never reflow them.
-   2. THE VIEWPORT VEIL (fixed, never scrolls): va-veilwrap + rv-glow pin
-      to the viewport; their vignettes fade into the field behind, so the
-      imagery never stretches or re-crops when the page grows. Their
-      edges are transparent, so Safari's fixed-element letterboxing is
-      invisible.
-   3. FLOATING UI (small fixed bars): status bar, pour actions, dots —
-      safe-area padded, gradient scrims only where content scrolls under.
+   Three constant layers on real phones (html.va-doc; never desktop or
+   the phone-frame preview):
+   1. THE FIELD (in flow, scrolls): .va/.rx in the document,
+      min-height 100lvh + bottom safe-area so the texture runs all the
+      way behind the collapsed chrome (100lvh alone left a visible line
+      mid-chrome). Deck grid & Pour panes unwrap into it whenever
+      mounted (html.va-flow-deck / -pour).
+   2. THE VIEWPORT VEIL (fixed, top-anchored, 100svh): veil + glow are
+      sized to the SMALL viewport — the real estate when the chrome is
+      at its tallest — so they never rescale when the chrome collapses.
+      Their vignettes fade into the field behind.
+   3. FLOATING UI: status bar (fixed top, NO scrim — the heavy gradient
+      read as a slab) and pour actions/dots (bottom of top-anchored
+      100svh layers, no scrim — Safari's pill does its own treatment).
 
-   Stage layers (Approach / Reading) cap to the visual viewport and sit
-   at document top; sequences that leave a scrolled view glide the window
-   back to 0 as part of the choreography (flow6-root glideScrollTop).
+   Stage screens (Approach / Lenses) are viewport-capped layers that
+   BLOCK the pan (touch-action: none) so the document under them never
+   scrolls — their content isn't scrollable, so nothing is lost.
    ============================================================ */
 
 html.va-doc, html.va-doc body { height: auto; min-height: 100%; }
@@ -31,33 +37,39 @@ html.va-doc .va-shell {
   position: static; height: auto; min-height: 100dvh;
   display: block; overflow: visible;
 }
-/* the field is always in flow and always at least a full screen */
-html.va-doc .va:not(.vw-desk) { height: auto; min-height: 100lvh; overflow: visible; }
+/* layer 1: the field — always in flow, always past the collapsed chrome */
+html.va-doc .va:not(.vw-desk) {
+  height: auto; overflow: visible;
+  min-height: calc(100lvh + env(safe-area-inset-bottom));
+}
 html.va-doc .va:not(.vw-desk) .rx {
-  position: relative; inset: auto; height: auto; min-height: 100lvh; overflow: visible;
+  position: relative; inset: auto; height: auto; overflow: visible;
+  min-height: calc(100lvh + env(safe-area-inset-bottom));
 }
 
 /* stage layers are viewport UI — cap them so they never stretch with the
-   document (they're active at scroll 0) */
+   document, and let them eat the pan so stages don't scroll at all */
 html.va-doc .va:not(.vw-desk) .va-layer,
 html.va-doc .va:not(.vw-desk) .va-smoke-fx,
 html.va-doc .va:not(.vw-desk) .va-ff-catch { height: 100dvh; bottom: auto; }
+html.va-doc:not(.va-flow) .va:not(.vw-desk) .va-layer,
+html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx-status { touch-action: none; }
 
-/* layer 2: the veil + glow pin to the viewport; vignette does the blending */
+/* layer 2: veil + glow — fixed, top-anchored, small-viewport sized */
 html.va-doc .va:not(.vw-desk) .va-veilwrap {
-  position: fixed; inset: auto; left: 0; top: 0; width: 100%; height: 100dvh;
+  position: fixed; inset: auto; left: 0; top: 0; width: 100%;
+  height: 100dvh; height: 100svh; z-index: 0;
 }
-html.va-doc .va:not(.vw-desk) .rv-glow { position: fixed; }
+html.va-doc .va:not(.vw-desk) .rv-glow {
+  position: fixed; inset: auto; left: 0; top: 0; width: 100%;
+  height: 100dvh; height: 100svh;
+}
 
-/* layer 3: floating status bar (scrim only once content scrolls under it) */
+/* layer 3: floating status bar — no scrim */
 html.va-doc .va:not(.vw-desk) .rx-status {
   position: fixed; top: 0; left: 0; right: 0; z-index: 40;
   padding: max(24px, env(safe-area-inset-top)) 26px 14px;
 }
-html.va-flow .va:not(.vw-desk) .rx-dark .rx-status {
-  background: linear-gradient(to bottom, rgba(26, 25, 23, 0.94) 40%, rgba(26, 25, 23, 0)); }
-html.va-flow .va:not(.vw-desk) .rx-light .rx-status {
-  background: linear-gradient(to bottom, rgba(210, 207, 201, 0.94) 40%, rgba(210, 207, 201, 0)); }
 
 /* ---- THE DECK, unwrapped whenever mounted ---- */
 html.va-flow-deck .va:not(.vw-desk) .dk-screen { position: static; height: auto; }
@@ -66,8 +78,7 @@ html.va-flow-deck .va:not(.vw-desk) .dk-scroll {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);
 }
 
-/* ---- THE POUR, unwrapped whenever mounted (transitions included, so the
-   layout NEVER re-wraps mid-choreography) ---- */
+/* ---- THE POUR, unwrapped whenever mounted ---- */
 html.va-flow-pour .va:not(.vw-desk) .rv-screen {
   position: static; height: auto; min-height: 0;
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 34px);
@@ -80,12 +91,21 @@ html.va-flow-pour .va:not(.vw-desk) .rv-vscroll {
   -webkit-mask-image: none; mask-image: none;
   padding-bottom: calc(120px + env(safe-area-inset-bottom));
 }
-/* actions + dots float; NO scrim — the liquid-glass pill handles its own
-   backdrop, and the page fading out under it is the native look */
+/* pour actions + dots: bottom of TOP-ANCHORED viewport-tall layers.
+   NEVER anchor these with bottom:0 — that summons Safari's opaque
+   toolbar backdrop and kills the edge-to-edge scroll. */
 html.va-flow-pour .va:not(.vw-desk) .rv-actions {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 35;
-  padding: 14px 26px calc(18px + env(safe-area-inset-bottom));
+  position: fixed; left: 0; top: 0; bottom: auto; right: auto; width: 100%;
+  height: 100dvh; height: 100svh; z-index: 35; box-sizing: border-box;
+  display: flex; align-items: flex-end;
+  padding: 0 26px calc(18px + env(safe-area-inset-bottom));
+  pointer-events: none; background: none;
 }
+html.va-flow-pour .va:not(.vw-desk) .rv-actions > * { pointer-events: auto; }
 html.va-flow-pour .va:not(.vw-desk) .rv-dotswrap {
-  position: fixed; left: 0; right: 0; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 35;
+  position: fixed; left: 0; top: 0; width: 100%; z-index: 35; box-sizing: border-box;
+  height: calc(100dvh - 84px); height: calc(100svh - 84px - env(safe-area-inset-bottom));
+  display: flex; align-items: flex-end; justify-content: center;
+  pointer-events: none;
 }
+html.va-flow-pour .va:not(.vw-desk) .rv-dotswrap > * { pointer-events: auto; }
