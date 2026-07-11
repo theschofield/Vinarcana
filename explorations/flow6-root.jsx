@@ -16,20 +16,20 @@
 const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
   "mode": "system", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
-  "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
-  "deckLift": 35, "deckLiftDesk": 32, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
+  "veilEdgeMob": 67, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
+  "deckLift": 35, "deckLiftDesk": 34, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
   "beckonDelay": 3, "beckonColorN": "bone", "beckonColorD": "bone", "beckonAlpha": 0.9,
   "beckonDurA": 7, "beckonBandA": 100, "beckonDurL": 7, "beckonBandL": 100,
   "orbitCardVh": 51, "knowingDesk": 32, "lensFlare": false, "shoutSize": 56, "pourShift": -16, "rvCol": 620,
   "orbFloat": true, "orbAmp": 7, "orbSpeed": 1, "orbBreath": 0.014, "orbRadius": 210, "orbPull": 0.1, "orbGrow": 0.055, "orbSpread": 1,
-  "centerY": 47, "bleedWarp": 140, "dUiExit": 620, "lensStep": 140, "ffSpeed": 4, "settleScale": 1.08, "flipScale": 1.1,
-  "tlDraw": { "pull": { "s": 0, "d": 480 }, "lift": { "s": 480, "d": 520 }, "flip": { "s": 515, "d": 1020 }, "settle": { "s": 1495, "d": 685 }, "bleed": { "s": 960, "d": 7855 }, "rest": { "s": 3115, "d": 1775 }, "voice": { "s": 3390, "d": 1160 }, "lenses": { "s": 5115, "d": 920 } },
+  "centerY": 44, "bleedWarp": 140, "dUiExit": 620, "lensStep": 140, "ffSpeed": 4, "settleScale": 1.07, "flipScale": 1.1,
+  "tlDraw": { "pull": { "s": 0, "d": 480 }, "lift": { "s": 480, "d": 520 }, "flip": { "s": 515, "d": 1020 }, "settle": { "s": 1495, "d": 685 }, "bleed": { "s": 1130, "d": 6555 }, "rest": { "s": 3115, "d": 1775 }, "voice": { "s": 3390, "d": 1160 }, "lenses": { "s": 5115, "d": 920 } },
   "tlChoice": { "choose": { "s": 0, "d": 450 }, "slide": { "s": 295, "d": 1085 }, "bottle": { "s": 1275, "d": 1040 }, "echo": { "s": 1135, "d": 1040 }, "pour": { "s": 1555, "d": 640 }, "glow": { "s": 1555, "d": 640 } },
   "tlReturn": { "release": { "s": 0, "d": 575 }, "reform": { "s": 575, "d": 1300 } },
   "easePull": { "p": "silk" }, "easeLift": { "p": "silk" }, "easeFlip": { "p": "swift" },
   "easeSettle": { "p": "supple" }, "easeRest": { "p": "swift" }, "easeSlide": { "p": "silk" },
   "easeRelease": { "p": "gentle" }, "easeReform": { "p": "supple" },
-  "easeBleed": { "p": "custom", "t": 50, "f": 12, "m": 1 }, "easeVoice": { "p": "gentle" }, "easeLens": { "p": "silk" },
+  "easeBleed": { "p": "custom", "t": 50, "f": 12, "m": 0.9 }, "easeVoice": { "p": "gentle" }, "easeLens": { "p": "silk" },
   "easeEcho": { "p": "silk" }, "easeBottle": { "p": "silk" }, "easePour": { "p": "silk" }, "easeGlow": { "p": "fade" }, "easeUiExit": { "p": "gentle" }
 }/*EDITMODE-END*/;
 
@@ -615,10 +615,16 @@ function App() {
           setActor((a) => a && ({ ...a, left: rr.left, top: rr.top, width: rr.width, ar: rr.height / rr.width, dur: 220, ease: "ease", instant: false }));
         }
         const eyebEl = va2 && va2.querySelector(".va-eyeb-actor");
-        if (er2 && eyebEl && Math.abs(parseFloat(eyebEl.style.left) - er2.left)
-          + Math.abs(parseFloat(eyebEl.style.top) - er2.top) > 1) {
-          drift = true;
-          setEyeb((e) => e && ({ ...e, left: er2.left, top: er2.top, dur: 220, instant: false }));
+        if (er2 && eyebEl) {
+          const dE = Math.abs(parseFloat(eyebEl.style.left) - er2.left)
+            + Math.abs(parseFloat(eyebEl.style.top) - er2.top);
+          // tiny drift: do NOT glide — the 220ms correction read as the
+          // eyebrow visibly hopping down at the end; the same-frame swap
+          // hides a ≤4px discontinuity completely
+          if (dE > 4) {
+            drift = true;
+            setEyeb((e) => e && ({ ...e, left: er2.left, top: er2.top, dur: 220, instant: false }));
+          }
         }
         if (drift) setTimeout(doSwap, 240); else doSwap();
       };

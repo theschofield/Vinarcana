@@ -69,7 +69,7 @@ html.va-doc .va:not(.vw-desk) .rx-read-foot {
   padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
 }
 
-/* layer 2: veil + glow — sticky, zero flow footprint */
+/* layer 2: the veil — sticky, zero flow footprint */
 html.va-doc .va:not(.vw-desk) .va-veilwrap {
   position: sticky; top: 0; bottom: auto; left: auto; right: auto;
   display: block; width: 100%;
@@ -77,12 +77,11 @@ html.va-doc .va:not(.vw-desk) .va-veilwrap {
   margin-bottom: calc(-100lvh - env(safe-area-inset-bottom));
   z-index: 0;
 }
-html.va-doc .va:not(.vw-desk) .rv-glow {
-  position: sticky; top: 0; bottom: auto; left: auto; right: auto;
-  display: block; width: 100%;
-  height: 100svh;
-  margin-bottom: -100svh;
-}
+/* the apricot glow is OFF in document mode (user call): every pinning
+   scheme warped it, and it is the prime suspect for the toolbar backdrop
+   (it mounts on the same beat as the buttons — the beat the backdrop
+   always appeared on). Desktop keeps it. */
+html.va-doc .va:not(.vw-desk) .rv-glow { display: none; }
 
 /* layer 3: status bar hangs from a zero-height sticky pin */
 html.va-doc .va:not(.vw-desk) .va-status-pin {
@@ -113,26 +112,27 @@ html.va-flow-pour .va:not(.vw-desk) .rv-vscroll {
   -webkit-mask-image: none; mask-image: none;
   padding-bottom: calc(24px + env(safe-area-inset-bottom));
 }
-/* pour actions + dots: the VEIL RECIPE — a zero-height sticky pin at the
-   top of the pour flow; the bars hang from it at the 100svh line (where
-   the viewport bottom sits when chrome is tallest). Top-anchored sticky
-   is the ONE pinning method five device rounds have proven safe — fixed
-   (any anchor) and sticky-BOTTOM both summon the toolbar backdrop. */
+/* pour actions + dots: the OLD VEIL RECIPE, verbatim — a fixed,
+   TOP-anchored, 100dvh, transparent, click-through frame with the bars
+   at its flex-end. This exact construction (fixed top-0 dvh) is what the
+   veil used in the round where the pour scroll ran beneath the chrome,
+   and because dvh tracks the chrome, the buttons ride it as it grows and
+   shrinks — natively. The backdrop that appeared alongside it back then
+   is now attributed to the glow (same-beat confounder), which document
+   mode no longer renders. */
 html.va-flow-pour .va:not(.vw-desk) .va-foot-pin {
-  display: block; position: sticky; top: 0; height: 0; overflow: visible;
-  z-index: 35; order: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
+  margin: 0; pointer-events: none; z-index: 35; overflow: visible;
 }
-html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100svh;
-  box-sizing: border-box; display: flex; align-items: flex-end;
-  padding: 0 26px calc(24px + env(safe-area-inset-bottom)); margin: 0;
-  pointer-events: none; background: none;
-}
-html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions > * { pointer-events: auto; }
 html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap {
-  position: absolute; top: 0; left: 0; width: 100%;
-  height: calc(100svh - 84px); box-sizing: border-box;
-  display: flex; align-items: flex-end; justify-content: center; margin: 0;
-  pointer-events: none;
+  order: 0; position: static; display: flex; justify-content: center;
+  margin: 0 0 10px; pointer-events: none;
 }
 html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap > * { pointer-events: auto; }
+html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions {
+  order: 1; position: static; margin: 0; background: none;
+  padding: 14px 24px calc(24px + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions > * { pointer-events: auto; }
