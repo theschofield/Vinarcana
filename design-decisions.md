@@ -339,6 +339,34 @@ File: `Vintner's Arcana - Flow Prototype v5.html` + `explorations/flow5{-app,-re
   assets/bottle-red.png / bottle-white.png assigned by wine color in flow-content.jsx.
 - v4 files untouched; v5 EDITMODE defaults in FLOW5_DEFAULTS.
 
+## FLOW v6 — iOS 26 SAFARI BOTTOM-CHROME: THE POUR ACTION BAR (locked)
+Files: `explorations/flow6-docflow.css` (`.va-foot-pin` + ghost-button blur) + `flow6-root.jsx` (`--foot-vh` effect).
+- **The bug:** iOS 26 Safari paints an opaque BACKDROP fill behind its floating bottom chrome on
+  The Pour — a hard-edged solid band that covers the app's textured background. It cost many rounds
+  because it's subtle and easy to misread from stills.
+- **★ Root cause (proven on the iOS 26 simulator):** the backdrop is summoned by ANY
+  BOTTOM-EDGE-ANCHORED element — `position: fixed; bottom`, `position: sticky; bottom`, a
+  viewport-tall fixed frame, and even a slim bottom bar ALL trigger it; the button glow / box-shadow
+  does NOT. TOP-referenced positioning never triggers it (the sticky-TOP veil is clean). It is
+  semi-intentional Apple behaviour: Safari opaques its own bar when it thinks the page has a bottom
+  bar. **HARD RULE: the Pour action bar must NEVER be bottom-anchored** (fixed-bottom or
+  sticky-bottom) — always top-reference it. This is the whole ballgame.
+- **The fix (locked):** `.va-foot-pin` is a FIXED, TOP-referenced bar at
+  `top: calc(var(--foot-vh, 100svh) - 88px)`. 88px is the clean floor just above the EXPANDED
+  chrome; lower re-triggers the fill (the ~2–3px of extra room below is imperceptible and risky).
+- **Chrome tracking (the win):** a flow6-root effect sets `--foot-vh` from
+  `window.visualViewport.height` on its resize/scroll events (rAF-throttled). As the chrome collapses
+  on scroll, `vv.height` grows, so the top-referenced bar rides DOWN to hug the shrinking pill — low
+  when collapsed, clean when expanded, never bottom-anchored. (Fallback if the JS driver ever
+  jitters: `100dvh` is the compositor-native equivalent of `var(--foot-vh)`.)
+- **LET IT FADE (ghost) button:** the bar now floats over live scrolling content, so the ghost
+  button gets `backdrop-filter: blur(10px)` + a faint tint to keep its label readable. Verified the
+  blur does NOT re-trigger the toolbar backdrop.
+- **Validation:** the Xcode iOS 26 simulator (`xcrun simctl … screenshot` of real Safari incl. the
+  floating chrome). Reliable tell for the fill: are the palate labels visible THROUGH the translucent
+  chrome (clean) or covered by a flat band (backdrop) — do NOT trust subtle texture reads. simctl
+  can't inject swipe gestures, so the scroll/collapse test is on-device.
+
 ## FLOW PROTOTYPE v4 — DESKTOP POLISH (superseded by v5)
 File: `Vintner's Arcana - Flow Prototype v4.html` + `explorations/flow4{-app,-root}.jsx, flow4.css`.
 (Loads flow2-app first, then flow4-app OVERRIDES Reading; flow2-choreo/reveal + flow3-motion unchanged.)
