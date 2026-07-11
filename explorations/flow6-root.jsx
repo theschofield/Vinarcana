@@ -196,7 +196,11 @@ function App() {
 
   const [phase, setPhase] = React.useState("approach");
   const phaseRef = React.useRef("approach"); phaseRef.current = phase;
-  const [mounts, setMounts] = React.useState({ approach: true, reading: false, reveal: false, deck: false });
+  const [mounts, setMounts] = React.useState({ approach: true, reading: false, reveal: false, deck: false, memory: false });
+  // Memory → Pour re-entry: which ledger row the actor took over, and which
+  // wine's pane the Reveal should open on (multi-pour lenses)
+  const [memPicked, setMemPicked] = React.useState(null);
+  const [pourWine, setPourWine] = React.useState(null);
   const [card, setCard] = React.useState(null);
   const cardRef = React.useRef(null); cardRef.current = card;
   const [lens, setLens] = React.useState(null);
@@ -336,8 +340,13 @@ function App() {
 
   // settle-phase re-place: any relayout (viewport, frame, tweak sliders) moves
   // BOTH the card actor and the eyebrow actor to their current slots.
+  // NEVER while a timeline is in flight: phaseRef can be a frame stale there
+  // (rAF callbacks in the same frame as a clock tick read the pre-commit
+  // phase), and a placeOnDeck landing after a beat's setActor re-summons the
+  // card at full opacity — the "deck card haunting the Memory ledger" bug.
   React.useEffect(() => {
     const id = requestAnimationFrame(() => {
+      if (clock.running()) return;
       const p = phaseRef.current;
       if (p === "approach") placeOnDeck(true);
       if (p === "reading") { placeOnReadSlot(true); placeEyebrowOnRead(true); }
@@ -350,7 +359,7 @@ function App() {
     const el = vaRoot() && vaRoot().querySelector('[data-va-slot="deck-top"]');
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      if (phaseRef.current === "approach") placeOnDeck(true);
+      if (!clock.running() && phaseRef.current === "approach") placeOnDeck(true);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -422,9 +431,10 @@ function App() {
     const H = document.documentElement;
     H.classList.toggle("va-doc", docMode);
     H.classList.toggle("va-flow-deck", docMode && mounts.deck);
-    H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.deck);
-    H.classList.toggle("va-flow", docMode && (mounts.deck || pourMounted));
-  }, [docMode, mounts.deck, pourMounted]);
+    H.classList.toggle("va-flow-mem", docMode && mounts.memory && !mounts.deck);
+    H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.deck && !mounts.memory);
+    H.classList.toggle("va-flow", docMode && (mounts.deck || mounts.memory || pourMounted));
+  }, [docMode, mounts.deck, mounts.memory, pourMounted]);
   // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
   // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
   // the compositor on iOS and made every overlay jitter.
@@ -560,9 +570,55 @@ function App() {
     clock.run(ev, end, ffRef, () => { setPhase("reading"); ffRef.current = 1; setFF(false); });
   };
 
+  // shared actor→pane cut for every road into The Pour (lens pick, memory
+  // re-entry): transitionend-armed, with the final drift re-measure pass
+  const armPourHandoff = () => {
+    const doSwap = () => {
+      if (!["choose", "slide", "echo", "pour", "reveal"].includes(phaseRef.current)) return;
+      setMounts((m) => ({ ...m, reading: false })); setHandoffOn(true);
+      setActor((a) => a && ({ ...a, o: 0, oDur: 0, instant: false }));
+    };
+    // final truth pass: on device the viewport can shift mid-flight (chrome
+    // collapse, dvh resize), so the slide-beat targets can be stale by a few
+    // px — the eyebrow visibly jumped at the cut. Re-measure both slots
+    // against the SETTLED pane; if drifted, glide there before cutting.
+    const doCut = () => {
+      const va2 = vaRoot();
+      const rr = slotRect("reveal-card"), er2 = slotRect("eyeb-rev");
+      let drift = false;
+      const cardEl = va2 && va2.querySelector(".va-card-actor");
+      if (rr && cardEl && Math.abs(parseFloat(cardEl.style.left) - rr.left)
+        + Math.abs(parseFloat(cardEl.style.top) - rr.top)
+        + Math.abs(parseFloat(cardEl.style.width) - rr.width) > 1.5) {
+        drift = true;
+        setActor((a) => a && ({ ...a, left: rr.left, top: rr.top, width: rr.width, ar: rr.height / rr.width, dur: 220, ease: "ease", instant: false }));
+      }
+      const eyebEl = va2 && va2.querySelector(".va-eyeb-actor");
+      if (er2 && eyebEl) {
+        const dE = Math.abs(parseFloat(eyebEl.style.left) - er2.left)
+          + Math.abs(parseFloat(eyebEl.style.top) - er2.top);
+        // tiny drift: do NOT glide — the 220ms correction read as the
+        // eyebrow visibly hopping down at the end; the same-frame swap
+        // hides a ≤4px discontinuity completely
+        if (dE > 4) {
+          drift = true;
+          setEyeb((e) => e && ({ ...e, left: er2.left, top: er2.top, dur: 220, instant: false }));
+        }
+      }
+      if (drift) setTimeout(doSwap, 240); else doSwap();
+    };
+    const va = vaRoot(); const el = va && va.querySelector(".va-card-actor");
+    if (!el) { doCut(); return; }
+    let done = false;
+    const finish = () => { if (done) return; done = true; el.removeEventListener("transitionend", onEnd); doCut(); };
+    const onEnd = (e2) => { if (e2.target === el && (e2.propertyName === "left" || e2.propertyName === "top" || e2.propertyName === "width")) finish(); };
+    el.addEventListener("transitionend", onEnd);
+    setTimeout(finish, dv(700));
+  };
+
   const pick = (l) => {
     if (phaseRef.current !== "reading" && phaseRef.current !== "lenses") return;
-    setLens(l); setPicked(l.n);
+    setLens(l); setPicked(l.n); setPourWine(null);
     const TL = tRef.current.tlChoice;
     const ev = [];
     ev.push({ t: TL.choose.s, run: () => { setPhase("choose"); setVoiceOn(false); setLensesOn(false); setMounts((m) => ({ ...m, reveal: true })); } });
@@ -593,49 +649,7 @@ function App() {
     // jumped / "crossfaded into itself" right at the end). The clock event
     // only ARMS the listener (an echo dragged earlier than the slide must
     // still not teleport the card); a timeout is the can't-hang fallback.
-    ev.push({ t: Math.max(TL.echo.s, TL.slide.s + TL.slide.d), run: () => {
-      const doSwap = () => {
-        if (!["choose", "slide", "echo", "pour", "reveal"].includes(phaseRef.current)) return;
-        setMounts((m) => ({ ...m, reading: false })); setHandoffOn(true);
-        setActor((a) => a && ({ ...a, o: 0, oDur: 0, instant: false }));
-      };
-      // final truth pass: on device the viewport can shift mid-flight (chrome
-      // collapse, dvh resize), so the slide-beat targets can be stale by a few
-      // px — the eyebrow visibly jumped at the cut. Re-measure both slots
-      // against the SETTLED pane; if drifted, glide there before cutting.
-      const doCut = () => {
-        const va2 = vaRoot();
-        const rr = slotRect("reveal-card"), er2 = slotRect("eyeb-rev");
-        let drift = false;
-        const cardEl = va2 && va2.querySelector(".va-card-actor");
-        if (rr && cardEl && Math.abs(parseFloat(cardEl.style.left) - rr.left)
-          + Math.abs(parseFloat(cardEl.style.top) - rr.top)
-          + Math.abs(parseFloat(cardEl.style.width) - rr.width) > 1.5) {
-          drift = true;
-          setActor((a) => a && ({ ...a, left: rr.left, top: rr.top, width: rr.width, ar: rr.height / rr.width, dur: 220, ease: "ease", instant: false }));
-        }
-        const eyebEl = va2 && va2.querySelector(".va-eyeb-actor");
-        if (er2 && eyebEl) {
-          const dE = Math.abs(parseFloat(eyebEl.style.left) - er2.left)
-            + Math.abs(parseFloat(eyebEl.style.top) - er2.top);
-          // tiny drift: do NOT glide — the 220ms correction read as the
-          // eyebrow visibly hopping down at the end; the same-frame swap
-          // hides a ≤4px discontinuity completely
-          if (dE > 4) {
-            drift = true;
-            setEyeb((e) => e && ({ ...e, left: er2.left, top: er2.top, dur: 220, instant: false }));
-          }
-        }
-        if (drift) setTimeout(doSwap, 240); else doSwap();
-      };
-      const va = vaRoot(); const el = va && va.querySelector(".va-card-actor");
-      if (!el) { doCut(); return; }
-      let done = false;
-      const finish = () => { if (done) return; done = true; el.removeEventListener("transitionend", onEnd); doCut(); };
-      const onEnd = (e2) => { if (e2.target === el && (e2.propertyName === "left" || e2.propertyName === "top" || e2.propertyName === "width")) finish(); };
-      el.addEventListener("transitionend", onEnd);
-      setTimeout(finish, dv(700));
-    } });
+    ev.push({ t: Math.max(TL.echo.s, TL.slide.s + TL.slide.d), run: armPourHandoff });
     ev.push({ t: TL.bottle.s, run: () => setBottleOn(true) });
     ev.push({ t: TL.pour.s, run: () => { setPhase("pour"); setPourOn(true); } });
     ev.push({ t: TL.glow.s, run: () => setGlowOn(true) });
@@ -678,6 +692,14 @@ function App() {
     // end callback would setPhase("reveal") OVER our release. Kill it first.
     clock.cancel();
     if (pour) savePull({ ts: Date.now(), card: cardRef.current, lens: lens ? lens.name : null, wine: pour.wine, kept });
+    // a keep writes the journal: the deck jots the first note itself.
+    // Memory re-entry (pourWine set) re-keeping the SAME wine is a no-op —
+    // it's already in the book; a different pane's wine is a real new keep.
+    if (kept && pour && pour.wine !== pourWine) MemoryStore.add({
+      ts: Date.now(), card: cardRef.current, lens: lens ? lens.n : null,
+      wine: pour.wine, sub: pour.sub || ["", ""], bottle: pour.bottle || "assets/bottle-red.png",
+      jot: memoryJotFor(pour), hearted: false,
+    });
     if (kept && pour) showToast("KEPT · " + pour.wine.toUpperCase());
     const TL = tRef.current.tlReturn;
     const ev = [];
@@ -690,10 +712,11 @@ function App() {
     // beat is dragged earlier than the Release beat's end
     ev.push({ t: Math.max(TL.reform.s, TL.release.s + TL.release.d), run: () => {
       setReleasing(false);
-      setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false }));
+      setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: false }));
       setVoiceOn(false); setVeilOn(false); setLensesOn(false);
       setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
       setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
+      setMemPicked(null); setPourWine(null);
     } });
     ev.push({ t: TL.reform.s, run: () => { setPhase("reform"); ffRef.current = 1; setFF(false);
       setInvite(pickInvitation());
@@ -742,10 +765,11 @@ function App() {
       } });
       ev.push({ t: TL.release.d, run: () => {
         setReleasing(false);
-        setMounts((m) => ({ ...m, reading: false, reveal: false, deck: true }));
+        setMounts((m) => ({ ...m, reading: false, reveal: false, memory: false, deck: true }));
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
         setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
+        setMemPicked(null); setPourWine(null);
         setActor(null); setEyeb(null);
         setPhase("deck");
       } });
@@ -820,6 +844,135 @@ function App() {
     clock.run(ev, end, ffRef, () => { setPhase("reading"); ffRef.current = 1; setFF(false); });
   };
 
+  // ---------- MEMORY ----------
+  // Enter from the status bar on any stage — same two roads as THE DECK:
+  // from the Approach the UI fades on its exit curve; from anywhere deeper
+  // it's the house Release sink, landing on the ledger.
+  const toMemory = () => {
+    const p = phaseRef.current;
+    if (p === "memory" || p === "tomem" || p === "memfly") return;
+    glideScrollTop();
+    clock.cancel();
+    migrateMemoryFromPulls();
+    if (p === "approach" || p === "reform" || p === "pull") {
+      setReleasing(false);
+      const dur = tRef.current.dUiExit;
+      const ev = [];
+      ev.push({ t: 0, run: () => { setPhase("tomem");
+        setActor((a) => a && ({ ...a, o: 0, top: a.top + 14, dur: dv(dur), oDur: dv(dur), ease: E("easeUiExit"), instant: false }));
+      } });
+      ev.push({ t: Math.max(0, dur - 150), run: () => {
+        setMounts((m) => ({ ...m, memory: true }));
+        setPhase("memory");
+      } });
+      clock.run(ev, dur + 40, ffRef, () => { if (phaseRef.current === "tomem") { setMounts((m) => ({ ...m, memory: true })); setPhase("memory"); } });
+    } else {
+      const TL = tRef.current.tlReturn;
+      const ev = [];
+      ev.push({ t: 0, run: () => { setPhase("release"); setReleasing(true); setVeilOn(false); setGlowOn(false);
+        setActor((a) => a && ({ ...a, o: 0, top: a.top + 36, dur: dv(TL.release.d), oDur: dv(TL.release.d), ease: E("easeRelease"), instant: false }));
+        setEyeb((e) => e && ({ ...e, o: 0, dur: dv(TL.release.d), oDur: dv(TL.release.d), instant: false }));
+      } });
+      ev.push({ t: TL.release.d, run: () => {
+        setReleasing(false);
+        setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: true }));
+        setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
+        setGlowOn(false); setBottleOn(false); setHandoffOn(false);
+        setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
+        setMemPicked(null); setPourWine(null);
+        setActor(null); setEyeb(null);
+        setPhase("memory");
+      } });
+      clock.run(ev, TL.release.d + 40, ffRef, () => { ffRef.current = 1; setFF(false); });
+    }
+  };
+
+  // Tap a ledger row → The Pour for that wine: re-entry into the reveal, no
+  // re-draw. The row's mini card is already face-up — the actor takes it
+  // over, rises to center on the Draw's lift beat while the ledger sinks
+  // (the deckfly grammar), then the Choice tail plays: slide into the hero,
+  // echo, bottle, pour. The eyebrow materializes in place (no Reading to
+  // fly from) on the bleed beat's own fade recipe.
+  const openMemoryPour = (entry, r) => {
+    if (phaseRef.current !== "memory") return;
+    const c = ARCANA[entry.card];
+    const byLens = (window.POURS || {})[entry.card] || {};
+    // resolve the lens: the kept numeral → the wine's own lens → first with pours
+    let lensObj = c && (c.lenses || []).find((l) => l.n === entry.lens && byLens[l.n] && byLens[l.n].length);
+    if (c && !lensObj) {
+      const k = Object.keys(byLens).find((k2) => (byLens[k2] || []).some((p) => p.wine === entry.wine))
+        || Object.keys(byLens).find((k2) => byLens[k2] && byLens[k2].length);
+      lensObj = (c.lenses || []).find((l) => l.n === k);
+    }
+    if (!c || !lensObj) { showToast("THIS PAGE HAS FADED"); return; }
+    glideScrollTop();
+    clock.cancel();
+    setCard(entry.card);
+    setLens(lensObj); setPicked(lensObj.n);
+    setPourWine(entry.wine);
+    setMemPicked(entry.id);
+    setReleasing(false);
+    setVoiceOn(false); setVeilOn(false); setLensesOn(false);
+    setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
+    setWhispered(false);
+    const pre = new Image(); pre.src = "assets/cards/" + c.file + ".webp";
+    pre.onload = () => { if (pre.naturalWidth) faceARRef.current = pre.naturalHeight / pre.naturalWidth; };
+    if (pre.decode) pre.decode().catch(() => {});
+    const preBg = new Image(); preBg.src = "assets/cards/" + c.file + "-bg.webp";
+    if (preBg.decode) preBg.decode().catch(() => {});
+
+    // the actor takes over the row's mini card (face up, −4° like the row)
+    setActor({ left: r.left, top: r.top, width: r.width, ar: r.height / r.width, rot: -4, flip: 180, o: 1,
+      dur: 0, radius: 4, shadow: "sh-rest", instant: true });
+
+    const T = tRef.current, TLd = T.tlDraw, TLc = T.tlChoice;
+    // rise first; the ledger completes its exit-curve sink beneath the flight
+    const base = Math.max(TLd.lift.d, T.dUiExit) + 60;
+    const ev = [];
+    ev.push({ t: 0, run: () => { setPhase("memfly");
+      const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
+      const cy = S.h * (tRef.current.centerY / 100);
+      requestAnimationFrame(() => requestAnimationFrame(() =>
+        setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
+          dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
+    } });
+    // the ledger has faded — swap layouts and let The Pour choreograph in
+    ev.push({ t: base, run: () => { setPhase("choose");
+      setMounts((m) => ({ ...m, memory: false, reveal: true }));
+      setMemPicked(null);
+      setVeilOn(true);
+    } });
+    ev.push({ t: base + TLc.slide.s, run: () => { setPhase("slide");
+      const hs = (vaRoot() || document).querySelector(".rv-hero .hero-scale");
+      if (vaRef.current) {
+        const m = hs ? getComputedStyle(hs).transform : "none";
+        const sc = m && m.indexOf("matrix(") === 0 ? parseFloat(m.slice(7)) : 1;
+        vaRef.current.style.setProperty("--rvShSc", String(sc > 0 ? sc : 1));
+      }
+      const place = (tries) => {
+        const rr = slotRect("reveal-card"), er = slotRect("eyeb-rev");
+        if (!rr || !er) { if (tries > 0) requestAnimationFrame(() => place(tries - 1)); return; }
+        setActor((a) => a && ({ ...a, left: rr.left, top: rr.top, width: rr.width, ar: rr.height / rr.width, rot: -4,
+          dur: dv(TLc.slide.d), ease: E("easeSlide"), shadow: "sh-rev", radius: 8, instant: false }));
+        setEyeb({ left: er.left, top: er.top, fs: 9, ls: 0.28, o: 0, dur: 0, rules: false, lensOn: false, mode: "rev", instant: true });
+        requestAnimationFrame(() => requestAnimationFrame(() =>
+          setEyeb((e) => e && ({ ...e, o: 1, dur: 650, oDur: 650, instant: false }))));
+      };
+      place(30);
+    } });
+    ev.push({ t: base + TLc.echo.s, run: () => { setPhase("echo"); setEchoOn(true); setEyeb((e) => e && ({ ...e, lensOn: true })); } });
+    ev.push({ t: base + Math.max(TLc.echo.s, TLc.slide.s + TLc.slide.d), run: armPourHandoff });
+    ev.push({ t: base + TLc.bottle.s, run: () => setBottleOn(true) });
+    ev.push({ t: base + TLc.pour.s, run: () => { setPhase("pour"); setPourOn(true); } });
+    ev.push({ t: base + TLc.glow.s, run: () => setGlowOn(true) });
+    const end = base + Math.max(TLc.choose.s + TLc.choose.d, TLc.slide.s + TLc.slide.d,
+      TLc.echo.s + TLc.echo.d, TLc.pour.s + TLc.pour.d + 460, TLc.glow.s + TLc.glow.d,
+      TLc.bottle.s + TLc.bottle.d);
+    clock.run(ev, end, ffRef, () => { setPhase("reveal"); ffRef.current = 1; setFF(false);
+      setEyeb((e) => e && ({ ...e, o: 0, oDur: 0 }));
+    });
+  };
+
   const replay = () => {
     const p = phaseRef.current;
     if (!cardRef.current || p === "approach" || p === "reform") { showToast("PULL A CARD FIRST"); return; }
@@ -827,8 +980,9 @@ function App() {
     glideScrollTop();
     clock.cancel();
     setReleasing(false);
-    setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false });
+    setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false, deck: false, memory: false });
     setLens(null); setPicked(null); setEyeb(null); setCard(id);
+    setMemPicked(null); setPourWine(null);
     requestAnimationFrame(() => requestAnimationFrame(() => {
       placeOnDeck(true);
       setTimeout(() => runDraw(id), 380);
@@ -844,6 +998,8 @@ function App() {
     release: () => release(null, false),
     deck: () => toDeck(),
     deckDraw: (id, r) => runDeckDraw(id, r),
+    memory: () => toMemory(),
+    memoryOpen: (entry, r) => openMemoryPour(entry, r),
     hurry, phase: () => phaseRef.current,
   };
 
@@ -852,7 +1008,7 @@ function App() {
     phase,
     canDraw: phase === "approach",
     approachUiIn: phase === "approach" || phase === "reform",
-    approachShown: ["approach", "pull", "lift", "drop", "reform", "todeck"].includes(phase),
+    approachShown: ["approach", "pull", "lift", "drop", "reform", "todeck", "tomem"].includes(phase),
     deckIn: ["approach", "pull", "lift", "reform"].includes(phase),
     veilIn: veilOn,
     voiceIn: voiceOn,
@@ -941,7 +1097,8 @@ function App() {
           <div className="rx-grain"></div>
           {F.echoIn || phase === "release" ? <div className={"rv-glow" + (F.glowIn ? " on" : "")}></div> : null}
           <div className="va-status-pin"><StatusBar6 light={light} onHome={home} onDeck={toDeck} onToast={showToast}
-            deckOn={["todeck", "deck", "deckfly"].includes(phase)}></StatusBar6></div>
+            deckOn={["todeck", "deck", "deckfly"].includes(phase)}
+            onMemory={toMemory} memOn={["tomem", "memory", "memfly"].includes(phase)}></StatusBar6></div>
 
           {mounts.approach ? (
             <Approach light={light} invite={invite} whisper={whisper} setWhisper={setWhisper}
@@ -952,11 +1109,15 @@ function App() {
               desktop={desktop} F={F} onPick={pick} lensStep={t.lensStep} spd={spd} orbit={orbitTuning}></Reading>
           ) : null}
           {mounts.reveal && card && lens ? (
-            <Reveal card={card} lens={lens} light={light} F={F} spd={spd}
+            <Reveal card={card} lens={lens} light={light} F={F} spd={spd} initialWine={pourWine}
               onKeep={(p) => release(p, true)} onFade={(p) => release(p, false)}></Reveal>
           ) : null}
           {mounts.deck ? (
             <DeckGrid F={F} drawingId={card} onPick={runDeckDraw}></DeckGrid>
+          ) : null}
+          {mounts.memory ? (
+            <MemoryScreen light={light} leaving={phase === "memfly"} pickedId={memPicked}
+              onOpen={openMemoryPour} onDraw={() => release(null, false)}></MemoryScreen>
           ) : null}
 
           <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>

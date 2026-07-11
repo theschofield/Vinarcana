@@ -15,14 +15,15 @@ function Scale({ l, r, v }) {
   );
 }
 
-function PourPane({ p, hl, light, i, F, spd, pinned, onV }) {
-  // pane 0 choreographs in; later panes render settled (they're offscreen until swiped)
-  const heroIn = i > 0 || F.echoIn;
-  const bodyIn = i > 0 || F.pourIn;
-  const bottleIn = i > 0 || F.bottleIn;
+function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry }) {
+  // the ENTRY pane choreographs in (pane 0 normally; the kept wine's pane on
+  // memory re-entry); the others render settled — they're offscreen until swiped
+  const heroIn = !entry || F.echoIn;
+  const bodyIn = !entry || F.pourIn;
+  const bottleIn = !entry || F.bottleIn;
   const bottleSrc = p.bottle || "assets/bottle-red.png";
   const [scrolled, setScrolled] = React.useState(false);
-  const d = (ms) => ({ transitionDelay: Math.round((i > 0 ? 0 : ms) / spd) + "ms" });
+  const d = (ms) => ({ transitionDelay: Math.round((!entry ? 0 : ms) / spd) + "ms" });
   const onScroll = (e) => {
     const top = e.currentTarget.scrollTop;
     setScrolled(top > 4);
@@ -64,7 +65,7 @@ function PourPane({ p, hl, light, i, F, spd, pinned, onV }) {
   );
 }
 
-function Reveal({ card, lens, light, F, onKeep, onFade, spd }) {
+function Reveal({ card, lens, light, F, onKeep, onFade, spd, initialWine }) {
   const c = ARCANA[card];
   const cardSrc = "assets/cards/" + c.file + ".webp";
   // POURS is keyed by lens_no (each lens carries its own echo + pours);
@@ -74,14 +75,25 @@ function Reveal({ card, lens, light, F, onKeep, onFade, spd }) {
     : Object.keys(byLens).find((k) => byLens[k] && byLens[k].length);
   const pours = (byLens[lensKey] || []).map((p) => ({ ...p, cardSrc }));
   const pinned = pours.length > 1;
-  const [idx, setIdx] = React.useState(0);
-  const idxRef = React.useRef(0);
+  // memory re-entry lands on the KEPT wine's pane, not pane 0
+  const initIdx = React.useMemo(() => {
+    if (!initialWine) return 0;
+    const i = pours.findIndex((p) => p.wine === initialWine);
+    return i < 0 ? 0 : i;
+  }, []);
+  const [idx, setIdx] = React.useState(initIdx);
+  const idxRef = React.useRef(initIdx);
   const [pinY, setPinY] = React.useState(0);
   const [pinAnim, setPinAnim] = React.useState(false);
   const animTimer = React.useRef(null);
   const topsRef = React.useRef([]);
   const ref = React.useRef(null);
   React.useEffect(() => () => clearTimeout(animTimer.current), []);
+  // memory re-entry: stand on the kept wine's pane before first paint
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (el && initIdx > 0) el.scrollLeft = initIdx * el.clientWidth;
+  }, []);
   const onScroll = () => {
     const el = ref.current; if (!el) return;
     const i = Math.max(0, Math.min(pours.length - 1, Math.round(el.scrollLeft / el.clientWidth)));
@@ -137,7 +149,7 @@ function Reveal({ card, lens, light, F, onKeep, onFade, spd }) {
           </div>
         ) : null}
         <div className="rv-pours" ref={ref} onScroll={onScroll}>
-          {pours.map((p, i) => <PourPane key={i} p={p} hl={hl} light={light} i={i} F={F} spd={spd} pinned={pinned} onV={onV}></PourPane>)}
+          {pours.map((p, i) => <PourPane key={i} p={p} hl={hl} light={light} i={i} F={F} spd={spd} pinned={pinned} onV={onV} entry={i === initIdx}></PourPane>)}
         </div>
       </div>
     </div>

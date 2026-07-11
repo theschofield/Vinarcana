@@ -339,6 +339,181 @@ File: `Vintner's Arcana - Flow Prototype v5.html` + `explorations/flow5{-app,-re
   assets/bottle-red.png / bottle-white.png assigned by wine color in flow-content.jsx.
 - v4 files untouched; v5 EDITMODE defaults in FLOW5_DEFAULTS.
 
+## FLOW PROTOTYPE v4 — DESKTOP POLISH (superseded by v5)
+File: `Vintner's Arcana - Flow Prototype v4.html` + `explorations/flow4{-app,-root}.jsx, flow4.css`.
+(Loads flow2-app first, then flow4-app OVERRIDES Reading; flow2-choreo/reveal + flow3-motion unchanged.)
+- **Orbit is alive:** each lens floats on its own slow multi-sine drift (position + scale breath,
+  periods 9–14s, per-lens phase) and the cursor gently GROWS a lens and PULLS it toward the pointer
+  inside a proximity radius (smoothstep falloff, spring-smoothed, prefers-reduced-motion aware).
+  One rAF loop writes transforms to an inner .orb-float wrapper; the outer element keeps slot math,
+  positions, and enter/exit fx. Freezes during the choose beat. Tweaks: Float on/off, Drift px,
+  Drift speed, Scale breath, Cursor reach/pull/grow, plus Orbit spread (lens distance from center).
+- **Desktop fix (was the big layout bug):** the generic .fx.up.in transform rules out-specified the
+  orbit elements' translate(-50%,-50%) and stripped centering on enter — lenses and the voice line
+  sat anchored by their top-left corner. flow4.css restates fx states with centering baked in.
+  Also: orbit lenses get width:max-content (abs-pos shrink-to-fit was crushing right-side subtitles),
+  knowing line capped at min(52ch, 46vw).
+- **Desktop veil vignette:** mobile's mottled fade lives on the oversized veil image, so on wide
+  frames it fell outside the viewport and read flat. .vw-desk adds a viewport-scale mottled
+  radial mask on .rx-veil (composes with the image mask). Tweak: "Vignette edge · desktop".
+- **Desktop reveal measure caps:** body 64ch, stats/scales/actions 600px (the 780px column stays).
+- Default viewport tweak is now "auto" (desktop phase); flip to "phone" for the mobile frame.
+- `window.__vaDrive` = scripted walkthrough hook ({draw(id), pick(i), release(), hurry, phase()}).
+- v3 files untouched; v4 EDITMODE defaults live in FLOW4_DEFAULTS in flow4-root.jsx.
+
+## FLOW PROTOTYPE v6 — DECK VIEW · HINT SHIMMER · SAFARI (current state)
+File: `Vintner's Arcana - Flow Prototype v6.html` + `explorations/flow6{-root,-deck}.jsx,
+flow6.css, flow6-safearea.css`. `vercel-deploy/` is the deploy mirror — keep it byte-identical
+(verified in sync July 2026; re-copy flow files + design-tokens.json after any edit).
+- **THE DECK:** grid of all 78 faces (thumbs), phases todeck → deck → deckfly. Tap a tile →
+  actor takes over face-up and runs the TAIL of tlDraw (lift-equivalent → settle → bleed →
+  voice → lenses). Desktop tiles tilt toward cursor + specular shine via CSS vars (no re-render).
+- **Idle hint shimmer ("beckon"):** after `beckonDelay`s of inaction on the two waiting stages
+  (Approach hint / Lenses foot line), the mono text catches a slow pass of light. Any press
+  re-arms the timer. Implementation rules that MUST hold:
+  · Hint elements are PRE-ARMED at rest in the same render mode (background-clip:text, flat
+    gradient at the resting color) so arming never flips text-fill-color — that mode flip was
+    a visible flash. The rest rule must stay BEFORE `.va .beckon` in flow6.css source order
+    (equal specificity; later wins — reversed order makes the shimmer invisibly static).
+  · Resting alphas matched exactly: dark mono 0.45 / dark hint 0.5 / light both 0.5.
+  · Band geometry in absolute px (fixed 460px overhang) so both stages render identically.
+  · Band colors pre-blended toward resting text color (Intensity slider) — alpha fade alone
+    punches holes in clip-text. Tweaks: "Hint shimmer" fold (delay, per-mode color, intensity,
+    per-stage pass period + band width). prefers-reduced-motion disables arming entirely.
+- **Mobile-Safari handling (no UA sniffing anywhere):**
+  · `flow6-safearea.css`: shell tracks 100dvh; bottom-anchored interactives (draw hint, read
+    foot, pour actions, deck scroll) pad by env(safe-area-inset-bottom); status bar by inset-top.
+  · Bleed mask is baked to a 640px raster PNG once per config (canvas) — animating mask-size
+    on a live feTurbulence-filtered SVG re-rasterizes every frame (jank on mobile Safari);
+    the SVG data-URI is only the fallback while the bake is in flight.
+  · `theme-color` meta synced to night/day so Safari's translucent chrome tints correctly.
+  · `deckTopMobile` token replaces `deckTop` on real touch devices ((hover:none)+(pointer:coarse))
+    — compensates for phone chrome vs desktop preview of the same mobile layout.
+  · `card-back.webp` preloaded in <head>; deck warm-up preloads all thumbs fast then faces slow;
+    draw pre-decodes face + bg before the flip. `will-change` on the reveal bottle stops the
+    end-of-transition shadow re-raster pop.
+- **Pour handoff shadow (v6 fix, two layers):** (1) the actor stacks 2–3 imgs (back + poster +
+  face) and flow2.css shadowed EACH — overlapping identical shadows composite darker (light:
+  two 0.4-alpha ≈ 0.64 effective vs the real card's single 0.4), so every actor→card swap
+  dropped shadow opacity for a frame (user's screen recording: one-frame luminance step at the
+  cut). Shadow now paints ONCE, on the two mutually-exclusive imgs (card BACK, first child +
+  LAST face img) — backface-visibility guarantees exactly one is painted at any flip angle, so
+  the single shadow also ROTATES WITH THE CARD (a root/::before shadow does not — it sat as a
+  static rectangle behind the flipping card, the follow-up bug). (2) the real Pour card sits inside the
+  transform-scaled .hero-scale (0.76 short-desktop) which scales its RENDERED shadow; --rvShSc
+  (measured at the slide beat) pre-shrinks the actor's sh-rev shadow to match. Verified via
+  cascade harness: 0 img shadows; ::before === real × 0.76 exactly.
+- **Pour handoff (v6 fix):** the actor→pane card swap is keyed to the actor's real
+  `transitionend` (left/top/width), NOT the nominal slide end — CSS transitions start a few
+  frames after the state move and the slide ease has a long tail, so a clock-timed cut caught
+  the last ~3px mid-glide (card visibly jumped / "crossfaded into itself"). Verified: delta at
+  cut is 0.0px. The clock event only arms the listener; 700ms timeout fallback.
+- **Bottle PNGs warm first** in the boot preload (scanned from POURS data) — a cold bottle
+  used to decode mid-Pour-transition and pop in.
+- **Whisper open/close (v6 refinement):** flow6-approach.jsx overrides flow2-app's Approach —
+  circle → field is a CROSSFADE (both states stay mounted in one grid cell), field rises on the
+  house 620ms curve; the old hard React swap popped the circle away and rushed the field in at
+  320ms. Input stays mounted so it's focused synchronously in the tap gesture (mobile-Safari
+  keyboard requirement).
+- **Deck warm-up:** thumbs preload in 8 PARALLEL lanes (~1s warm), then full faces amble on one
+  lane after all thumbs land. Never serial-waterfall this again — one-at-a-time let users open
+  DECK and watch tiles trickle in.
+- **Mobile Safari edge-to-edge (v6, THREE-LAYER CONSTRUCTION — user's architecture, iOS 26):**
+  scroll-proxy AND per-phase engage/disengage are both dead ends (jitter; wild jumps when
+  layouts re-wrapped mid-transition). Constant construction on real phones (html.va-doc):
+  1. THE FIELD scrolls: .va/.rx in document flow, min-height 100lvh, grain rides along.
+     Deck grid & Pour panes unwrap into the document WHENEVER MOUNTED (html.va-flow-deck /
+     -pour driven by mounts, NOT phase) so nothing re-wraps mid-choreography.
+  2. THE VEIL + glow: position fixed, viewport-sized; vignette fades into the field so the
+     imagery never stretches/re-crops as the page grows (the old "wild background jump").
+  3. FLOATING UI: status bar / pour actions / dots are small fixed bars w/ safe-area.
+     Scrims only where content scrolls under (status). NO bottom scrim on actions — the
+     liquid-glass pill handles its own backdrop.
+  Leaving a scrolled view: glideScrollTop() eases the window home as part of the
+  choreography (never teleport scrollY — that's the chrome jump). Actor/eyebrow live in
+  document space; vaSize()/vaH clamp to the visual viewport when grown. Geometry verified
+  by harness (scraps/docflow-probe*.html): pour doc height == tallest pane, no horizontal
+  document overflow, stage doc == viewport.
+- **iOS 26 overlay law (FINAL FORM, five device rounds, July 2026): position:fixed is POISON.**
+  Every round some fixed element — full frames, scrims, even small transparent bottom bars —
+  summoned the opaque toolbar backdrop. flow6-docflow.css now contains ZERO fixed. Pinning is
+  position:STICKY (in-flow to Safari → no backdrop; compositor → no jitter):
+  · Veil: sticky top-0, 100lvh + bottom safe-area tall (edge lives below collapsed chrome),
+    negative margin-bottom for zero flow footprint.
+  · Glow: same recipe at 100svh (bottom ≈ the buttons when chrome is tall).
+  · Status: hangs (absolute) from .va-status-pin — a zero-height sticky pin rendered
+    DOM-EARLY in .rx (StatusBar6 moved before the layers in flow6-root; z-index 6+40 keeps it
+    on top — do not move it back after the layers or sticky can't pin it).
+  · Pour actions + dots: SUPERSEDED — see "FLOW v6 — iOS 26 SAFARI BOTTOM-CHROME: THE POUR
+    ACTION BAR (locked)" below. (Simulator rounds proved the backdrop trigger is any
+    BOTTOM-ANCHORED element, not fixed-vs-sticky and not the glow alone; the locked bar is
+    fixed but TOP-referenced via --foot-vh.) The glow stays display:none in document mode
+    (also user's call — every pinning scheme warped it; desktop keeps it).
+  Eyebrow drift pass: ≤4px drift = swap without gliding (the 220ms correction read as a
+  visible hop at the transition's end); >4px still glides.
+- **Pour eyebrow ink: 80%** (flow2 mode-rev / round13 values). User-set; don't raise.
+- **design-tokens.json is USER-OWNED as of July 2026** — they tune via ?studio and export.
+  When adopting an exported file, ALWAYS sanitize `viewport` back to "auto" ("phone" is
+  their studio session's frame toggle; shipping it forces the phone frame on desktop and
+  disables doc-mode on real phones). Keep EDITMODE defaults in flow6-root synced to it.
+- **Tweaks → defaults workflow:** panel edits persist in that browser's localStorage only.
+  design-tokens.json is FETCHED at boot as the base layer — "Export design-tokens.json"
+  (top of panel) downloads the snapshot; dropping it at the deploy root makes those values
+  the defaults on every device.
+- **Clip-text hint layers get a standing translateZ(0)** (flow6.css): fading an ancestor's
+  opacity promotes the subtree mid-transition and iOS drops background-clip:text for the
+  ride — the Lenses foot line VANISHED instead of fading on device.
+- **Pour eyebrow reads at full ink** — flow6.css overrides flow2's mode-rev dim (0.8) and
+  round13's 0.8 card-part to full --apri/--amber (round13 canon file untouched).
+- **Approach→Deck grid mounts at dUiExit − 150ms** (user-tuned overlap).
+  Field: stages (:not(.va-flow)) overshoot by +100px so no seam shows behind the chrome;
+  scroll views size to content (no overshoot — it allowed pulling past the end).
+- **Vignette floor:** vigMaskMob/Desk clamped edge at Math.max(0.55, …) — slider went to 25
+  but nothing changed below ~55%. Clamp lowered to 0.25. (The real Safari fix is the veil's
+  lvh sizing above; the low floor is for taste.)
+- **Approach→Deck exit:** the deck grid mounts AFTER the approach fade completes (t: dur),
+  same contract as the release path — mounting at t:0 crossfaded the two screens.
+- **Deck lift is TWO values after all:** deckLift (all mobile breakpoints incl. phone frame,
+  default 40 = old 10% top) + deckLiftDesk (default 32 = old 18% top). Both are % above the
+  viewport's vertical midpoint.
+- **Standalone/PWA (display-mode: standalone or navigator.standalone):** no browser chrome →
+  docMode OFF (fixed works fine there).
+- **Settle size (July 2026):** settle overshoot = settleScale × the LARGER of the Approach
+  deck width and the final rest-slot width (was rest-slot only — on crowded lens screens the
+  rest card is smaller than the deck, so the drop shrank below the deck it was pulled from,
+  anticlimactic). Desktop unchanged via the max().
+- **Serif "weight change" investigated (July 2026): NOT a regression.** v5 and v6 load the
+  identical Google Fonts URL; DM Serif Display 400 (its only weight) verified loading and
+  rendering via canvas probe. The perceived lightening = v6's new system-mode default showing
+  LIGHT field for the first time (navy-on-paper serif reads thinner than bone-on-black bloom).
+  Do not "fix" the font; offer night-pinning if it bothers the user.
+- **Card actor shadow (FINAL FORM — one .shdw div inside .flip3d):** never put the actor's
+  shadow on imgs (identity changes when the face mounts; first paint doesn't transition →
+  double-shadow flash that decays on flow2's old fixed 600ms ease — the "jumps then drifts
+  lighter" bug) and never on the actor root (doesn't rotate with the flip). The .shdw div is
+  persistent, rotates/foreshortens with the card, and CardActor drives its box-shadow
+  transition with the same duration/ease as the actor's move — the shadow always travels on
+  the beat's own curve. sh-rev still scales by --rvShSc.
+- **Pour-entry eyebrow jump (v6 fix):** slide-beat slot targets can go stale on device
+  (viewport shifts mid-flight). The handoff now re-measures reveal-card + eyeb-rev after the
+  slide's transitionend, glides the actors to the fresh rects (220ms) if drifted >1px, THEN
+  cuts. Applies to card and eyebrow both.
+- **Flip stutter (v6 fix):** the full-res face used to paint the moment it finished
+  loading — often mid-flip (the pre-apex stutter on device). The actor now carries only the
+  poster thumb through every moving beat (pull/lift/drop/settle/deckfly); the full face img
+  mounts at rest (bleed onward). All actor imgs decoding="async".
+- **Deploy conveniences:** `t.mode` is now `"system" | "night" | "day"`, default "system" —
+  the app follows the device's prefers-color-scheme unless the studio switch pins a mode.
+  Tweaks panel on deploy is gated behind `/?studio` or Ctrl+Shift+E (self-sends
+  `__activate_edit_mode`; the design-tool toolbar path is unchanged). Favicons live in
+  `vercel-deploy/favicon/` + site.webmanifest; deploy index title/og/apple-touch metas say
+  "Vintner's Arcana". Deploy index uses PRODUCTION React 18.3.1 with SRI hashes (verified
+  loading); the root prototype keeps the dev build for debugging.
+- Reviewed July 2026 (post "shimmer timing / safari optimization" session): full flow drives
+  clean (draw → reading → pick → reveal → release → approach → deck), zero console errors,
+  no missing assets (78 faces + 78 bgs + 78 thumbs in root AND deploy), design-tokens.json
+  has zero drift vs FLOW5_DEFAULTS.
+
 ## FLOW v6 — iOS 26 SAFARI BOTTOM-CHROME: THE POUR ACTION BAR (locked)
 Files: `explorations/flow6-docflow.css` (`.va-foot-pin` + ghost-button blur) + `flow6-root.jsx` (`--foot-vh` effect).
 - **The bug:** iOS 26 Safari paints an opaque BACKDROP fill behind its floating bottom chrome on
@@ -367,28 +542,6 @@ Files: `explorations/flow6-docflow.css` (`.va-foot-pin` + ghost-button blur) + `
   chrome (clean) or covered by a flat band (backdrop) — do NOT trust subtle texture reads. simctl
   can't inject swipe gestures, so the scroll/collapse test is on-device.
 
-## FLOW PROTOTYPE v4 — DESKTOP POLISH (superseded by v5)
-File: `Vintner's Arcana - Flow Prototype v4.html` + `explorations/flow4{-app,-root}.jsx, flow4.css`.
-(Loads flow2-app first, then flow4-app OVERRIDES Reading; flow2-choreo/reveal + flow3-motion unchanged.)
-- **Orbit is alive:** each lens floats on its own slow multi-sine drift (position + scale breath,
-  periods 9–14s, per-lens phase) and the cursor gently GROWS a lens and PULLS it toward the pointer
-  inside a proximity radius (smoothstep falloff, spring-smoothed, prefers-reduced-motion aware).
-  One rAF loop writes transforms to an inner .orb-float wrapper; the outer element keeps slot math,
-  positions, and enter/exit fx. Freezes during the choose beat. Tweaks: Float on/off, Drift px,
-  Drift speed, Scale breath, Cursor reach/pull/grow, plus Orbit spread (lens distance from center).
-- **Desktop fix (was the big layout bug):** the generic .fx.up.in transform rules out-specified the
-  orbit elements' translate(-50%,-50%) and stripped centering on enter — lenses and the voice line
-  sat anchored by their top-left corner. flow4.css restates fx states with centering baked in.
-  Also: orbit lenses get width:max-content (abs-pos shrink-to-fit was crushing right-side subtitles),
-  knowing line capped at min(52ch, 46vw).
-- **Desktop veil vignette:** mobile's mottled fade lives on the oversized veil image, so on wide
-  frames it fell outside the viewport and read flat. .vw-desk adds a viewport-scale mottled
-  radial mask on .rx-veil (composes with the image mask). Tweak: "Vignette edge · desktop".
-- **Desktop reveal measure caps:** body 64ch, stats/scales/actions 600px (the 780px column stays).
-- Default viewport tweak is now "auto" (desktop phase); flip to "phone" for the mobile frame.
-- `window.__vaDrive` = scripted walkthrough hook ({draw(id), pick(i), release(), hurry, phase()}).
-- v3 files untouched; v4 EDITMODE defaults live in FLOW4_DEFAULTS in flow4-root.jsx.
-
 ## Assets
 - `assets/cards/major_15..21.png` — weathered Rider–Waite faces.
 - `assets/bottle-vat1.png` — real Tyrrell's Vat 1 bottle, transparent bg (264×960).
@@ -399,3 +552,106 @@ File: `Vintner's Arcana - Flow Prototype v4.html` + `explorations/flow4{-app,-ro
 - Rounds 1–4 = exploration canvases (design_canvas starter). Round N files: `explorations/round{N}*.{css,jsx}` + `app-round{N}.jsx`.
 - Card art: `assets/cards/major_15..21.png` (weathered Rider–Waite). Only 15–21 present so far.
 - Each artboard tagged `data-screen-label`; user comments anchor to elements via `data-comment-anchor`.
+
+
+## Process note — exploration file namespaces (Jul 10, 2026)
+A "round NN" collision broke a canvas: the Memory session and the Deeper Reading session both claimed `round15-*` in explorations/, and the later session overwrote the earlier one's css/content (Memory Explorations v1 went blank). Namespace exploration files by JOURNEY, not round number — e.g. `memory-v2-*.jsx`, `deeper-reading-*.css`. Memory v1's deps were restored as `memory-v1-*`.
+
+
+## Memory journey — verdicts so far (Jul 10, 2026)
+- Direction locked: the Annotated Ledger (list rows with the Pour's card+bottle pairing miniaturized at left; card eyebrow, wine serif, jot, grape·region mono; heart + small date at right).
+- Jot font journey: Caveat (v2) → rejected; DM Serif italic too bold; Rock Salt rejected; Cormorant "didn't love"; final pick: **Nothing You Could Do**, 11.5px, hugging the wine name (1px gap).
+- Hearted emphasis: **fine wave ink underline** under the wine name, apricot ~0.5, with ~6px clearance below the name. User also likes a highlighter/wash idea — v7 retries pending verdict.
+- Filter: heart-circle read as "hearting the whole list" — replaced with a labeled **"♥ Hearted" toggle pill** (loved). Segmented alternative parked.
+- Swipe actions: EDIT (apricot pen) then DELETE (no alarm color, icon only). Wells must mirror the heart/date column construction (30px icon box, 3px gap, 7.5px mono cap).
+- The jot is prefilled by the deck, user-editable via swipe→edit (their idea, embraced).
+- Dates: small mono margin notes, never a leading element. Lens never shown in Memory (meaningless out of context).
+- Last row in a month drops its bottom divider. Bottle sits at left:30px in the pair; pair column 68px.
+
+
+## Memory journey — FINAL (Jul 11, 2026)
+Locked and consolidated for build. Point Claude Code at **"Memory - Final.html"** (canvas: list, hearted filter, swipe, empty — night + day each) with consolidated styles in `explorations/memory-final.css` + `explorations/memory-final-boards.jsx` (data: `explorations/memory-v2-content.jsx`).
+- List: Annotated Ledger. Newest-first, month mono group rules; last row per month has no divider. Row = pairing (card −4°, h72; bottle left:30, h96; pair 68px) + eyebrow (numeral · card) + wine (DM Serif 18) + jot (Nothing You Could Do 11.5/1.45, 1px under wine) + grape·region mono. Right: heart toggle (30px box) + mono date 7.5, 3px gap.
+- Hearted: fine wave SVG underline under wine (apricot .5 night / amber .55 day, 6px clearance). Highlighter idea rejected (v6–v7).
+- Filter: "♥ Hearted" toggle pill in header; on = apricot border/fill; count line restates view. Hidden on empty state.
+- Swipe: row −118px reveals EDIT (apricot pen, opens jot editing) then DELETE (icon, no alarm color); wells mirror the aside construction.
+- Empty: chosen option C "the first note" — ouroboros bottle illustration (assets/bottle-snake-light.png user art; bottle-snake-dark.png generated recolor), "No memories yet.", NYCD line + wave, DRAW A CARD pill; 100px bottom padding; bottle 2px above title block.
+- Tap row → The Pour for that wine.
+
+
+## Memory — BUILT INTO THE FLOW (Jul 11, 2026)
+Implemented from the FINAL canvas into the production app (index.html at repo root; there is no
+separate vercel-deploy/ anymore — the root IS the deploy). New files: `explorations/memory-store.js`
+(storage seam), `explorations/flow6-memory.jsx` + `flow6-memory.css` (the view; mf- classes verbatim
+from the canvas sheet + an app-integration section). Wired in flow6-root/flow6-deck/flow5-reveal;
+"Nothing You Could Do" added to the app font URL; `assets/bottle-snake-{dark,light}.png` adopted.
+- **Storage seam:** `window.MemoryStore` (all/add/update/remove) over localStorage key `va-memory` —
+  the accounts/DB backend replaces this one object later. Entry: { id, ts, card, lens, wine,
+  sub:[GRAPE, REGION], bottle, jot, hearted }. `lens` (the numeral) IS stored — never shown in
+  Memory, but it's the exact key for faithful Pour re-entry (multi-pour lenses land on the kept
+  wine's pane via Reveal's new `initialWine`). One-time migration folds pre-Memory kept va-pulls
+  into the journal.
+- **Jot prefill resolution (needs a content-pipeline verdict eventually):** pour.jot (future
+  content field) → the ten wine-keyed lines locked on the Memory Final canvas (MEMORY_JOTS in
+  memory-store.js) → mechanical fallback: the last well-sized sentence of the pour's own approved
+  blurb (reveal bodies end on the bottle — the punchline reads as a jot). No new copy is written.
+- **Sub line display rule:** first grape only; region without producer/country (canvas-mock
+  shortening, mechanized with a country list in `memorySubLine`). Stored sub stays raw/structured.
+- **Entering Memory** = the Deck's two roads, verbatim: from Approach the UI-exit fade (tomem
+  phase, deck stack + actor sink); from anywhere deeper the Release sink. Leaving = house release/
+  reform. MEMORY status link uses the dk-link lit treatment; lit on tomem/memory/memfly.
+- **Row → Pour re-entry choreography ("memfly"):** actor takes over the row's mini card same-frame
+  (−4°, face up), rises to optical center on the Draw's lift beat while the ledger sinks on the
+  UI-exit curve; layouts swap (memory unmounts, reveal mounts, veil bleeds); then the Choice tail
+  plays verbatim (slide → echo → bottle → pour → glow) with the transitionend-armed handoff +
+  drift re-measure (now factored as one `armPourHandoff` shared by pick() and memory re-entry).
+  Eyebrow materializes at its Pour slot on the bleed beat's fade recipe (no Reading to fly from).
+- **Re-keeping from a Memory re-entry is a no-op** (same wine ≠ a new night); keeping a DIFFERENT
+  pane's wine from there is a real new keep. Normal-flow keeps always write the journal.
+- **Swipe mechanics:** wells are visibility-hidden until a drag/open reveals them (rows are
+  transparent — resting wells showed straight through; 320ms exit delay so they persist under the
+  closing glide). Tap-vs-swipe judged by TOTAL pointer travel at release, not streamed moves (a
+  fast drag can reach pointerup with no move events and must never read as a row-tap).
+  rows are user-select:none. Inline jot editor = the jot line itself becomes an input (NYCD
+  metrics, hairline apricot underline), flushSync-mounted so focus lands inside the tap gesture.
+- **Delete** folds the row closed (max-height 170→0 + fade, 260ms), no confirm, no alarm color.
+- **★ Actor race fix (general):** the settle re-place effect + deck-top ResizeObserver now bail
+  while the motion clock is running — their rAF callbacks can read a one-frame-stale phaseRef and
+  land a placeOnDeck(o:1) AFTER a timeline beat's setActor(o:0) (the "deck card haunting the
+  Memory ledger" bug; any timeline leaving approach was exposed).
+- **Desktop:** the ledger column rides the Pour's rhythm — head + list share width
+  min(var(--rv-col, 620px), 100%), centered. (No desktop board existed; this is the build call.)
+- **Doc-flow (phones):** html.va-flow-mem unwraps mf-screen/mf-list whenever mounted (mask off,
+  document scrolls, safe-area padding; head clears the status pin at max(24px, safe-top)+52px —
+  the deck's own clearance). Precedence deck > memory > pour; classes ride MOUNTS as always.
+  NOT yet device-verified — needs the usual iOS 26 simulator/device round (list scroll, swipe vs
+  page-pan, foot behavior). Everything follows the deck/pour's locked constructions.
+- Verified in-browser (desktop night+day, 375px layout values, full loop draw → keep → journal →
+  re-entry → release ×N): zero console errors; geometry matches the canvas numbers exactly
+  (pair 68, card h72@−4°, bottle h96@left:30, jot 11.5/1.45 at 1px, aside 30px box + 3px gap +
+  7.5px date, wave clearances, pill states, month rules, empty state).
+
+## Deeper Reading journey — FINAL "The Flip" (Jul 11, 2026)
+(Consolidated from the locked canvas — the session's verdicts weren't logged here as they landed.)
+Point Claude Code at **"Deeper Reading - Final.html"** (night + day each). Styles:
+`explorations/deeper-v5.css` over `deeper-v3.css` (slab material) over `round15.css` (gp-*
+guidebook type) + `round10.css`/`round13.css`. Boards: `deeper-v{3,5}-boards.jsx` +
+`app-deeper-v5.jsx`; content: GUIDE_MOON via `round15-{content,guide,panel}.jsx` + `round12-content.jsx`.
+- **Concept: the surface IS the card.** On the Reading (Lenses) screen, tapping the card FLIPS it;
+  the deeper reading is its back. Panel = slab material at the card's EXACT aspect (2100:3600 ≈
+  0.583; 340×583 on a 390 frame), centered, card corner radius scaled up (18px), scrim + raised
+  veil behind. Closing action reads "TURN THE CARD BACK".
+- Head: surface-line eyebrow + ✕; title 25px "XVIII · The Moon"; keyword line 16px, apricot dot
+  separators, each keyword nowrap (never broken mid-symbol). "A CHALLENGING CARD" tag hidden in v5.
+- Body scrolls inside the panel: MEANING / IN A READING sections under mono rule-labels; bottom
+  opacity mask marks the scroll (top mask at the end state).
+- **Floating ✕:** the head's ✕ is a layout ghost; the real one floats top-right (28px, z 6) and
+  gains a grain-carrying radial HALO once scrolled — stays tappable/readable over content.
+- **Flip hint (one-shot on arrival, NEVER loops):** two candidates designed as static frames —
+  (a) shimmer + tilt: sheen band sweeps the face while the card rocks ~1.6°; (b) edge curl:
+  bottom-right corner lifts showing a sliver of the back. Real motion belongs in the flow
+  prototype. WHICH HINT SHIPS: not decided on the canvas — confirm with the user at build time.
+- **The Pour gains its one button:** with the flip carrying the Lenses entrypoint, The Pour gets a
+  skinny 36px light-grey outline pill "CARD MEANING" (mono 8px / 0.22em), 56px below the region line.
+- Content status: only GUIDE_MOON is written. Guidebook copy for other cards flows through the
+  content pipeline (voice-prompt.md) before batch-writing.

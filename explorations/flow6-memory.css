@@ -1,0 +1,173 @@
+/* ============================================================
+   FLOW v6 — MEMORY (the Annotated Ledger). Loads after flow6.css.
+   Geometry/colors are the LOCKED canon from the design canvas
+   (memory-final.css) — translate, don't reinterpret. The app
+   section at the bottom adds what a static canvas can't carry:
+   status-bar clearance, swipe/entrance/exit motion, the inline
+   jot editor, and the desktop column. Doc-flow overrides live in
+   flow6-docflow.css with the rest of the iOS 26 law.
+   Fonts: DM Serif Display · IBM Plex Mono · Instrument Sans ·
+          Nothing You Could Do (the jot pen)
+   ============================================================ */
+
+.mf-screen { display: flex; flex-direction: column; height: 100%; box-sizing: border-box; position: relative; z-index: 4; }
+
+/* ---------- header ---------- */
+.mf-head { padding: 62px 24px 0; flex: none; }
+.mf-head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.mf-title { font-family: "DM Serif Display", serif; font-size: 34px; line-height: 1; margin: 0; }
+.rx-dark .mf-title { color: var(--bone); }
+.rx-light .mf-title { color: var(--navy); }
+.mf-count { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 10px; }
+.rx-dark .mf-count { color: rgba(239,236,228,0.4); }
+.rx-light .mf-count { color: rgba(21,34,49,0.45); }
+
+/* hearted filter pill (toggle). Hidden entirely on the empty state. */
+.mf-pill { display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px; border-radius: 100px; border: 1px solid rgba(239,236,228,0.22);
+  font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(239,236,228,0.55);
+  cursor: pointer; white-space: nowrap; transition: border-color .2s, color .2s, background .2s; -webkit-tap-highlight-color: transparent; }
+.rx-light .mf-pill { border-color: rgba(21,34,49,0.22); color: rgba(21,34,49,0.5); }
+.mf-pill svg { width: 11px; height: 11px; display: block; }
+.mf-pill.on { border-color: rgba(245,170,93,0.55); color: var(--apri); background: rgba(245,170,93,0.08); }
+.rx-light .mf-pill.on { border-color: rgba(198,127,65,0.55); color: var(--amber); background: rgba(198,127,65,0.07); }
+.mf-pill.on svg path { fill: currentColor; }
+
+/* ---------- list shell ---------- */
+.mf-list { flex: 1; min-height: 0; margin-top: 14px; position: relative; overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 44px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 44px), transparent 100%); }
+.mf-list::-webkit-scrollbar { display: none; }
+
+/* month group header */
+.mf-group { display: flex; align-items: center; gap: 12px; padding: 18px 24px 6px; }
+.mf-group:first-child { padding-top: 2px; }
+.mf-group .txt { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.28em; text-transform: uppercase; flex: none; }
+.rx-dark .mf-group .txt { color: rgba(239,236,228,0.38); }
+.rx-light .mf-group .txt { color: rgba(21,34,49,0.42); }
+.mf-group .rule { flex: 1; height: 1px; background: rgba(239,236,228,0.09); }
+.rx-light .mf-group .rule { background: rgba(21,34,49,0.1); }
+
+/* ---------- entry row (tap target → The Pour) ---------- */
+.mf-row { display: flex; align-items: center; gap: 15px; padding: 10px 24px; border-bottom: 1px solid rgba(239,236,228,0.08); position: relative; background: transparent; }
+.rx-light .mf-row { border-bottom-color: rgba(21,34,49,0.09); }
+.mf-row.noline { border-bottom-color: transparent; }  /* last row in a month */
+
+/* the Pour pairing, miniaturized */
+.mf-pair { position: relative; width: 68px; height: 96px; flex: none; }
+.mf-pair .card { position: absolute; left: 0; top: 11px; height: 72px; border-radius: 4px; transform: rotate(-4deg); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.8); display: block; }
+.rx-light .mf-pair .card { box-shadow: 0 10px 22px -8px rgba(21,34,49,0.4); }
+.mf-pair .bottle { position: absolute; left: 30px; top: 0; height: 96px; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5)); display: block; }
+.rx-light .mf-pair .bottle { filter: drop-shadow(0 8px 14px rgba(21,34,49,0.28)); }
+
+/* text stack */
+.mf-main { flex: 1; min-width: 0; }
+.mf-eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.22em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-dark .mf-eyebrow { color: rgba(245,170,93,0.62); }
+.rx-light .mf-eyebrow { color: rgba(198,127,65,0.75); }
+.mf-winewrap { display: inline-block; position: relative; max-width: 100%; }
+.mf-wine { font-family: "DM Serif Display", serif; font-size: 18px; line-height: 1.1; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-dark .mf-wine { color: var(--bone); }
+.rx-light .mf-wine { color: var(--navy); }
+/* hearted = fine wave ink underline */
+.mf-wave { position: absolute; left: -2px; right: -4px; bottom: -6px; height: 8px; pointer-events: none; }
+.mf-wave path { stroke: rgba(245,170,93,0.5); }
+.rx-light .mf-wave path { stroke: rgba(198,127,65,0.55); }
+/* the jot — prefilled by the deck, user-editable via swipe → EDIT */
+.mf-jot { font-family: "Nothing You Could Do", cursive; font-size: 11.5px; line-height: 1.45; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-dark .mf-jot { color: rgba(239,236,228,0.6); }
+.rx-light .mf-jot { color: rgba(21,34,49,0.62); }
+.mf-sub { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-dark .mf-sub { color: rgba(239,236,228,0.42); }
+.rx-light .mf-sub { color: rgba(21,34,49,0.48); }
+
+/* right column: heart toggle + small date */
+.mf-aside { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.mf-heart { flex: none; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: rgba(239,236,228,0.28); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rx-light .mf-heart { color: rgba(21,34,49,0.3); }
+.mf-heart svg { width: 14px; height: 14px; display: block; }
+.mf-heart.on { color: var(--apri); }
+.rx-light .mf-heart.on { color: var(--amber); }
+.mf-heart.on svg path { fill: currentColor; }
+.mf-date { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; }
+.rx-dark .mf-date { color: rgba(239,236,228,0.38); }
+.rx-light .mf-date { color: rgba(21,34,49,0.42); }
+
+/* ---------- swipe: EDIT then DELETE (wells mirror the aside construction) ---------- */
+.mf-swipewrap { position: relative; overflow: hidden; }
+.mf-row.swiped { transform: translateX(-118px); }
+/* rows are transparent, so the wells must not exist visually until a swipe
+   uncovers them; the 320ms exit delay keeps them in place while a closing
+   row glides back over */
+.mf-wells { position: absolute; right: 0; top: 0; bottom: 1px; display: flex;
+  visibility: hidden; transition: visibility 0s linear 320ms; }
+.mf-swipewrap.open .mf-wells, .mf-swipewrap.drag .mf-wells { visibility: visible; transition-delay: 0s; }
+.mf-well { width: 59px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.mf-well .icobox { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+.mf-well .icobox svg { width: 15px; height: 15px; display: block; }
+.mf-well .cap { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; }
+.mf-well.edit { background: rgba(245,170,93,0.1); color: var(--apri); }
+.rx-light .mf-well.edit { background: rgba(198,127,65,0.1); color: var(--amber); }
+.mf-well.del { background: rgba(239,236,228,0.05); color: rgba(239,236,228,0.6); }
+.rx-light .mf-well.del { background: rgba(21,34,49,0.06); color: rgba(21,34,49,0.6); }
+
+/* ---------- empty state (the first note) ---------- */
+.mf-empty { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 44px 100px; }
+.mf-snake { height: 200px; margin-bottom: 2px; }
+.mf-empty-title { font-family: "DM Serif Display", serif; font-size: 26px; line-height: 1.15; margin: 0; }
+.rx-dark .mf-empty-title { color: var(--bone); }
+.rx-light .mf-empty-title { color: var(--navy); }
+.mf-jotline { position: relative; display: inline-block; margin-top: 16px; font-family: "Nothing You Could Do", cursive; font-size: 13px; }
+.rx-dark .mf-jotline { color: rgba(239,236,228,0.6); }
+.rx-light .mf-jotline { color: rgba(21,34,49,0.62); }
+.mf-jotline svg { position: absolute; left: -2px; right: -4px; bottom: -7px; height: 8px; width: calc(100% + 6px); }
+.mf-jotline svg path { stroke: rgba(245,170,93,0.5); }
+.rx-light .mf-jotline svg path { stroke: rgba(198,127,65,0.55); }
+.mf-cta { margin-top: 34px; border: 1px solid rgba(239,236,228,0.22); border-radius: 100px; padding: 13px 30px; font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(239,236,228,0.65); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rx-light .mf-cta { border-color: rgba(21,34,49,0.25); color: rgba(21,34,49,0.62); }
+
+/* ============================================================
+   APP INTEGRATION — motion + interaction the canvas didn't carry
+   ============================================================ */
+
+/* swipe follows the finger (inline transform, transition suspended
+   during the drag); releasing snaps on the house short curve */
+.mf-row { transition: transform 300ms cubic-bezier(0.3, 0.7, 0.2, 1); touch-action: pan-y; -webkit-tap-highlight-color: transparent; cursor: pointer;
+  user-select: none; -webkit-user-select: none; }
+
+/* the tapped row's mini card hands off to the flying actor same-frame */
+.mf-row.picked .mf-pair .card { visibility: hidden; }
+
+/* deleting: the row folds closed, quietly */
+.mf-swipewrap { max-height: 170px; transition: max-height 260ms cubic-bezier(0.4, 0, 0.6, 1), opacity 220ms ease; }
+.mf-swipewrap.closing { max-height: 0; opacity: 0; pointer-events: none; }
+
+/* inline jot editor — the jot line itself becomes writable */
+.mf-jot-input { font-family: "Nothing You Could Do", cursive; font-size: 11.5px; line-height: 1.45; margin-top: 1px; display: block; width: 100%;
+  background: transparent; border: none; outline: none; padding: 0 0 1px;
+  border-bottom: 1px solid rgba(245,170,93,0.4); border-radius: 0; }
+.rx-dark .mf-jot-input { color: rgba(239,236,228,0.78); caret-color: var(--apri); }
+.rx-light .mf-jot-input { color: rgba(21,34,49,0.78); caret-color: var(--amber); border-bottom-color: rgba(198,127,65,0.45); }
+
+/* entrance: the ledger's pieces rise into place, gently staggered */
+@keyframes mfIn { from { opacity: 0; transform: translateY(26px); } }
+.mf-head { animation: mfIn 560ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; }
+.mf-group, .mf-swipewrap, .mf-empty { animation: mfIn 620ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; animation-delay: var(--mfi, 60ms); }
+.mf-group { animation-delay: calc(var(--mfi, 60ms) + 30ms); }
+
+/* leaving (a row was tapped, or the screen releases): everything sinks
+   on the UI-exit clock while the card actor carries the eye */
+.mf-screen.leaving .mf-head, .mf-screen.leaving .mf-group, .mf-screen.leaving .mf-swipewrap, .mf-screen.leaving .mf-empty {
+  opacity: 0; transform: translateY(28px); pointer-events: none;
+  transition: opacity var(--dUiExit, 620ms) var(--eUiExit, ease), transform var(--dUiExit, 620ms) var(--eUiExit, ease); }
+
+/* MEMORY link active state rides the deck-link recipe (flow6.css) */
+
+/* ---------- desktop: the ledger keeps the Pour's column rhythm ---------- */
+.va.vw-desk .mf-head { max-width: var(--rv-col, 620px); margin-left: auto; margin-right: auto; width: 100%; box-sizing: border-box; }
+.va.vw-desk .mf-list { max-width: var(--rv-col, 620px); margin-left: auto; margin-right: auto; width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-head, .mf-group, .mf-swipewrap, .mf-empty { animation: none; }
+  .mf-row { transition: none; }
+}

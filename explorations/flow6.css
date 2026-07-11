@@ -102,17 +102,19 @@
    explicitly at higher specificity so neither gets clobbered. */
 .va.vw-desk.p-release .rv-screen { transform: translateX(-50%) translateY(22px); }
 
-/* ---- approach → deck: the card stack sinks as it fades, matching the
-   UI below it (the top-of-deck actor gets the same move from the root) */
-.va.p-todeck .rx-deck { opacity: 0; transform: translateY(14px);
+/* ---- approach → deck / memory: the card stack sinks as it fades, matching
+   the UI below it (the top-of-deck actor gets the same move from the root) */
+.va.p-todeck .rx-deck, .va.p-tomem .rx-deck { opacity: 0; transform: translateY(14px);
   transition: opacity var(--dUiExit, 620ms) var(--eUiExit, ease), transform var(--dUiExit, 620ms) var(--eUiExit, ease); }
 
 /* ---- the fading top-of-deck actor must not visually sit IN FRONT of the
    incoming grid (it used to — the actor's z-index is 20, the grid's is 4 —
    which read as the new cards "loading behind" the old card). Drop the actor
    below the grid for exactly the two beats where both are on screen
-   together; deckfly (a tile was tapped) needs the actor back on top. */
-.va.p-todeck .va-card-actor, .va.p-deck .va-card-actor { z-index: 2; }
+   together; deckfly (a tile was tapped) needs the actor back on top. The
+   Memory ledger gets the identical treatment (memfly keeps the default 20). */
+.va.p-todeck .va-card-actor, .va.p-deck .va-card-actor,
+.va.p-tomem .va-card-actor, .va.p-memory .va-card-actor { z-index: 2; }
 
 /* ---- one card, ONE shadow, on ONE persistent element ----
    History, so nobody regresses it: shadows on the actor's imgs

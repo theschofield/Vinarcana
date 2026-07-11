@@ -98,6 +98,23 @@ html.va-flow-deck .va:not(.vw-desk) .dk-scroll {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);
 }
 
+/* ---- MEMORY, unwrapped whenever mounted ----
+   The ledger is a scrolling view like the deck: the DOCUMENT scrolls,
+   the inner list gives up its own scroll + mask. */
+html.va-flow-mem .va:not(.vw-desk) .mf-screen { position: static; height: auto; min-height: 100svh; }
+html.va-flow-mem .va:not(.vw-desk) .mf-head {
+  padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);
+}
+html.va-flow-mem .va:not(.vw-desk) .mf-list {
+  position: static; flex: none; height: auto; overflow: visible;
+  -webkit-mask-image: none; mask-image: none;
+  padding-bottom: calc(36px + env(safe-area-inset-bottom));
+}
+/* empty state still centers in the (visual) viewport */
+html.va-flow-mem .va:not(.vw-desk) .mf-empty {
+  flex: none; min-height: calc(100svh - max(24px, env(safe-area-inset-top)) - 160px);
+}
+
 /* ---- THE POUR, unwrapped whenever mounted ----
    NO padding-top on rv-screen: the eyebrow must sit exactly where the
    Lenses eyebrow sits, so the pour transition moves it horizontally only. */
