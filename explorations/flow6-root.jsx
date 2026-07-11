@@ -16,7 +16,7 @@
 const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
   "mode": "system", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
-  "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
+  "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0, "vigDocFade": 90,
   "deckTop": 18, "deckTopMobile": 10, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
   "beckonDelay": 3, "beckonColorN": "bone", "beckonColorD": "bone", "beckonAlpha": 0.9,
   "beckonDurA": 7, "beckonBandA": 100, "beckonDurL": 7, "beckonBandL": 100,
@@ -186,6 +186,12 @@ function App() {
   // chrome vs. the same layout previewed in a desktop browser window.
   const isRealMobile = React.useMemo(() => (
     typeof window !== "undefined" && window.matchMedia("(hover: none) and (pointer: coarse)").matches
+  ), []);
+  // standalone (PWA / home-screen): no browser chrome at all — fixed
+  // positioning works normally, and the deck wants the desktop-ish top
+  const isStandalone = React.useMemo(() => (
+    typeof window !== "undefined" &&
+    (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true)
   ), []);
 
   const [phase, setPhase] = React.useState("approach");
@@ -410,7 +416,7 @@ function App() {
   // never re-wrap mid-choreography (that re-wrap was the "wild background
   // jump"). Leaving a scrolled view glides the window home as part of the
   // choreography instead of teleporting it.
-  const docMode = isRealMobile && !phoneFrame && !desktop;
+  const docMode = isRealMobile && !phoneFrame && !desktop && !isStandalone;
   const pourMounted = !!(mounts.reveal && card && lens);
   React.useEffect(() => {
     const H = document.documentElement;
@@ -419,6 +425,26 @@ function App() {
     H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.deck);
     H.classList.toggle("va-flow", docMode && (mounts.deck || pourMounted));
   }, [docMode, mounts.deck, pourMounted]);
+  // overlay layers ride --va-sy instead of position:fixed (iOS 26 law —
+  // fixed summons the toolbar backdrop; absolute + scroll var does not)
+  React.useEffect(() => {
+    if (!docMode) return;
+    const H = document.documentElement;
+    let raf = 0;
+    const on = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; H.style.setProperty("--va-sy", window.scrollY + "px"); });
+    };
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+      if (raf) cancelAnimationFrame(raf);
+      H.style.setProperty("--va-sy", "0px");
+    };
+  }, [docMode]);
   const glideScrollTop = (dur) => {
     if (!docMode) return;
     const y0 = window.scrollY;
@@ -828,8 +854,8 @@ function App() {
     "--va-grain-size": t.grainSize + "px",
     "--va-grain-o-dark": t.grainNight, "--va-grain-o-light": t.grainDay,
     "--va-veil-o-dark": t.veilNight, "--va-veil-o-light": t.veilDay,
-    "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskFinal,
-    "--va-deck-top": (isRealMobile && !desktop && !phoneFrame ? t.deckTopMobile : t.deckTop) / 100,
+    "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskFinal, "--va-vig-doc-fade": t.vigDocFade + "px",
+    "--va-deck-top": (isRealMobile && !desktop && !phoneFrame && !isStandalone ? t.deckTopMobile : t.deckTop) / 100,
     "--va-deck-w": t.deckW + "px", "--va-deck-w-desk": t.deckWDesk + "px",
     "--va-knowing-size": t.knowingSize + "px", "--va-lens-size": t.lensSize + "px", "--va-lens-pad": t.lensPad + "px",
     "--va-card-r": t.cardRadius,
@@ -947,6 +973,7 @@ function FlowPanel({ t, setTweak, replay }) {
             <TweakSlider label="Veil · day" value={t.veilDay} min={0} max={0.3} step={0.005} onChange={(v) => setTweak("veilDay", v)}></TweakSlider>
             <TweakSection label="Vignette"></TweakSection>
             <TweakSlider label="Edge · mobile" value={t.veilEdgeMob} min={60} max={100} step={1} unit="%" onChange={(v) => setTweak("veilEdgeMob", v)}></TweakSlider>
+            <TweakSlider label="Bottom fade · Safari" value={t.vigDocFade} min={0} max={260} step={5} unit="px" hint="extra dissolve on the veil's bottom edge in mobile-Safari document mode — raise it if the veil's hard edge shows above the chrome" onChange={(v) => setTweak("vigDocFade", v)}></TweakSlider>
             <TweakSlider label="Edge · desktop" value={t.veilEdgeDesk} min={70} max={100} step={1} unit="%" onChange={(v) => setTweak("veilEdgeDesk", v)}></TweakSlider>
             <TweakSlider label="Distortion · mobile" value={t.vigWarpMob} min={0} max={120} step={2} onChange={(v) => setTweak("vigWarpMob", v)}></TweakSlider>
             <TweakSlider label="Distortion · desktop" value={t.vigWarpDesk} min={0} max={120} step={2} onChange={(v) => setTweak("vigWarpDesk", v)}></TweakSlider>

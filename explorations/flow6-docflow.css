@@ -1,73 +1,75 @@
 /* ============================================================
    FLOW v6 — iOS 26 DOCUMENT-FLOW MODE. Loads after flow6-safearea.css.
 
-   Safari 26 (liquid glass) letterboxes any full-viewport position:fixed
-   surface, only grants edge-to-edge + chrome collapse to in-flow content
-   scrolled by the DOCUMENT — and (learned empirically from the veil vs
-   the old actions bar) draws an opaque backdrop behind the bottom
-   toolbar the moment a fixed element is ANCHORED TO THE BOTTOM EDGE.
-   A top-anchored fixed layer that merely REACHES the bottom (like the
-   veil) does not summon it. So every piece of bottom UI here lives at
-   the bottom of a top-anchored, viewport-tall, pointer-events:none
-   layer — never `bottom: 0`.
+   THE LAW (base-ui iOS 26 note + our device testing): overlay layers on
+   iOS 26 Safari must be position:ABSOLUTE inside a position:relative
+   body — position:fixed is what summons the opaque backdrop behind the
+   bottom toolbar and kills the edge-to-edge scroll. Every overlay here
+   (veil, glow, status, pour actions, dots) is absolute and rides a
+   single scroll-synced variable --va-sy (set by flow6-root from
+   window.scrollY, rAF-throttled), which pins it to the viewport without
+   ever being fixed.
 
-   Three constant layers on real phones (html.va-doc; never desktop or
-   the phone-frame preview):
-   1. THE FIELD (in flow, scrolls): .va/.rx in the document,
-      min-height 100lvh + bottom safe-area so the texture runs all the
-      way behind the collapsed chrome (100lvh alone left a visible line
-      mid-chrome). Deck grid & Pour panes unwrap into it whenever
-      mounted (html.va-flow-deck / -pour).
-   2. THE VIEWPORT VEIL (fixed, top-anchored, 100svh): veil + glow are
-      sized to the SMALL viewport — the real estate when the chrome is
-      at its tallest — so they never rescale when the chrome collapses.
-      Their vignettes fade into the field behind.
-   3. FLOATING UI: status bar (fixed top, NO scrim — the heavy gradient
-      read as a slab) and pour actions/dots (bottom of top-anchored
-      100svh layers, no scrim — Safari's pill does its own treatment).
+   Three constant layers on real phones in the BROWSER (html.va-doc —
+   never desktop, never the phone-frame preview, never standalone/PWA
+   where there is no chrome and fixed works fine):
+   1. THE FIELD (in flow, scrolls): .va/.rx in the document. Deck grid &
+      Pour panes unwrap into it whenever mounted (html.va-flow-deck /
+      -pour). min-height overshoots the large viewport by 100px + bottom
+      safe-area so texture runs behind the collapsed chrome with margin.
+   2. THE VIEWPORT VEIL (absolute @ --va-sy, 100svh = real estate when
+      chrome is TALLEST, so it never rescales on collapse). Wrapper gets
+      an extra bottom mask fade (--va-vig-doc-fade tweak) so its hard
+      bottom edge dissolves into the field even where svh < visible
+      height.
+   3. FLOATING UI (absolute @ --va-sy): status bar at top; pour actions
+      and dots sit at the bottom of viewport-tall pointer-events:none
+      frames — bottom-of-a-top-anchored-frame, never `bottom: 0`.
 
-   Stage screens (Approach / Lenses) are viewport-capped layers that
-   BLOCK the pan (touch-action: none) so the document under them never
-   scrolls — their content isn't scrollable, so nothing is lost.
+   Stage screens (Approach / Lenses) are viewport-capped layers that eat
+   the pan (touch-action: none) — those pages must not scroll at all.
    ============================================================ */
 
 html.va-doc, html.va-doc body { height: auto; min-height: 100%; }
-html.va-doc body { overflow-x: hidden; }
+html.va-doc body { overflow-x: hidden; position: relative; }
 html.va-doc .va-shell {
   position: static; height: auto; min-height: 100dvh;
   display: block; overflow: visible;
 }
-/* layer 1: the field — always in flow, always past the collapsed chrome */
+/* layer 1: the field */
 html.va-doc .va:not(.vw-desk) {
   height: auto; overflow: visible;
-  min-height: calc(100lvh + env(safe-area-inset-bottom));
+  min-height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 html.va-doc .va:not(.vw-desk) .rx {
   position: relative; inset: auto; height: auto; overflow: visible;
-  min-height: calc(100lvh + env(safe-area-inset-bottom));
+  min-height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 
-/* stage layers are viewport UI — cap them so they never stretch with the
-   document, and let them eat the pan so stages don't scroll at all */
+/* stage layers: viewport-capped, pan-blocking */
 html.va-doc .va:not(.vw-desk) .va-layer,
 html.va-doc .va:not(.vw-desk) .va-smoke-fx,
 html.va-doc .va:not(.vw-desk) .va-ff-catch { height: 100dvh; bottom: auto; }
 html.va-doc:not(.va-flow) .va:not(.vw-desk) .va-layer,
 html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx-status { touch-action: none; }
 
-/* layer 2: veil + glow — fixed, top-anchored, small-viewport sized */
+/* layer 2: veil + glow — absolute, scroll-pinned, small-viewport sized */
 html.va-doc .va:not(.vw-desk) .va-veilwrap {
-  position: fixed; inset: auto; left: 0; top: 0; width: 100%;
-  height: 100dvh; height: 100svh; z-index: 0;
+  position: absolute; inset: auto; left: 0; top: var(--va-sy, 0px);
+  width: 100%; height: 100svh; z-index: 0;
+  -webkit-mask-image: linear-gradient(to bottom,
+    black calc(100% - var(--va-vig-doc-fade, 90px)), transparent 100%);
+  mask-image: linear-gradient(to bottom,
+    black calc(100% - var(--va-vig-doc-fade, 90px)), transparent 100%);
 }
 html.va-doc .va:not(.vw-desk) .rv-glow {
-  position: fixed; inset: auto; left: 0; top: 0; width: 100%;
-  height: 100dvh; height: 100svh;
+  position: absolute; inset: auto; left: 0; top: var(--va-sy, 0px);
+  width: 100%; height: 100svh;
 }
 
-/* layer 3: floating status bar — no scrim */
+/* layer 3: floating status bar */
 html.va-doc .va:not(.vw-desk) .rx-status {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  position: absolute; top: var(--va-sy, 0px); left: 0; right: 0; z-index: 40;
   padding: max(24px, env(safe-area-inset-top)) 26px 14px;
 }
 
@@ -78,10 +80,12 @@ html.va-flow-deck .va:not(.vw-desk) .dk-scroll {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);
 }
 
-/* ---- THE POUR, unwrapped whenever mounted ---- */
+/* ---- THE POUR, unwrapped whenever mounted ----
+   NO padding-top on rv-screen: the eyebrow must sit exactly where the
+   Lenses eyebrow sits (rv-eyebrow's own 20px), so the transition moves
+   it horizontally only. */
 html.va-flow-pour .va:not(.vw-desk) .rv-screen {
   position: static; height: auto; min-height: 0;
-  padding-top: calc(max(24px, env(safe-area-inset-top)) + 34px);
 }
 html.va-flow-pour .va:not(.vw-desk) .rv-pourswrap { flex: none; display: block; }
 html.va-flow-pour .va:not(.vw-desk) .rv-pours { flex: none; height: auto; min-height: 0; }
@@ -91,21 +95,20 @@ html.va-flow-pour .va:not(.vw-desk) .rv-vscroll {
   -webkit-mask-image: none; mask-image: none;
   padding-bottom: calc(120px + env(safe-area-inset-bottom));
 }
-/* pour actions + dots: bottom of TOP-ANCHORED viewport-tall layers.
-   NEVER anchor these with bottom:0 — that summons Safari's opaque
-   toolbar backdrop and kills the edge-to-edge scroll. */
+/* pour actions + dots: bottom of scroll-pinned viewport-tall frames */
 html.va-flow-pour .va:not(.vw-desk) .rv-actions {
-  position: fixed; left: 0; top: 0; bottom: auto; right: auto; width: 100%;
-  height: 100dvh; height: 100svh; z-index: 35; box-sizing: border-box;
+  position: absolute; left: 0; right: auto; bottom: auto; top: var(--va-sy, 0px);
+  width: 100%; height: 100svh; z-index: 35; box-sizing: border-box;
   display: flex; align-items: flex-end;
   padding: 0 26px calc(18px + env(safe-area-inset-bottom));
   pointer-events: none; background: none;
 }
 html.va-flow-pour .va:not(.vw-desk) .rv-actions > * { pointer-events: auto; }
 html.va-flow-pour .va:not(.vw-desk) .rv-dotswrap {
-  position: fixed; left: 0; top: 0; width: 100%; z-index: 35; box-sizing: border-box;
-  height: calc(100dvh - 84px); height: calc(100svh - 84px - env(safe-area-inset-bottom));
+  position: absolute; left: 0; top: var(--va-sy, 0px); width: 100%;
+  height: calc(100svh - 84px - env(safe-area-inset-bottom));
+  z-index: 35; box-sizing: border-box;
   display: flex; align-items: flex-end; justify-content: center;
   pointer-events: none;
 }
-html.va-flow-pour .va:not(.vw-desk) .rv-dotswrap > * { pointer-events: auto; }
+html.va-doc .va:not(.vw-desk) .rv-dotswrap > * { pointer-events: auto; }
