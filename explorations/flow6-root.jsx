@@ -16,8 +16,8 @@
 const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
   "mode": "system", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
-  "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0, "vigDocFade": 90,
-  "deckTop": 18, "deckTopMobile": 10, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
+  "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
+  "deckLift": 32, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
   "beckonDelay": 3, "beckonColorN": "bone", "beckonColorD": "bone", "beckonAlpha": 0.9,
   "beckonDurA": 7, "beckonBandA": 100, "beckonDurL": 7, "beckonBandL": 100,
   "orbitCardVh": 51, "knowingDesk": 32, "lensFlare": false, "shoutSize": 56, "pourShift": -16, "rvCol": 620,
@@ -344,7 +344,7 @@ function App() {
     });
     return () => cancelAnimationFrame(id);
   }, [phase, vaH, phoneFrame, desktop, shellScale, fontsTick,
-    t.deckW, t.deckWDesk, t.deckTop, t.orbitCardVh, t.knowingSize, t.lensSize, t.lensPad, t.knowingDesk, t.orbSpread]);
+    t.deckW, t.deckWDesk, t.deckLift, t.orbitCardVh, t.knowingSize, t.lensSize, t.lensPad, t.knowingDesk, t.orbSpread]);
 
   React.useEffect(() => {
     const el = vaRoot() && vaRoot().querySelector('[data-va-slot="deck-top"]');
@@ -425,26 +425,9 @@ function App() {
     H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.deck);
     H.classList.toggle("va-flow", docMode && (mounts.deck || pourMounted));
   }, [docMode, mounts.deck, pourMounted]);
-  // overlay layers ride --va-sy instead of position:fixed (iOS 26 law —
-  // fixed summons the toolbar backdrop; absolute + scroll var does not)
-  React.useEffect(() => {
-    if (!docMode) return;
-    const H = document.documentElement;
-    let raf = 0;
-    const on = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => { raf = 0; H.style.setProperty("--va-sy", window.scrollY + "px"); });
-    };
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
-    return () => {
-      window.removeEventListener("scroll", on);
-      window.removeEventListener("resize", on);
-      if (raf) cancelAnimationFrame(raf);
-      H.style.setProperty("--va-sy", "0px");
-    };
-  }, [docMode]);
+  // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
+  // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
+  // the compositor on iOS and made every overlay jitter.
   const glideScrollTop = (dur) => {
     if (!docMode) return;
     const y0 = window.scrollY;
@@ -540,7 +523,12 @@ function App() {
     ev.push({ t: TL.settle.s, run: () => { setPhase("settle"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));
       const S = vaSize(); const r = slotRect("read-card");
       const ar = r ? r.height / r.width : faceARRef.current;
-      const w = r ? Math.min(r.width * (tRef.current.settleScale || 1.16), S.w * 0.58) : S.w * 0.5;
+      // settle overshoot is based on the APPROACH DECK's size (like the flip
+      // swell), not the final rest size — on crowded lens screens the rest
+      // card is smaller than the deck, and a rest-based settle made the drop
+      // anticlimactic. max() keeps desktop (big rest card) unchanged.
+      const dw = (desktop ? tRef.current.deckWDesk : tRef.current.deckW) || 0;
+      const w = Math.min(Math.max(r ? r.width : 0, dw) * (tRef.current.settleScale || 1.16), S.w * 0.58) || S.w * 0.5;
       const cy = S.h * (tRef.current.centerY / 100);
       setActor((a) => ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
         dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
@@ -771,7 +759,8 @@ function App() {
       setMounts((m) => ({ ...m, reading: true, deck: false }));
       const S = vaSize(); const rr = slotRect("read-card");
       const ar = rr ? rr.height / rr.width : faceARRef.current;
-      const w = rr ? Math.min(rr.width * (tRef.current.settleScale || 1.16), S.w * 0.58) : S.w * 0.5;
+      const dw2 = (desktop ? tRef.current.deckWDesk : tRef.current.deckW) || 0;
+      const w = Math.min(Math.max(rr ? rr.width : 0, dw2) * (tRef.current.settleScale || 1.16), S.w * 0.58) || S.w * 0.5;
       const cy = S.h * (tRef.current.centerY / 100);
       setActor((a) => ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
         dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
@@ -854,8 +843,8 @@ function App() {
     "--va-grain-size": t.grainSize + "px",
     "--va-grain-o-dark": t.grainNight, "--va-grain-o-light": t.grainDay,
     "--va-veil-o-dark": t.veilNight, "--va-veil-o-light": t.veilDay,
-    "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskFinal, "--va-vig-doc-fade": t.vigDocFade + "px",
-    "--va-deck-top": (isRealMobile && !desktop && !phoneFrame && !isStandalone ? t.deckTopMobile : t.deckTop) / 100,
+    "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskFinal,
+    "--va-deck-top": (50 - t.deckLift) / 100,
     "--va-deck-w": t.deckW + "px", "--va-deck-w-desk": t.deckWDesk + "px",
     "--va-knowing-size": t.knowingSize + "px", "--va-lens-size": t.lensSize + "px", "--va-lens-pad": t.lensPad + "px",
     "--va-card-r": t.cardRadius,
@@ -972,8 +961,7 @@ function FlowPanel({ t, setTweak, replay }) {
             <TweakSlider label="Veil · night" value={t.veilNight} min={0} max={0.3} step={0.005} onChange={(v) => setTweak("veilNight", v)}></TweakSlider>
             <TweakSlider label="Veil · day" value={t.veilDay} min={0} max={0.3} step={0.005} onChange={(v) => setTweak("veilDay", v)}></TweakSlider>
             <TweakSection label="Vignette"></TweakSection>
-            <TweakSlider label="Edge · mobile" value={t.veilEdgeMob} min={60} max={100} step={1} unit="%" onChange={(v) => setTweak("veilEdgeMob", v)}></TweakSlider>
-            <TweakSlider label="Bottom fade · Safari" value={t.vigDocFade} min={0} max={260} step={5} unit="px" hint="extra dissolve on the veil's bottom edge in mobile-Safari document mode — raise it if the veil's hard edge shows above the chrome" onChange={(v) => setTweak("vigDocFade", v)}></TweakSlider>
+            <TweakSlider label="Edge · mobile" value={t.veilEdgeMob} min={25} max={100} step={1} unit="%" onChange={(v) => setTweak("veilEdgeMob", v)}></TweakSlider>
             <TweakSlider label="Edge · desktop" value={t.veilEdgeDesk} min={70} max={100} step={1} unit="%" onChange={(v) => setTweak("veilEdgeDesk", v)}></TweakSlider>
             <TweakSlider label="Distortion · mobile" value={t.vigWarpMob} min={0} max={120} step={2} onChange={(v) => setTweak("vigWarpMob", v)}></TweakSlider>
             <TweakSlider label="Distortion · desktop" value={t.vigWarpDesk} min={0} max={120} step={2} onChange={(v) => setTweak("vigWarpDesk", v)}></TweakSlider>
@@ -997,8 +985,7 @@ function FlowPanel({ t, setTweak, replay }) {
             <TweakSlider label="Band width" value={t.beckonBandL} min={8} max={120} step={2} unit="px" onChange={(v) => setTweak("beckonBandL", v)}></TweakSlider>
           </TweakFold>
           <TweakFold key="d-approach" id="d-approach" label="The Approach" hint="deck">
-            <TweakSlider label="Deck top" value={t.deckTop} min={2} max={26} step={0.5} unit="%" onChange={(v) => setTweak("deckTop", v)}></TweakSlider>
-            <TweakSlider label="Deck top · mobile device" value={t.deckTopMobile} min={2} max={26} step={0.5} unit="%" hint="used instead of Deck top when a real phone renders the plain (non-orbit) layout" onChange={(v) => setTweak("deckTopMobile", v)}></TweakSlider>
+            <TweakSlider label="Deck lift · above centre" value={t.deckLift} min={24} max={48} step={0.5} unit="%" hint="how far the deck block's top sits ABOVE the viewport's vertical midpoint — one value for every device, since optical centre scales with the screen" onChange={(v) => setTweak("deckLift", v)}></TweakSlider>
             <TweakSlider label="Deck width · mobile" value={t.deckW} min={160} max={340} step={2} unit="px" onChange={(v) => setTweak("deckW", v)}></TweakSlider>
             <TweakSlider label="Deck width · desktop" value={t.deckWDesk} min={200} max={360} step={2} unit="px" onChange={(v) => setTweak("deckWDesk", v)}></TweakSlider>
           </TweakFold>
@@ -1039,7 +1026,7 @@ function FlowPanel({ t, setTweak, replay }) {
             <TweakSlider label="UI exit time" value={t.dUiExit} min={200} max={1400} step={20} unit="ms" onChange={(v) => setTweak("dUiExit", v)}></TweakSlider>
             <EasePicker label="UI exit curve" value={t.easeUiExit} onChange={(v) => setTweak("easeUiExit", v)}></EasePicker>
             <TweakSlider label="Optical centre" value={t.centerY} min={35} max={60} step={0.5} unit="%" onChange={(v) => setTweak("centerY", v)}></TweakSlider>
-            <TweakSlider label="Settle size ×" value={t.settleScale} min={0.9} max={1.4} step={0.01} onChange={(v) => setTweak("settleScale", v)} hint="card size at the end of Settle, × the final rest size"></TweakSlider>
+            <TweakSlider label="Settle size ×" value={t.settleScale} min={0.9} max={1.4} step={0.01} onChange={(v) => setTweak("settleScale", v)} hint="card size at the end of Settle, × the LARGER of the Approach deck and the final rest size"></TweakSlider>
             <TweakSlider label="Flip swell ×" value={t.flipScale} min={1} max={1.5} step={0.01} onChange={(v) => setTweak("flipScale", v)} hint="how much the card grows during the Flip"></TweakSlider>
             <TweakSlider label="Bleed warp" value={t.bleedWarp} min={0} max={240} step={2} onChange={(v) => setTweak("bleedWarp", v)} hint="organic edge of the veil bleed"></TweakSlider>
             <TweakSlider label="Lens stagger" value={t.lensStep} min={0} max={400} step={10} unit="ms" onChange={(v) => setTweak("lensStep", v)}></TweakSlider>
