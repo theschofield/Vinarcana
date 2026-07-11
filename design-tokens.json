@@ -1,19 +1,20 @@
 {
-  "mode": "night",
-  "viewport": "phone",
+  "mode": "system",
+  "viewport": "auto",
   "uiExit": "fade",
   "grainSize": 260,
   "grainNight": 0.18,
   "grainDay": 0.22,
   "veilNight": 0.11,
   "veilDay": 0.1,
-  "veilEdgeMob": 61,
+  "veilEdgeMob": 63,
   "veilEdgeDesk": 100,
   "vigWarpMob": 120,
   "vigWarpDesk": 120,
   "veilWarpMob": 0,
   "veilWarpDesk": 0,
-  "deckLift": 32,
+  "deckLift": 40,
+  "deckLiftDesk": 32,
   "deckW": 190,
   "deckWDesk": 226,
   "knowingSize": 22,
@@ -42,7 +43,7 @@
   "orbPull": 0.1,
   "orbGrow": 0.055,
   "orbSpread": 1,
-  "centerY": 44,
+  "centerY": 47,
   "bleedWarp": 140,
   "dUiExit": 620,
   "lensStep": 140,
@@ -67,8 +68,8 @@
       "d": 685
     },
     "bleed": {
-      "s": 1130,
-      "d": 6555
+      "s": 960,
+      "d": 7855
     },
     "rest": {
       "s": 3115,
@@ -147,7 +148,7 @@
     "p": "custom",
     "t": 50,
     "f": 12,
-    "m": 0.9
+    "m": 1
   },
   "easeVoice": {
     "p": "gentle"

@@ -17,7 +17,7 @@ const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
   "mode": "system", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
   "veilEdgeMob": 63, "veilEdgeDesk": 100, "vigWarpMob": 120, "vigWarpDesk": 120, "veilWarpMob": 0, "veilWarpDesk": 0,
-  "deckLift": 32, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
+  "deckLift": 40, "deckLiftDesk": 32, "deckW": 190, "deckWDesk": 226, "knowingSize": 22, "lensSize": 17, "lensPad": 12, "cardRadius": 5.3,
   "beckonDelay": 3, "beckonColorN": "bone", "beckonColorD": "bone", "beckonAlpha": 0.9,
   "beckonDurA": 7, "beckonBandA": 100, "beckonDurL": 7, "beckonBandL": 100,
   "orbitCardVh": 51, "knowingDesk": 32, "lensFlare": false, "shoutSize": 56, "pourShift": -16, "rvCol": 620,
@@ -78,7 +78,7 @@ function vigMaskCss(w, h, bf, warp, shapes) {
 }
 // mobile: round10 recipe, on the oversized img
 function vigMaskMob(edgePct, warp) {
-  const edge = Math.max(0.55, edgePct / 100);
+  const edge = Math.max(0.25, edgePct / 100);
   return vigMaskCss(1000, 1000, 0.011, warp, [
     { cx: 500, cy: 500, rx: 500, ry: 500, stops: [[0.14, 1], [0.5, 0.6], [edge, 0]] },
     { cx: 260, cy: 320, rx: 220, ry: 180, stops: [[0, 1], [0.7, 0]] },
@@ -87,7 +87,7 @@ function vigMaskMob(edgePct, warp) {
 }
 // desktop: viewport-scale recipe, on .rx-veil itself
 function vigMaskDesk(edgePct, warp) {
-  const edge = Math.max(0.55, edgePct / 100);
+  const edge = Math.max(0.25, edgePct / 100);
   return vigMaskCss(1000, 700, 0.012, warp, [
     { cx: 500, cy: 350, rx: 580, ry: 392, stops: [[0.24, 1], [0.58, 0.62], [edge, 0]] },
     { cx: 280, cy: 210, rx: 260, ry: 154, stops: [[0, 1], [0.72, 0]] },
@@ -344,7 +344,7 @@ function App() {
     });
     return () => cancelAnimationFrame(id);
   }, [phase, vaH, phoneFrame, desktop, shellScale, fontsTick,
-    t.deckW, t.deckWDesk, t.deckLift, t.orbitCardVh, t.knowingSize, t.lensSize, t.lensPad, t.knowingDesk, t.orbSpread]);
+    t.deckW, t.deckWDesk, t.deckLift, t.deckLiftDesk, t.orbitCardVh, t.knowingSize, t.lensSize, t.lensPad, t.knowingDesk, t.orbSpread]);
 
   React.useEffect(() => {
     const el = vaRoot() && vaRoot().querySelector('[data-va-slot="deck-top"]');
@@ -694,12 +694,16 @@ function App() {
       const dur = tRef.current.dUiExit;
       const ev = [];
       ev.push({ t: 0, run: () => { setPhase("todeck");
-        setMounts((m) => ({ ...m, deck: true }));
         // the top-of-deck actor sinks with the stack beneath it
         setActor((a) => a && ({ ...a, o: 0, top: a.top + 14, dur: dv(dur), oDur: dv(dur), ease: E("easeUiExit"), instant: false }));
       } });
-      ev.push({ t: dur, run: () => setPhase("deck") });
-      clock.run(ev, dur + 40, ffRef, () => { if (phaseRef.current === "todeck") setPhase("deck"); });
+      // the grid mounts only AFTER the approach has fully faded — same
+      // contract as the release path; mounting at t:0 crossfaded the two
+      ev.push({ t: dur, run: () => {
+        setMounts((m) => ({ ...m, deck: true }));
+        setPhase("deck");
+      } });
+      clock.run(ev, dur + 40, ffRef, () => { if (phaseRef.current === "todeck") { setMounts((m) => ({ ...m, deck: true })); setPhase("deck"); } });
     } else {
       // from reading / reveal (or mid-flight): the Release sink, landing on the grid
       const TL = tRef.current.tlReturn;
@@ -844,7 +848,7 @@ function App() {
     "--va-grain-o-dark": t.grainNight, "--va-grain-o-light": t.grainDay,
     "--va-veil-o-dark": t.veilNight, "--va-veil-o-light": t.veilDay,
     "--va-vig-mob": vigMob, "--va-vig-desk": vigDesk, "--va-bleed-mask": bleedMaskFinal,
-    "--va-deck-top": (50 - t.deckLift) / 100,
+    "--va-deck-top": (50 - (desktop ? t.deckLiftDesk : t.deckLift)) / 100,
     "--va-deck-w": t.deckW + "px", "--va-deck-w-desk": t.deckWDesk + "px",
     "--va-knowing-size": t.knowingSize + "px", "--va-lens-size": t.lensSize + "px", "--va-lens-pad": t.lensPad + "px",
     "--va-card-r": t.cardRadius,
@@ -908,6 +912,8 @@ function App() {
           ) : null}
           <div className="rx-grain"></div>
           {F.echoIn || phase === "release" ? <div className={"rv-glow" + (F.glowIn ? " on" : "")}></div> : null}
+          <div className="va-status-pin"><StatusBar6 light={light} onHome={home} onDeck={toDeck} onToast={showToast}
+            deckOn={["todeck", "deck", "deckfly"].includes(phase)}></StatusBar6></div>
 
           {mounts.approach ? (
             <Approach light={light} invite={invite} whisper={whisper} setWhisper={setWhisper}
@@ -929,8 +935,6 @@ function App() {
           {c ? <EyebrowActor e={eyeb} num={c.num} name={c.name} lens={lens ? lens.name : ""}></EyebrowActor> : null}
           <SmokeFX light={light}></SmokeFX>
 
-          <StatusBar6 light={light} onHome={home} onDeck={toDeck} onToast={showToast}
-            deckOn={["todeck", "deck", "deckfly"].includes(phase)}></StatusBar6>
           {toast ? <div className={"va-toast" + (light ? " light" : "")}>{toast}</div> : null}
         </div>
       </div>
@@ -985,7 +989,8 @@ function FlowPanel({ t, setTweak, replay }) {
             <TweakSlider label="Band width" value={t.beckonBandL} min={8} max={120} step={2} unit="px" onChange={(v) => setTweak("beckonBandL", v)}></TweakSlider>
           </TweakFold>
           <TweakFold key="d-approach" id="d-approach" label="The Approach" hint="deck">
-            <TweakSlider label="Deck lift · above centre" value={t.deckLift} min={24} max={48} step={0.5} unit="%" hint="how far the deck block's top sits ABOVE the viewport's vertical midpoint — one value for every device, since optical centre scales with the screen" onChange={(v) => setTweak("deckLift", v)}></TweakSlider>
+            <TweakSlider label="Deck lift · mobile" value={t.deckLift} min={24} max={48} step={0.5} unit="%" hint="how far the deck block's top sits ABOVE the viewport's vertical midpoint — scales with any phone's height" onChange={(v) => setTweak("deckLift", v)}></TweakSlider>
+            <TweakSlider label="Deck lift · desktop" value={t.deckLiftDesk} min={24} max={48} step={0.5} unit="%" onChange={(v) => setTweak("deckLiftDesk", v)}></TweakSlider>
             <TweakSlider label="Deck width · mobile" value={t.deckW} min={160} max={340} step={2} unit="px" onChange={(v) => setTweak("deckW", v)}></TweakSlider>
             <TweakSlider label="Deck width · desktop" value={t.deckWDesk} min={200} max={360} step={2} unit="px" onChange={(v) => setTweak("deckWDesk", v)}></TweakSlider>
           </TweakFold>
