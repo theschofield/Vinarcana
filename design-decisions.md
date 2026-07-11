@@ -695,6 +695,14 @@ First build's transitions were rejected ("treated like an afterthought"); correc
   entrance curve), delayed to 42% of the flip so it lands as the back face turns into view;
   on close it fades down first, then the card flies home.
 
+- **The Pour's bottle steps aside (user verdict):** flipping from the Pour clashed with the
+  bottle in z-space — worst at close, where the settled card popped BEHIND the bottle at the
+  layer's same-frame swap. Fix: under dr-open the bottle slides right 26px and fades on its own
+  fx/bottle-beat transition while the card lifts away; it stays hidden through the whole open
+  AND close, and animates back only after the layer unmounts and the real card is settled
+  (verified: bottle at opacity 0 during the swap frame, mid-return 0.42/15px after). The flip
+  keeps its ONE direction (−180°) on both surfaces — the bottle yields, the grammar doesn't.
+
 ## Deeper Reading journey — FINAL "The Flip" (Jul 11, 2026)
 (Consolidated from the locked canvas — the session's verdicts weren't logged here as they landed.)
 Point Claude Code at **"Deeper Reading - Final.html"** (night + day each). Styles:

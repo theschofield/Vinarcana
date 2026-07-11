@@ -28,6 +28,17 @@
 .va.dr-open .va-card-actor { visibility: hidden; }
 .va.dr-open .rv-hero .card, .va.dr-open .rv-hero .card.live { visibility: hidden; }
 
+/* The Pour's bottle steps aside for the flip: it slides right and fades on
+   its own bottle-beat transition (the fx slide-l vocabulary it entered
+   with) while the card lifts away, and returns the same way only AFTER
+   the returning card has settled and the layer has unmounted — without
+   this, the card visibly popped BEHIND the bottle in z-space at the
+   close's same-frame swap. Selector outweighs .va .fx.slide-l.in (0,4,0)
+   without touching the locked Pour entrance beats. */
+.va.dr-open .rv-screen .rv-hero .bottle {
+  opacity: 0; transform: translateX(26px); pointer-events: none;
+}
+
 /* ---------- the flip container ---------- */
 .va .dr-flip { position: absolute; perspective: 1400px; z-index: 2; }
 .va .dr-flipper { position: absolute; inset: 0; transform-style: preserve-3d; border-radius: inherit; }
