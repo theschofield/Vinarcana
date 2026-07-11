@@ -1,0 +1,155 @@
+/* ============================================================
+   FLOW v6 — DEEPER READING ("The Flip"). Loads after
+   flow6-docflow.css (it overrides one doc-mode touch rule).
+   Canon: Deeper Reading Final canvas — round15.css gp-* subset,
+   deeper-v3 slab material, deeper-v5 card-aspect panel, verbatim
+   values. App sections add what the static canvas couldn't carry:
+   the live flip container, the deck-grammar tilt/shine/press on
+   the card actor, dynamic scroll masks, and doc-mode handling.
+   ============================================================ */
+
+/* ---------- the layer (a stage over everything, scrim dims even the status bar — canon) ---------- */
+.va .dr-layer { position: absolute; inset: 0; z-index: 45; }
+.va .dr-layer .gp-scrim { position: absolute; inset: 0; background: rgba(8,7,7,0.5); opacity: 0;
+  transition: opacity var(--dEcho, 620ms) ease; }
+.rx-light .dr-layer .gp-scrim { background: rgba(21,34,49,0.22); }
+.va .dr-layer.in .gp-scrim { opacity: 1; }
+
+/* the raised veil behind the open panel (canon gp-veilup, expressed as a
+   relative raise of the app's own veil token) */
+.va .va-veilwrap { transition: opacity calc(var(--dBleed, 2000ms) * 0.3) ease, --vaBleedR var(--dBleed, 2000ms) cubic-bezier(0.3, 0.5, 0.3, 1); }
+.va.dr-open .rx-dark .rx-veil img { opacity: calc(var(--va-veil-o-dark, 0.11) * 1.45); }
+.va.dr-open .rx-light .rx-veil img { opacity: calc(var(--va-veil-o-light, 0.1) * 1.45); }
+.va .rx-veil img { transition: opacity 700ms ease; }
+
+/* while the flip container owns the card, the resting renditions hide */
+.va.dr-open .va-card-actor { visibility: hidden; }
+.va.dr-open .rv-hero .card, .va.dr-open .rv-hero .card.live { visibility: hidden; }
+
+/* ---------- the flip container ---------- */
+.va .dr-flip { position: absolute; perspective: 1400px; z-index: 2; }
+.va .dr-flipper { position: absolute; inset: 0; transform-style: preserve-3d; border-radius: inherit; }
+.va .dr-face, .va .dr-back { position: absolute; inset: 0; border-radius: inherit;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+.va .dr-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.va .dr-back { transform: rotateY(180deg); }
+
+/* ---------- the slab (deeper-v3 material, at the card's aspect — deeper-v5) ---------- */
+.va .dr-back {
+  background: radial-gradient(115% 76% at 30% 0%, #201d1b 0%, #1a1817 55%, #151413 100%);
+  outline: 1px solid rgba(245,170,93,0.16);
+}
+.rx-light .dr-back {
+  background: radial-gradient(115% 76% at 30% 0%, #ebe8e2 0%, #e2dfd8 55%, #d9d6cf 100%);
+  outline-color: rgba(198,127,65,0.28);
+}
+/* grain rides the slab, under the text */
+.va .dr-back > .rx-grain { z-index: 1; border-radius: inherit; }
+
+/* ---------- panel content (round15 gp-* with the deeper-v5 tightenings) ---------- */
+.va .dr-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; z-index: 2;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.va .dr-scroll::-webkit-scrollbar { display: none; }
+
+.dr-layer .gp-head { padding: 20px 20px 0; position: relative; }
+.dr-layer .gp-eyebrow-row { display: flex; align-items: center; justify-content: space-between; }
+.dr-layer .gp-eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(245,170,93,0.85); }
+.rx-light .dr-layer .gp-eyebrow { color: rgba(198,127,65,0.95); }
+.dr-layer .gp-x { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(239,236,228,0.2); display: flex; align-items: center; justify-content: center; color: rgba(239,236,228,0.55); font-family: "Instrument Sans", sans-serif; font-size: 11px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rx-light .dr-layer .gp-x { border-color: rgba(21,34,49,0.25); color: rgba(21,34,49,0.6); }
+.dr-layer .gp-head .gp-x { visibility: hidden; }  /* layout ghost; the real one floats */
+.dr-layer .gp-title { font-family: "DM Serif Display", serif; font-size: 25px; line-height: 1.05; color: rgba(239,236,228,0.92); margin-top: 12px; }
+.rx-light .dr-layer .gp-title { color: rgba(21,34,49,0.94); }
+
+/* keywords: the serif procession — bigger, grounded, never broken mid-symbol */
+.dr-layer .gp-kwline { margin-top: 14px; text-align: left; font-family: "DM Serif Display", serif; font-style: italic; font-size: 16px; line-height: 1.5; color: rgba(239,236,228,0.72); text-wrap: pretty; }
+.rx-light .dr-layer .gp-kwline { color: rgba(21,34,49,0.72); }
+.dr-layer .gp-kwline .kwu { white-space: nowrap; }
+.dr-layer .gp-kwline .sep { display: inline-block; width: 3.5px; height: 3.5px; transform: rotate(45deg); background: rgba(245,170,93,0.55); margin: 0 10px; vertical-align: middle; }
+.rx-light .dr-layer .gp-kwline .sep { background: rgba(198,127,65,0.65); }
+
+.dr-layer .gp-body { padding: 0 20px 26px; position: relative; }
+.dr-layer .gp-para { font-family: "Instrument Sans", sans-serif; font-size: 13.5px; line-height: 1.62; color: rgba(239,236,228,0.66); margin: 12px 0 0; text-wrap: pretty; }
+.rx-light .dr-layer .gp-para { color: rgba(21,34,49,0.7); }
+
+.dr-layer .gp-label { display: flex; align-items: center; gap: 10px; margin: 28px 0 4px; }
+.dr-layer .gp-label .rule { width: 22px; height: 1px; background: rgba(245,170,93,0.4); flex: none; }
+.rx-light .dr-layer .gp-label .rule { background: rgba(198,127,65,0.5); }
+.dr-layer .gp-label .txt { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(245,170,93,0.75); }
+.rx-light .dr-layer .gp-label .txt { color: rgba(198,127,65,0.9); }
+
+.dr-layer .gp-closing { margin-top: 34px; padding-top: 26px; border-top: 1px solid rgba(239,236,228,0.1); text-align: center; }
+.rx-light .dr-layer .gp-closing { border-top-color: rgba(21,34,49,0.13); }
+.dr-layer .gp-close-line { font-family: "DM Serif Display", serif; font-style: italic; font-size: 19px; line-height: 1.32; color: rgba(239,236,228,0.9); text-wrap: pretty; padding: 0 8px; }
+.rx-light .dr-layer .gp-close-line { color: rgba(21,34,49,0.9); }
+.dr-layer .gp-close-btn { display: inline-block; margin-top: 20px; padding: 13px 24px; border: 1px solid rgba(245,170,93,0.35); border-radius: 999px; font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--apri); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rx-light .dr-layer .gp-close-btn { border-color: rgba(198,127,65,0.5); color: var(--amber); }
+
+/* ---------- dynamic scroll masks (opacity masks on content — canon) ---------- */
+@property --drTop { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --drBot { syntax: "<length>"; inherits: false; initial-value: 64px; }
+.va .dr-scroll { --drTop: 0px; --drBot: 64px;
+  transition: --drTop 280ms ease, --drBot 280ms ease;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--drTop), #000 calc(100% - var(--drBot)), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 var(--drTop), #000 calc(100% - var(--drBot)), transparent 100%); }
+.va .dr-scroll.scrolled { --drTop: 76px; }
+.va .dr-scroll.at-end { --drBot: 0px; }
+
+/* ---------- floating ✕: stays tappable while content scrolls under it ---------- */
+.dr-layer .dr5-xfloat { position: absolute; top: 20px; right: 20px; z-index: 6; width: 28px; height: 28px; }
+.dr-layer .dr5-xfloat .halo { position: absolute; inset: -36px; opacity: 0; transition: opacity .3s; background: #1a1817;
+  -webkit-mask-image: radial-gradient(circle, #000 0%, #000 42%, rgba(0,0,0,0.55) 62%, transparent 78%);
+  mask-image: radial-gradient(circle, #000 0%, #000 42%, rgba(0,0,0,0.55) 62%, transparent 78%); }
+.rx-light .dr-layer .dr5-xfloat .halo { background: #e2dfd8; }
+.dr-layer .dr5-xfloat .halo .rx-grain { z-index: auto; }
+.dr-layer .dr5-xfloat.scrolled .halo { opacity: 1; }
+.dr-layer .dr5-xfloat .gp-x { position: relative; visibility: visible; }
+
+/* panel content fades in as the flip crosses its apex, out on the way back */
+.va .dr-back .dr-scroll, .va .dr-back .dr5-xfloat { opacity: 0; transition: opacity 420ms ease 120ms; }
+.va .dr-flip.shown .dr-back .dr-scroll, .va .dr-flip.shown .dr-back .dr5-xfloat { opacity: 1; }
+
+/* ---------- the Pour entrypoint: skinny outline pill (deeper-v5) ---------- */
+.va .dr5-pourbtn { display: inline-flex; align-items: center; height: 36px; padding: 0 17px; margin-top: 56px;
+  border: 1px solid rgba(239,236,228,0.28); border-radius: 100px;
+  font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(239,236,228,0.65); cursor: pointer; white-space: nowrap; box-sizing: border-box;
+  pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+.rx-light .dr5-pourbtn { border-color: rgba(21,34,49,0.28); color: rgba(21,34,49,0.62); }
+
+/* ============================================================
+   THE CARD BECKONS — deck-grammar tilt · shine · press on the
+   resting Reading card (the actor). The affordance layer writes
+   the vars/classes straight onto the actor's DOM (no re-renders,
+   the deck-tile recipe). Vars are inert when unset.
+   ============================================================ */
+/* the specular pool rides INSIDE the flip, oriented with the face */
+.va .va-card-actor .dr-shine { position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  transform: rotateY(180deg); backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  opacity: var(--dsh, 0); transition: opacity 300ms ease;
+  background: radial-gradient(130% 95% at var(--dmx, 50%) var(--dmy, 45%),
+    rgba(255, 243, 222, 0.30), rgba(255, 243, 222, 0.08) 42%, transparent 68%);
+  mix-blend-mode: screen; }
+.rx-light .va-card-actor .dr-shine { background: radial-gradient(130% 95% at var(--dmx, 50%) var(--dmy, 45%),
+    rgba(255, 250, 240, 0.5), rgba(255, 250, 240, 0.14) 42%, transparent 68%); mix-blend-mode: soft-light; }
+
+/* hover: the card lifts — shadow deepens on the single .shdw (one-shadow law) */
+.va .va-card-actor.dr-hov.sh-rest .shdw { box-shadow: 0 42px 84px -26px rgba(0, 0, 0, 0.95); }
+.rx-light .va-card-actor.dr-hov.sh-rest .shdw { box-shadow: 0 42px 84px -26px rgba(21, 34, 49, 0.5); }
+/* press (touch): the card sets down — shadow tucks under it */
+.va .va-card-actor.dr-press.sh-rest .shdw { box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.6); }
+.rx-light .va-card-actor.dr-press.sh-rest .shdw { box-shadow: 0 6px 18px -8px rgba(21, 34, 49, 0.35); }
+
+/* the invisible hit surface over the resting card */
+.va .dr-hit { position: absolute; z-index: 22; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+/* ---------- doc-flow (phones): the open panel is a stage ---------- */
+/* the layer eats the pan so the page never scrolls behind the panel;
+   the panel's own scroll keeps vertical panning */
+html.va-doc .va:not(.vw-desk) .va-layer.dr-layer { touch-action: none; }
+html.va-doc .va:not(.vw-desk) .dr-layer .dr-scroll { touch-action: pan-y; }
+
+@media (prefers-reduced-motion: reduce) {
+  .va .dr-scroll { transition: none; }
+  .va .va-card-actor .dr-shine { transition: none; }
+}

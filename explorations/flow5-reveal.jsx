@@ -15,7 +15,7 @@ function Scale({ l, r, v }) {
   );
 }
 
-function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry }) {
+function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry, hasGuide, onDeeper }) {
   // the ENTRY pane choreographs in (pane 0 normally; the kept wine's pane on
   // memory re-entry); the others render settled — they're offscreen until swiped
   const heroIn = !entry || F.echoIn;
@@ -44,6 +44,7 @@ function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry }) {
             <div className="rv-wine">{p.wine}</div>
             <div className="rv-sub">{p.sub[0]}<br />{p.sub[1]}</div>
             {p.cellarMatch ? <div className="rv-cellar-line"><span className="rv-cellar-dot"></span>IN YOUR CELLAR</div> : null}
+            {hasGuide ? <div><span className="dr5-pourbtn" onClick={(e) => { e.stopPropagation(); onDeeper(); }}>Card meaning</span></div> : null}
           </div>
         </div>
       </div>
@@ -65,7 +66,8 @@ function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry }) {
   );
 }
 
-function Reveal({ card, lens, light, F, onKeep, onFade, spd, initialWine }) {
+function Reveal({ card, lens, light, F, onKeep, onFade, spd, initialWine, onDeeper }) {
+  const hasGuide = !!(window.GUIDES && GUIDES[card]);
   const c = ARCANA[card];
   const cardSrc = "assets/cards/" + c.file + ".webp";
   // POURS is keyed by lens_no (each lens carries its own echo + pours);
@@ -149,7 +151,7 @@ function Reveal({ card, lens, light, F, onKeep, onFade, spd, initialWine }) {
           </div>
         ) : null}
         <div className="rv-pours" ref={ref} onScroll={onScroll}>
-          {pours.map((p, i) => <PourPane key={i} p={p} hl={hl} light={light} i={i} F={F} spd={spd} pinned={pinned} onV={onV} entry={i === initIdx}></PourPane>)}
+          {pours.map((p, i) => <PourPane key={i} p={p} hl={hl} light={light} i={i} F={F} spd={spd} pinned={pinned} onV={onV} entry={i === initIdx} hasGuide={hasGuide} onDeeper={onDeeper}></PourPane>)}
         </div>
       </div>
     </div>

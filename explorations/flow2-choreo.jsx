@@ -61,11 +61,15 @@ function CardActor({ a, face, poster, rPct }) {
       style={{ left: a.left + "px", top: a.top + "px", width: a.width + "px", height: h + "px",
         opacity: a.o, borderRadius: rad + "px",
         transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ")", transition: tr }}>
-      <div className="flip3d" style={{ transform: "rotateY(" + (a.flip || 0) + "deg)", transition: ftr }}>
+      {/* --drx/--dry/--ds are the Deeper Reading affordance's tilt vocabulary
+          (flow6-deeper) — unset they resolve to identity, so every other beat
+          renders exactly as before */}
+      <div className="flip3d" style={{ transform: "rotateY(" + (a.flip || 0) + "deg) rotateX(var(--drx, 0deg)) rotateY(var(--dry, 0deg)) scale(var(--ds, 1))", transition: ftr }}>
         <div className="shdw" style={{ transition: a.instant ? "none" : "box-shadow " + a.dur + "ms " + ease }}></div>
         <img src="assets/card-back.webp" alt="" draggable="false" decoding="async" />
         {poster ? <img className="face" src={poster} alt="" draggable="false" decoding="async" /> : null}
         {face ? <img className="face" src={face} alt="" draggable="false" decoding="async" /> : null}
+        <div className="dr-shine"></div>
       </div>
     </div>
   );

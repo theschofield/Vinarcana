@@ -631,6 +631,44 @@ from the canvas sheet + an app-integration section). Wired in flow6-root/flow6-d
   (pair 68, card h72@−4°, bottle h96@left:30, jot 11.5/1.45 at 1px, aside 30px box + 3px gap +
   7.5px date, wave clearances, pill states, month rules, empty state).
 
+## Deeper Reading — BUILT INTO THE FLOW (Jul 11, 2026)
+Implemented from the FINAL canvas with ONE user-decided change: the canvas's two flip-hint
+candidates (shimmer-band sweep / edge curl) are REJECTED. The hint, the hover, and the press all
+speak the DECK VIEW's material language instead (user's call, this session):
+- **Arrival hint (one-shot, never loops):** the resting Reading card does the deck-tile
+  lift-tilt-shine as if a hand hovered over its BOTTOM-RIGHT corner (~950ms in, beat, ~800ms
+  settle), then never again for that draw. prefers-reduced-motion skips it. Any real pointer
+  contact interrupts it.
+- **Desktop:** hovering the card = the deck-tile hover verbatim (tilt toward cursor, specular
+  pool at the cursor, 1.05 lift, shadow deepens). Click flips.
+- **Mobile (hover:none — capability query, no UA sniffing):** no cursor shine; touch PRESSES the
+  card down (scale 0.97, shadow tucks under), release flips. Moving >12px cancels.
+- **Mechanism:** the affordance layer (`DeeperAffordance`, flow6-deeper.jsx) writes CSS vars +
+  classes straight onto the CardActor's DOM (the deck-tile no-re-render recipe). CardActor's
+  flip3d transform now composes `rotateX(--drx) rotateY(--dry) scale(--ds)` after its flip
+  (inert when unset) and carries a `.dr-shine` div oriented with the face.
+- **The flip:** a dedicated container (`DeeperReading`) takes over the card same-frame (carrying
+  the EXACT computed box-shadow of the card it replaces), then morphs rect+rotation+radius+shadow
+  to the panel while rotating Y 180° on the house flip curve (easeFlip, tlDraw.flip.d × 0.75).
+  Front face = card art; back face = the slab panel (deeper-v3 material, deeper-v5 geometry:
+  card aspect, radius 18, W = min(87.2vw, 0.83·vh·0.5833) — exactly 340×583 on a 390×844 frame).
+  Closing re-measures the origin slot and flies back; "TURN THE CARD BACK" / floating ✕ / scrim
+  tap all close.
+- Panel content per canon: THE GUIDEBOOK eyebrow + ghost ✕, 25px title, nowrap keyword
+  procession, MEANING / AS A READING / BEFORE YOU RETURN rule-labels, closing line + pill.
+  Scroll masks are dynamic opacity masks (bottom 64px at rest, top 76px once scrolled, bottom
+  releases at end — the canvas's two states, interpolated). Floating ✕ gains the grain halo
+  once scrolled. Scrim dims EVERYTHING including the status bar (canon z-order).
+- **The Pour pill:** "CARD MEANING" skinny 36px outline pill 56px below the region line, rides
+  the namewrap's echo fade. Opens the same panel from the Pour card (−4° origin honored).
+- **Raised veil while open:** 1.45× the veil opacity token (relative raise, both modes).
+- **Content gating:** `window.GUIDES` (arcana-guide.js) keyed by card id — ONLY moon is written.
+  Cards without a guide get no hint, no affordance, no pill. New card copy must flow through the
+  content pipeline; the placeholder structure is documented in arcana-guide.js.
+- NOT yet device-verified: the mobile press path and panel scroll under doc-flow need the iOS
+  round (the desktop pane can't emulate hover:none). Constructions follow the locked doc-flow
+  laws (no fixed-bottom anything; layer eats the pan, panel scroll keeps pan-y).
+
 ## Deeper Reading journey — FINAL "The Flip" (Jul 11, 2026)
 (Consolidated from the locked canvas — the session's verdicts weren't logged here as they landed.)
 Point Claude Code at **"Deeper Reading - Final.html"** (night + day each). Styles:

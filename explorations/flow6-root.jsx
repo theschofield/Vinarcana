@@ -201,6 +201,11 @@ function App() {
   // wine's pane the Reveal should open on (multi-pour lenses)
   const [memPicked, setMemPicked] = React.useState(null);
   const [pourWine, setPourWine] = React.useState(null);
+  // Deeper Reading: null | "read" | "pour" (which surface the flip came from);
+  // the arrival hint fires once per drawn card
+  const [deeper, setDeeper] = React.useState(null);
+  const deeperRef = React.useRef(null); deeperRef.current = deeper;
+  const hintDoneRef = React.useRef(false);
   const [card, setCard] = React.useState(null);
   const cardRef = React.useRef(null); cardRef.current = card;
   const [lens, setLens] = React.useState(null);
@@ -497,6 +502,7 @@ function App() {
     const id = forcedId || pickCard();
     setCard(id);
     setReleasing(false);
+    setDeeper(null); hintDoneRef.current = false;
     setVoiceOn(false); setVeilOn(false); setLensesOn(false);
     setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
     setWhispered(whisper.trim().length > 0);
@@ -716,7 +722,7 @@ function App() {
       setVoiceOn(false); setVeilOn(false); setLensesOn(false);
       setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
       setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
-      setMemPicked(null); setPourWine(null);
+      setMemPicked(null); setPourWine(null); setDeeper(null);
     } });
     ev.push({ t: TL.reform.s, run: () => { setPhase("reform"); ffRef.current = 1; setFF(false);
       setInvite(pickInvitation());
@@ -732,6 +738,19 @@ function App() {
   };
 
   const home = () => { if (phaseRef.current !== "approach") release(null, false); };
+
+  // ---------- DEEPER READING ----------
+  // src "read": the Reading card was tapped (rest only). src "pour": the
+  // CARD MEANING pill. Both open the same flipped-card panel; closing is
+  // owned by the component (it flies back to wherever it came from).
+  const openDeeper = (src) => {
+    if (deeperRef.current) return;
+    if (!(window.GUIDES && cardRef.current && GUIDES[cardRef.current])) return;
+    if (src === "read" && phaseRef.current !== "reading") return;
+    if (src === "pour" && phaseRef.current !== "reveal") return;
+    glideScrollTop();
+    setDeeper(src);
+  };
 
   // ---------- THE DECK ----------
   const toDeck = () => {
@@ -769,7 +788,7 @@ function App() {
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
         setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
-        setMemPicked(null); setPourWine(null);
+        setMemPicked(null); setPourWine(null); setDeeper(null);
         setActor(null); setEyeb(null);
         setPhase("deck");
       } });
@@ -786,6 +805,7 @@ function App() {
     glideScrollTop();
     setCard(id);
     setReleasing(false);
+    setDeeper(null); hintDoneRef.current = false;
     setVoiceOn(false); setVeilOn(false); setLensesOn(false);
     setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
     setWhispered(false); setLens(null); setPicked(null);
@@ -879,7 +899,7 @@ function App() {
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
         setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
-        setMemPicked(null); setPourWine(null);
+        setMemPicked(null); setPourWine(null); setDeeper(null);
         setActor(null); setEyeb(null);
         setPhase("memory");
       } });
@@ -982,7 +1002,7 @@ function App() {
     setReleasing(false);
     setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false, deck: false, memory: false });
     setLens(null); setPicked(null); setEyeb(null); setCard(id);
-    setMemPicked(null); setPourWine(null);
+    setMemPicked(null); setPourWine(null); setDeeper(null);
     requestAnimationFrame(() => requestAnimationFrame(() => {
       placeOnDeck(true);
       setTimeout(() => runDraw(id), 380);
@@ -1000,6 +1020,7 @@ function App() {
     deckDraw: (id, r) => runDeckDraw(id, r),
     memory: () => toMemory(),
     memoryOpen: (entry, r) => openMemoryPour(entry, r),
+    deeper: (src) => openDeeper(src || "read"),
     hurry, phase: () => phaseRef.current,
   };
 
@@ -1071,6 +1092,7 @@ function App() {
   const actorFace = ["pull", "lift", "drop", "settle", "deckfly"].includes(phase) ? null : face;
   const faceBg = c ? "assets/cards/" + c.file + "-bg.webp" : null;
   const vaCls = "va p-" + phase + (releasing ? " p-release" : "") +
+    (deeper ? " dr-open" : "") +
     (desktop ? " vw-desk" : "") + (phoneFrame ? " vw-phone" : "") +
     (imgWarp > 0 ? " imgwarp" : "") +
     (!F.deckIn ? " deck-off" : "") +
@@ -1110,6 +1132,7 @@ function App() {
           ) : null}
           {mounts.reveal && card && lens ? (
             <Reveal card={card} lens={lens} light={light} F={F} spd={spd} initialWine={pourWine}
+              onDeeper={() => openDeeper("pour")}
               onKeep={(p) => release(p, true)} onFade={(p) => release(p, false)}></Reveal>
           ) : null}
           {mounts.deck ? (
@@ -1118,6 +1141,16 @@ function App() {
           {mounts.memory ? (
             <MemoryScreen light={light} leaving={phase === "memfly"} pickedId={memPicked}
               onOpen={openMemoryPour} onDraw={() => release(null, false)}></MemoryScreen>
+          ) : null}
+          {phase === "reading" && card && !deeper && window.GUIDES && GUIDES[card] ? (
+            <DeeperAffordance key={card} hintArm={!hintDoneRef.current}
+              onHinted={() => { hintDoneRef.current = true; }}
+              onOpen={() => openDeeper("read")}></DeeperAffordance>
+          ) : null}
+          {deeper && card ? (
+            <DeeperReading card={card} src={deeper} light={light} rPct={t.cardRadius}
+              flipDur={Math.max(360, Math.round(t.tlDraw.flip.d * 0.75 / spd))} flipEase={easeCss(t.easeFlip)}
+              onClosed={() => setDeeper(null)}></DeeperReading>
           ) : null}
 
           <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
