@@ -648,6 +648,28 @@ function App() {
     });
   };
 
+  // The Pour buttons ride the iOS 26 chrome as it collapses/expands: --foot-vh
+  // tracks the live VisualViewport height, and flow6-docflow tops the fixed bar
+  // at (foot-vh - 88px) so it stays just above the current chrome edge — low
+  // when the bar is collapsed, without a bottom-anchored element (which triggers
+  // the toolbar backdrop). rAF-throttled so it rides the compositor.
+  React.useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const root = document.documentElement;
+    let raf = 0;
+    const apply = () => { raf = 0; root.style.setProperty("--foot-vh", vv.height + "px"); };
+    const onChange = () => { if (!raf) raf = requestAnimationFrame(apply); };
+    apply();
+    vv.addEventListener("resize", onChange);
+    vv.addEventListener("scroll", onChange);
+    return () => {
+      vv.removeEventListener("resize", onChange);
+      vv.removeEventListener("scroll", onChange);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   const release = (pour, kept) => {
     const from = phaseRef.current;
     if (from === "approach" || from === "release" || from === "reform") return;

@@ -121,9 +121,14 @@ html.va-flow-pour .va:not(.vw-desk) .rv-vscroll {
    is now attributed to the glow (same-beat confounder), which document
    mode no longer renders. */
 html.va-flow-pour .va:not(.vw-desk) .va-foot-pin {
+  /* Buttons TRACK the iOS chrome via the VisualViewport: --foot-vh is the live
+     visible-viewport height (JS-set on visualViewport resize/scroll), so the bar
+     is topped at (foot-vh - 88px) and rides the chrome edge down as it collapses
+     — staying at the clean floor above it, never bottom-anchored (which triggers
+     the toolbar backdrop). Falls back to 100svh before JS runs / if unsupported. */
   display: flex; flex-direction: column; justify-content: flex-end;
-  position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
-  margin: 0; pointer-events: none; z-index: 35; overflow: visible;
+  position: fixed; left: 0; right: 0; top: calc(var(--foot-vh, 100svh) - 88px); bottom: auto;
+  height: auto; margin: 0; pointer-events: none; z-index: 35; overflow: visible;
 }
 html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap {
   order: 0; position: static; display: flex; justify-content: center;
@@ -136,3 +141,12 @@ html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions {
   pointer-events: none;
 }
 html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions > * { pointer-events: auto; }
+/* LET IT FADE (ghost) button: the bar now floats over live scrolling content,
+   so blur what's behind the transparent button to keep its label readable. */
+html.va-flow-pour .va:not(.vw-desk) .rv-btn.ghost {
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  background: rgba(20, 19, 18, 0.22);
+}
+html.va-flow-pour .va:not(.vw-desk) .rx-light .rv-btn.ghost {
+  background: rgba(210, 207, 201, 0.30);
+}
