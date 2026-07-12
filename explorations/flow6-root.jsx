@@ -443,7 +443,7 @@ function App() {
   // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
   // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
   // the compositor on iOS and made every overlay jitter.
-  const glideScrollTop = (dur, easer) => {
+  const glideScrollTop = (dur) => {
     if (!docMode) return;
     const y0 = window.scrollY;
     if (y0 < 2) return;
@@ -451,23 +451,34 @@ function App() {
     const t0 = performance.now();
     const step = (now) => {
       const u = Math.min(1, (now - t0) / D);
-      const e = easer ? easer(u) : 1 - Math.pow(1 - u, 3);
+      const e = 1 - Math.pow(1 - u, 3);
       window.scrollTo(0, Math.round(y0 * (1 - e)));
       if (u < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
   };
-  // A flying card and a gliding window must share ONE clock and ONE curve:
-  // screen position is (doc position − scrollY), so if the glide runs faster
-  // than the flight (the old tap-time 320ms cubic vs the 520ms silk lift
-  // starting a few frames later), the collapsing page drags the card off the
-  // BOTTOM of the screen before the flight overtakes it — on a deep-scrolled
-  // deck the card left the viewport and "zipped up from nowhere". The easer
-  // samples the flight's own spring so the two moves cancel per-frame.
-  const springEaser = (easeTok) => {
-    const p = springParams(easeTok);
-    const pts = sampleSpring(p.t, p.f, p.m);
-    return (u) => pts[Math.max(0, Math.min(pts.length - 1, Math.round(u * (pts.length - 1))))];
+
+  // ---- THE RIDE (deck/memory tile → center, on a scrolled page) ----
+  // A flying card and a gliding window CANNOT be animated against each other
+  // on iOS: the compositor applies scroll on its own clock while a CSS
+  // transition samples on the main thread, and every scheme that pairs them
+  // (tap-time glide, spring-matched glide) either threw the card off-screen
+  // or jittered it. The house answer is the same one the veil and status bar
+  // use: STICKY. During the flight the actor hangs from a zero-height sticky
+  // pin (.va-actor-pin, DOM-early like .va-status-pin) — the COMPOSITOR
+  // keeps it viewport-locked while the window glides home beneath it, so the
+  // flight is a pure CSS transition in viewport space and the two motions
+  // can never fight. At the settle beat (scroll long home) the actor hands
+  // back to document space at rest with zero visual delta.
+  const actorPinRef = React.useRef(null);
+  // offset between pin space (viewport) and va space (document): add to go
+  // pin→doc, subtract to go doc→pin. Measured live so any scroll state works.
+  const pinDelta = () => {
+    const p = actorPinRef.current, va = vaRoot();
+    if (!p || !va) return { dx: 0, dy: 0 };
+    const s = vaScale();
+    const pr = p.getBoundingClientRect(), vr = va.getBoundingClientRect();
+    return { dx: (pr.left - vr.left) / s, dy: (pr.top - vr.top) / s };
   };
 
   // idle beckon: a resting stage + a stretch of inaction reads as “I don't
@@ -812,10 +823,10 @@ function App() {
   // flying from the tile's own rect instead of pulling from the deck
   const runDeckDraw = (id, r) => {
     if (phaseRef.current !== "deck") return;
-    // the tile rect and the actor share the document coordinate space; the
-    // window glides home DURING the flight — the card rides the collapse.
-    // The glide is launched INSIDE the flight beat (same frame, same
-    // duration, same spring) so the ride never dips off-screen.
+    // THE RIDE: the actor is viewport-locked on the sticky pin for the whole
+    // flight, so the window can glide home on its own clock (the original
+    // chrome-smooth 320ms) without ever moving the card on screen.
+    glideScrollTop();
     setCard(id);
     setReleasing(false);
     setDeeper(null); hintDoneRef.current = false;
@@ -829,9 +840,11 @@ function App() {
     const preBg = new Image(); preBg.src = "assets/cards/" + c.file + "-bg.webp";
     if (preBg.decode) preBg.decode().catch(() => {});
 
-    // the actor takes over the tapped tile, face already showing
-    setActor({ left: r.left, top: r.top, width: r.width, ar: r.height / r.width, rot: 0, flip: 180, o: 1,
-      dur: 0, radius: 8, shadow: "sh-rest", instant: true });
+    // the actor takes over the tapped tile IN PIN (viewport) SPACE, face
+    // already showing — from here the scroll cannot touch it
+    const dl0 = pinDelta();
+    setActor({ left: r.left - dl0.dx, top: r.top - dl0.dy, width: r.width, ar: r.height / r.width, rot: 0, flip: 180, o: 1,
+      dur: 0, radius: 8, shadow: "sh-rest", instant: true, pin: true });
 
     const T = tRef.current, TL = T.tlDraw;
     const off = TL.lift.s; // timeline starts at the lift — no pull, no flip
@@ -840,21 +853,25 @@ function App() {
     ev.push({ t: 0, run: () => { setPhase("deckfly"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));
       const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
       const cy = S.h * (tRef.current.centerY / 100);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        glideScrollTop(dv(TL.lift.d), springEaser(tRef.current.easeLift));
+      requestAnimationFrame(() => requestAnimationFrame(() =>
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
-          dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }));
-      }));
+          dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
     } });
     ev.push({ t: sh(TL.settle.s), run: () => { setPhase("settle");
-      setMounts((m) => ({ ...m, reading: true, deck: false }));
-      const S = vaSize(); const rr = slotRect("read-card");
-      const ar = rr ? rr.height / rr.width : faceARRef.current;
-      const dw2 = (desktop ? tRef.current.deckWDesk : tRef.current.deckW) || 0;
-      const w = Math.min(Math.max(rr ? rr.width : 0, dw2) * (tRef.current.settleScale || 1.16), S.w * 0.58) || S.w * 0.5;
-      const cy = S.h * (tRef.current.centerY / 100);
-      setActor((a) => ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
-        dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
+      // hand the actor back to document space AT REST first (zero visual
+      // delta — the pin's live offset IS the conversion), then settle
+      const dl = pinDelta();
+      setActor((a) => a && ({ ...a, pin: false, left: a.left + dl.dx, top: a.top + dl.dy, dur: 0, instant: true }));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setMounts((m) => ({ ...m, reading: true, deck: false }));
+        const S = vaSize(); const rr = slotRect("read-card");
+        const ar = rr ? rr.height / rr.width : faceARRef.current;
+        const dw2 = (desktop ? tRef.current.deckWDesk : tRef.current.deckW) || 0;
+        const w = Math.min(Math.max(rr ? rr.width : 0, dw2) * (tRef.current.settleScale || 1.16), S.w * 0.58) || S.w * 0.5;
+        const cy = S.h * (tRef.current.centerY / 100);
+        setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
+          dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
+      }));
     } });
     ev.push({ t: sh(TL.bleed.s), run: () => { setPhase("bleed"); setVeilOn(true);
       const place = (tries) => {
@@ -940,6 +957,8 @@ function App() {
       lensObj = (c.lenses || []).find((l) => l.n === k);
     }
     if (!c || !lensObj) { showToast("THIS PAGE HAS FADED"); return; }
+    // THE RIDE, ledger edition: viewport-locked actor, free-running glide
+    glideScrollTop();
     clock.cancel();
     setCard(entry.card);
     setLens(lensObj); setPicked(lensObj.n);
@@ -955,9 +974,11 @@ function App() {
     const preBg = new Image(); preBg.src = "assets/cards/" + c.file + "-bg.webp";
     if (preBg.decode) preBg.decode().catch(() => {});
 
-    // the actor takes over the row's mini card (face up, −4° like the row)
-    setActor({ left: r.left, top: r.top, width: r.width, ar: r.height / r.width, rot: -4, flip: 180, o: 1,
-      dur: 0, radius: 4, shadow: "sh-rest", instant: true });
+    // the actor takes over the row's mini card IN PIN (viewport) SPACE
+    // (face up, −4° like the row)
+    const dl0 = pinDelta();
+    setActor({ left: r.left - dl0.dx, top: r.top - dl0.dy, width: r.width, ar: r.height / r.width, rot: -4, flip: 180, o: 1,
+      dur: 0, radius: 4, shadow: "sh-rest", instant: true, pin: true });
 
     const T = tRef.current, TLd = T.tlDraw, TLc = T.tlChoice;
     // rise first; the ledger completes its exit-curve sink beneath the flight
@@ -966,18 +987,21 @@ function App() {
     ev.push({ t: 0, run: () => { setPhase("memfly");
       const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
       const cy = S.h * (tRef.current.centerY / 100);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        // the ledger's card rides the collapse on the flight's own spring
-        glideScrollTop(dv(TLd.lift.d), springEaser(tRef.current.easeLift));
+      requestAnimationFrame(() => requestAnimationFrame(() =>
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
-          dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }));
-      }));
+          dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
     } });
-    // the ledger has faded — swap layouts and let The Pour choreograph in
-    ev.push({ t: base, run: () => { setPhase("choose");
-      setMounts((m) => ({ ...m, memory: false, reveal: true }));
-      setMemPicked(null);
-      setVeilOn(true);
+    // the ledger has faded — hand the actor back to document space at rest
+    // (zero delta), then swap layouts and let The Pour choreograph in
+    ev.push({ t: base, run: () => {
+      const dl = pinDelta();
+      setActor((a) => a && ({ ...a, pin: false, left: a.left + dl.dx, top: a.top + dl.dy, dur: 0, instant: true }));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setPhase("choose");
+        setMounts((m) => ({ ...m, memory: false, reveal: true }));
+        setMemPicked(null);
+        setVeilOn(true);
+      }));
     } });
     ev.push({ t: base + TLc.slide.s, run: () => { setPhase("slide");
       const hs = (vaRoot() || document).querySelector(".rv-hero .hero-scale");
@@ -1138,6 +1162,14 @@ function App() {
           <div className="va-status-pin"><StatusBar6 light={light} onHome={home} onDeck={toDeck} onToast={showToast}
             deckOn={["todeck", "deck", "deckfly"].includes(phase)}
             onMemory={toMemory} memOn={["tomem", "memory", "memfly"].includes(phase)}></StatusBar6></div>
+          {/* THE RIDE's viewport anchor: zero-height sticky (the status-pin
+              recipe), DOM-early so sticky can pin — hosts the actor only
+              while a deck/memory flight is riding a scroll collapse */}
+          <div className="va-actor-pin" ref={actorPinRef}>
+            {actor && actor.pin ? (
+              <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
+            ) : null}
+          </div>
 
           {mounts.approach ? (
             <Approach light={light} invite={invite} whisper={whisper} setWhisper={setWhisper}
@@ -1170,7 +1202,9 @@ function App() {
               onClosed={() => setDeeper(null)}></DeeperReading>
           ) : null}
 
-          <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
+          {actor && actor.pin ? null : (
+            <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
+          )}
           {c ? <EyebrowActor e={eyeb} num={c.num} name={c.name} lens={lens ? lens.name : ""}></EyebrowActor> : null}
           <SmokeFX light={light}></SmokeFX>
 

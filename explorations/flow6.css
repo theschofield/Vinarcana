@@ -116,6 +116,15 @@
 .va.p-todeck .va-card-actor, .va.p-deck .va-card-actor,
 .va.p-tomem .va-card-actor, .va.p-memory .va-card-actor { z-index: 2; }
 
+/* ---- THE RIDE's viewport anchor ----
+   During deck/memory flights on a scrolled page the actor hangs from this
+   zero-height sticky pin (the .va-status-pin recipe): the COMPOSITOR keeps
+   it glued to the viewport while the window glides home beneath it, so the
+   flight (a plain CSS transition in viewport space) and the scroll can
+   never fight — pairing them any other way jittered on iOS Safari (the
+   --va-sy lesson). DOM-early in .rx, or sticky can't pin. */
+.va .va-actor-pin { position: sticky; top: 0; height: 0; overflow: visible; z-index: 20; }
+
 /* ---- one card, ONE shadow, on ONE persistent element ----
    History, so nobody regresses it: shadows on the actor's imgs
    double-composite when two imgs overlap (opacity bump at every handoff);

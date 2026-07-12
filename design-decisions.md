@@ -712,6 +712,30 @@ First build's transitions were rejected ("treated like an afterthought"); correc
   the scrim finishes; no post-settle step). Law: everything the panel does to the field must
   release on the close's first beat, not at unmount.
 
+## ★ THE RIDE — CORRECTED (Jul 11, 2026, supersedes the entry below)
+The "one clock and one curve" fix below was WRONG on the real engine: it looked perfect in
+Chromium (which coalesces programmatic scroll + CSS transitions into one paint) and jittered
+violently on iOS Safari ("pulled back and forth… yanked down the whole time" — user, on device).
+Root cause is the already-canonized --va-sy lesson in its general form:
+- **★ LAW (final): on iOS, a JS-driven scroll and a CSS-animated element must NEVER be paired —
+  the compositor applies scroll on its own clock while transitions sample on the main thread,
+  and no duration/curve matching can make them composite atomically.** The house answer is the
+  same one the veil and status bar already use: STICKY.
+- **The fix:** during deck/memory flights the card actor hangs from `.va-actor-pin`, a
+  zero-height sticky pin (the .va-status-pin recipe, DOM-early in .rx). The COMPOSITOR keeps it
+  viewport-locked while the window glides home beneath it on the original tap-time 320ms cubic —
+  the flight is a plain CSS transition in viewport space and the two motions cannot interact.
+  At the settle beat (scroll long home) the actor hands back to document space at rest with
+  zero visual delta (`pinDelta()` measures the live pin↔va offset, so any scroll state
+  converts exactly). Same construction in runDeckDraw and openMemoryPour.
+- **Validation workflow (new, reusable): the iOS simulator + `scraps/deck-ride-probe.html`.**
+  The probe iframes the app (patching matchMedia to coarse-pointer on desktop hosts; unneeded
+  on real devices), auto-drives deck → deep scroll → tap The Moon, traces the actor's on-screen
+  Y per frame for 1.4s, and renders PASS/FAIL + metrics for a `simctl io booted screenshot`.
+  Verified on the iPhone 17 Pro simulator, real Safari, scroll 978→0: card on-screen the whole
+  ride (band [118, 341] of vh 754), 1 direction flip (the settle overshoot), maxJump 25px/frame,
+  79 frames. Chromium-only verification of scroll choreography is now known-insufficient.
+
 ## Deck/Memory flight vs scroll-glide sync (Jul 11, 2026 — device bug, user-caught)
 Tapping a tile DEEP in the scrolled deck (doc mode) made the card "zip up into the screen from
 nowhere." NOT Deeper-Reading-specific despite the correlation (The Moon is simply seven rows
