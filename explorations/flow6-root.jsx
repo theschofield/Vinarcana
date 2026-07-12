@@ -443,7 +443,7 @@ function App() {
   // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
   // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
   // the compositor on iOS and made every overlay jitter.
-  const glideScrollTop = (dur) => {
+  const glideScrollTop = (dur, easer) => {
     if (!docMode) return;
     const y0 = window.scrollY;
     if (y0 < 2) return;
@@ -451,11 +451,23 @@ function App() {
     const t0 = performance.now();
     const step = (now) => {
       const u = Math.min(1, (now - t0) / D);
-      const e = 1 - Math.pow(1 - u, 3);
+      const e = easer ? easer(u) : 1 - Math.pow(1 - u, 3);
       window.scrollTo(0, Math.round(y0 * (1 - e)));
       if (u < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
+  };
+  // A flying card and a gliding window must share ONE clock and ONE curve:
+  // screen position is (doc position − scrollY), so if the glide runs faster
+  // than the flight (the old tap-time 320ms cubic vs the 520ms silk lift
+  // starting a few frames later), the collapsing page drags the card off the
+  // BOTTOM of the screen before the flight overtakes it — on a deep-scrolled
+  // deck the card left the viewport and "zipped up from nowhere". The easer
+  // samples the flight's own spring so the two moves cancel per-frame.
+  const springEaser = (easeTok) => {
+    const p = springParams(easeTok);
+    const pts = sampleSpring(p.t, p.f, p.m);
+    return (u) => pts[Math.max(0, Math.min(pts.length - 1, Math.round(u * (pts.length - 1))))];
   };
 
   // idle beckon: a resting stage + a stretch of inaction reads as “I don't
@@ -801,8 +813,9 @@ function App() {
   const runDeckDraw = (id, r) => {
     if (phaseRef.current !== "deck") return;
     // the tile rect and the actor share the document coordinate space; the
-    // window glides home DURING the flight — the card rides the collapse
-    glideScrollTop();
+    // window glides home DURING the flight — the card rides the collapse.
+    // The glide is launched INSIDE the flight beat (same frame, same
+    // duration, same spring) so the ride never dips off-screen.
     setCard(id);
     setReleasing(false);
     setDeeper(null); hintDoneRef.current = false;
@@ -827,9 +840,11 @@ function App() {
     ev.push({ t: 0, run: () => { setPhase("deckfly"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));
       const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
       const cy = S.h * (tRef.current.centerY / 100);
-      requestAnimationFrame(() => requestAnimationFrame(() =>
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        glideScrollTop(dv(TL.lift.d), springEaser(tRef.current.easeLift));
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
-          dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
+          dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }));
+      }));
     } });
     ev.push({ t: sh(TL.settle.s), run: () => { setPhase("settle");
       setMounts((m) => ({ ...m, reading: true, deck: false }));
@@ -925,7 +940,6 @@ function App() {
       lensObj = (c.lenses || []).find((l) => l.n === k);
     }
     if (!c || !lensObj) { showToast("THIS PAGE HAS FADED"); return; }
-    glideScrollTop();
     clock.cancel();
     setCard(entry.card);
     setLens(lensObj); setPicked(lensObj.n);
@@ -952,9 +966,12 @@ function App() {
     ev.push({ t: 0, run: () => { setPhase("memfly");
       const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
       const cy = S.h * (tRef.current.centerY / 100);
-      requestAnimationFrame(() => requestAnimationFrame(() =>
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        // the ledger's card rides the collapse on the flight's own spring
+        glideScrollTop(dv(TLd.lift.d), springEaser(tRef.current.easeLift));
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
-          dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
+          dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }));
+      }));
     } });
     // the ledger has faded — swap layouts and let The Pour choreograph in
     ev.push({ t: base, run: () => { setPhase("choose");

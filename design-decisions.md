@@ -712,6 +712,25 @@ First build's transitions were rejected ("treated like an afterthought"); correc
   the scrim finishes; no post-settle step). Law: everything the panel does to the field must
   release on the close's first beat, not at unmount.
 
+## Deck/Memory flight vs scroll-glide sync (Jul 11, 2026 — device bug, user-caught)
+Tapping a tile DEEP in the scrolled deck (doc mode) made the card "zip up into the screen from
+nowhere." NOT Deeper-Reading-specific despite the correlation (The Moon is simply seven rows
+deep; The Fool at the top never glides): screen position = doc position − scrollY, and the
+tap-time glide (320ms cubic, starting immediately) collapsed the page FASTER than the card's
+flight (520ms silk, starting a few frames later) — the page dragged the card off the BOTTOM edge
+for ~150ms before the flight overtook it.
+- **★ LAW: a flying card and a gliding window must share ONE clock and ONE curve.** The glide is
+  now launched INSIDE the flight beat's own rAF commit, with the flight's duration (dv(lift.d))
+  and an easer sampled from the flight's own spring (springEaser(easeLift) — the same
+  sampleSpring that generates the CSS linear() easing, so the two moves cancel per-frame). Fixed
+  in runDeckDraw AND openMemoryPour (the Memory row-tap ride had the identical construction).
+- glideScrollTop now accepts (dur, easer); all other callers (release/toDeck/toMemory exits,
+  no flying card) keep the default cubic glide.
+- Verified in a forced doc-mode probe (app iframed with a coarse-pointer matchMedia patch —
+  reusable trick, since desktop panes can't set hover:none): takeover exact at doc coords at
+  scrollY 1000+, landing settled at scroll 0. Continuous-time sync is by construction; the
+  frozen-frame pane can't watch it, so the feel check rides the user's next device round.
+
 ## Deeper Reading journey — FINAL "The Flip" (Jul 11, 2026)
 (Consolidated from the locked canvas — the session's verdicts weren't logged here as they landed.)
 Point Claude Code at **"Deeper Reading - Final.html"** (night + day each). Styles:
