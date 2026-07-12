@@ -1,4 +1,4 @@
-# Content Draft History — ALL layers (voices, lenses, echoes, blurbs)
+# Content Draft History — ALL layers (voices, lenses, echoes, blurbs, guidebook)
 
 Every draft ever graded, per card, oldest first, tagged by layer. Nothing is deleted; this is the
 audit trail for whether `voice-prompt.md` is steering in the right direction — and the calibration
@@ -210,3 +210,169 @@ wink ("Bit stuck, are we?").
 
 ### Knight of Wands (W12)
 - r1: "Look before leaping, they say. They have never once been on time." → (self-rejected, first pass) saying-plus-retort reads reactive, not omniscient (same failure family as "The stars aligned? Please.")
+
+---
+
+## Guidebook layer — batch 1 (2026-07-11)
+
+First guidebook batch (Death, The Tower, The Fool, The Hermit): all four bodies AND closings
+APPROVED on the first pass; the prose was untouched. Every grade landed on keywords, and all
+three corrections pushed the same way: back toward the Symbols' own phrasing. The closing-frame
+template (Moon's opening and final sentences verbatim, only the four paraphrases varying) was
+accepted without comment.
+
+### Death (XIII)
+- guidebook r1 keywords: "Endings|Transformation|Release|Transition|Rebirth|Inevitable change" → APPROVED with one swap: 'Release' out, the Symbols' 'Letting go' restored ("letting go means more than release")
+
+### The Tower (XVI)
+- guidebook r1 keywords: "Upheaval|Revelation|Collapse|Crisis|Liberation" → APPROVED with one swap: 'Collapse' out, the Symbols' full 'Breakdown of old structures' in (user prefers it despite length; the 2–3 word cap is soft)
+
+### The Fool (0)
+- guidebook r1 keywords: "New beginnings|Spontaneity|Faith|The unknown|Potential|Innocence" → APPROVED with one swap: 'The unknown' out, 'Leaping into the unknown' in ("it's really about being the fool wading into the unknown, not about the unknown")
+
+### The Hermit (IX)
+- guidebook r1: APPROVED as written, no changes.
+
+**Calibration lesson (rolled into guidebook-prompt.md):** distilling keywords toward single
+words cost meaning three times out of four. The Symbols' gerund phrases are keywords, not verbs;
+keep the actor's motion. Meaning outranks brevity.
+
+---
+
+## Guidebook layer — batch 2 (2026-07-11)
+
+Ten bodies (The Magician → Justice), closings pending lens approval. All prose APPROVED on the
+first pass again. Every grade landed on keywords, and the corrections generalize into the
+RECIPE PRINCIPLE (now in guidebook-prompt.md): a card's symbols are a recipe; single symbols
+repeating across cards is fine; never drop a distinct concept for overlap or count.
+
+### The High Priestess (II)
+- guidebook r1 keywords dropped 'The subconscious' to limit overlap with The Moon → REVERSED: restored ("many cards will share symbols; that's not inherently a problem")
+
+### The Emperor (IV)
+- guidebook r1 keywords condensed rules/establishment into 'Order' and omitted father figure and rigidity → REVERSED: 'Rules', 'The Establishment', 'Father figure', 'Rigidity' all restored alongside Order (fundamentally different concepts; father figure not covered by any other symbol; 'potential' dropped since every symbol is a potential). Set of ten sanctioned.
+
+### The Hierophant (V)
+- guidebook r1 'Inherited wisdom' (from "spiritual wisdom passed down through established channels") → PRAISED by name: "a wise condensation that didn't lose sight of the meaning"
+
+### The Lovers (VI)
+- guidebook r1 dropped Duality for cross-card overlap with the High Priestess → not graded directly; restored proactively per the recipe principle, flagged in the row for confirmation
+
+### The Chariot (VII)
+- guidebook r1 keywords dropped Willpower (Magician overlap), flattened 'control over opposing forces' to 'Opposing forces', omitted 'harnessing energy' → REVERSED on all three ("control over opposing forces" and "opposing forces" are different things)
+
+### Strength (VIII)
+- guidebook r1 carried 'taming primal urges with grace' in the prose rather than the keywords → CONFIRMED ("just complex enough of a concept that it's hard to convey succinctly in a symbols list")
+
+### Wheel of Fortune (X)
+- guidebook r1 led keywords with 'Luck' over the Symbols' first-listed 'Cycles' to match the approved voice line → PRAISED: "extremely smart... these are the types of wise decisions I want you to make given you have access to everything in my app"
+
+### Justice (XI)
+- guidebook r1 folded 'impartiality' into Fairness/Accountability → REVERSED: Impartiality restored ("an important concept that is overlooked when people think they're being fair, when in reality they're engaging in righteous indignation")
+
+---
+
+## Guidebook layer — batch 3 (2026-07-11)
+
+Ten bodies: the Major Arcana completed (Hanged Man, Temperance, Devil, Star, Sun, Judgement,
+World) plus the first three Wands to establish the minor-arcana pattern. All prose APPROVED
+first pass. Verdicts:
+
+### The Hanged Man (XII)
+- guidebook r1: 'Sacrifice' proposed over the Symbols' 'martyrdom' → APPROVED ("wise")
+
+### Temperance (XIV)
+- guidebook r1 keywords placed Alchemy seventh → REORDERED up beside Blending. User: "I don't consider alchemy magic, I consider it the impossible quest for something greater than the sum of its parts. That's far more powerful than magic." (Card-philosophy nugget; keep in reach for all future Temperance copy.)
+
+### The Devil (XV)
+- guidebook r1: Temptation-first reorder + 'self-imposed' carried by the prose → APPROVED ("your changes were good")
+
+### Judgement (XX)
+- guidebook r1: omitted 'Judgement' from its own keyword list → APPROVED ("a wise edit")
+
+### Ace/Two/Three of Wands (W01–W03)
+- guidebook r1: minor-arcana orientation pattern (meaning_1 places suit + rank, fading as the suit progresses) → APPROVED as the template for all 56 minors ("Every application of it looks good here, so let's run with that pattern")
+- Two of Wands: dropping "(often between security and exploration)" → CONFIRMED after deliberation ("a difficult decision to drop but ultimately I think you're right. it's slightly too complex for a symbol")
+
+---
+
+## Guidebook layer — batch 4 (2026-07-11)
+
+Ten bodies (Four of Wands → Queen of Wands). APPROVED wholesale: "All of your changes made this
+round were wise. well done." First batch with zero reversals; the batch-2/3 calibration is
+holding. Precedents confirmed by this approval: the Six's Public-recognition lead (Wheel-style
+reorder), the Ten's 'A heavy completion' (constitutive qualifiers STAY, unlike generic ones
+like the Emperor's 'potential'), the Queen's 'Magnetism' (Hierophant-style condensation), the
+Five's fold of 'lack of cooperation', and the court-card rank glosses (pages = students and
+messengers, knights = the suit at its extreme, queens = the suit mastered as presence).
+
+---
+
+## Guidebook layer — batch 5 (2026-07-11)
+
+Ten bodies (King of Wands + Ace through Nine of Cups; the Wands complete, the water suit
+opened). All prose APPROVED. One keyword reversal, same family as batch 1's:
+
+### Seven of Cups (C07)
+- guidebook r1 condensed 'needing discernment' to 'Discernment' → REVERSED: 'Needing discernment' restored ("it's not about the act of discernment but rather becoming aware that you're trying to do too much at once and need to discern between them")
+
+Everything else approved as written, including the King's 'Charismatic authority'
+(constitutive-qualifier rule), the Two's fold of 'balance in relationship', the Five of Cups'
+prose-carried spilled-vs-standing mechanic, and the Nine's 'Wishes fulfilled' lead. Also
+noted in-process: four collisions with the Cups' DRAFT voice lines were caught and reworked
+before submission (Nine's chair, Five's counting, Seven's paintings, Three's multiplying);
+checking bodies against draft voices, not just approved ones, is now standard.
+
+---
+
+## Guidebook layer — batch 6 (2026-07-11)
+
+Ten bodies (Ten of Cups → King of Cups, Ace → Five of Swords; the Cups complete, the air suit
+opened). All prose APPROVED; the Queen of Cups' psychological-not-occult fold praised ("good
+edit"). Three keyword ORDER verdicts, all systemic:
+
+### Messenger symbols sit last (rule)
+- 'A messenger of...' symbols go LAST in their sets → applied to the Page of Cups; retro-applied to the approved Page of Wands (rule supersedes the no-edit convention when the user issues it generally)
+
+### Ace of Swords (S01)
+- guidebook r1 led 'Clarity' to match the draft voice's territory → REVERSED: 'A mental breakthrough' leads ("it's the closest thing to a spark that this card has, sorta aligns with the other aces"). LESSON: rank-parallel alignment across suits (every ace leads with its spark) outranks matching a voice line. Reorders serve the SYSTEM first.
+
+### Five of Swords (S05)
+- order regrouped: Conflict > Loss > A Pyrrhic victory (the cost-cluster reads as one thought)
+
+---
+
+## Guidebook layer — batch 7 (2026-07-11)
+
+Ten bodies (Six of Swords → King of Swords + Ace of Pentacles; the air suit complete, the earth
+suit opened). All prose APPROVED. One structural verdict:
+
+### Page of Swords (S11) — the Symbols lists can be INCOMPLETE
+- flagged that this Page's Symbols list carries no messenger symbol → user: "isn't every Page a messenger of some sorts? It's possibly my framework's list of symbols is incomplete." → 'A messenger of truth' ADDED (beyond the framework), placed last per the batch-6 rule. LESSON: when a system parallel exposes a gap in a Symbols list, propose the missing symbol; the framework is the default source, not a ceiling. (Forward note: check the Page of Pentacles' list for the same gap.)
+
+---
+
+## Guidebook layer — batch 8 (2026-07-11)
+
+Ten bodies (Two of Pentacles → Page of Pentacles). All prose APPROVED. Two keyword verdicts:
+
+### Five of Pentacles (P05)
+- guidebook r1 omitted 'Illness' out of health-advice caution → REVERSED: restored ("It's no worse than isolation or poverty"). Naming territory is not giving advice; the anti-goal bans the latter only.
+
+### The Pages — messenger symbols now LEAD (rule reversal)
+- The batch-6 messenger-last rule is REVERSED: every Page now OPENS with its 'A messenger of...' symbol. Applied to all four Pages, including the three previously approved (rule supersedes the no-edit convention when issued generally). 'A messenger of opportunity' (added, Page of Pentacles) completes the quartet: inspiration, feelings, truth, opportunity.
+
+---
+
+## Guidebook layer — batch 9 (2026-07-11) — THE DECK COMPLETES
+
+Final three bodies (Knight, Queen, King of Pentacles) APPROVED as written, including 'Grounded
+authority' (added per the incomplete-lists verdict, completing the kings' quartet:
+Charismatic/Calm/Reasoned/Grounded) and the Knight's Reliability lead.
+
+**ALL 78 GUIDEBOOK BODIES ARE APPROVED**, written and graded across nine batches in one session,
+with zero prose rejections; every correction of the run landed on keywords, and each one is
+codified in guidebook-prompt.md. Closings stand at 5/78 (The Moon canon + Death, The Tower,
+The Fool, The Hermit); the remaining 73 wait on their lens sets reaching approved in lenses.csv.
+Next, per the user: fix the spirit voices and the lenses (in a fresh session), then return for
+the closings.

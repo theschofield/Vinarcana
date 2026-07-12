@@ -8,7 +8,10 @@ is DIFFERENT about the Guidebook layer. Gold standard: The Moon, in
 > **Verdicts folded in (Jul 11, 2026, user):** the "challenging card" flag is CUT from the
 > experience entirely; the closing line is FIXED verbatim across all cards; the guidebook BODY
 > and the CLOSING PARAGRAPH are separate pipelines with separate approvals; keywords default to
-> the framework's Symbols but better sets may be proposed (flagged for grading).
+> the framework's Symbols but better sets may be proposed (flagged for grading). Guidebook
+> bodies SHIP to the app even as drafts; closing paragraphs are pushed later as a supplement to
+> the live guidebooks whenever they're ready (lens refinement runs long). Approval gates canon,
+> never release.
 
 ---
 
@@ -76,13 +79,51 @@ the card's territory. **Default source: the Symbols comma-lists in
 better set, mark the deviation in the row's notes for grading, and roll the outcome back into
 this file. Consistency of approach across all 78 cards outranks fidelity to any one list.
 **Rules:**
-- Exactly 5–7 entries. Single words preferred; "The subconscious" / "The hidden" style noun
-  phrases allowed (2–3 words max — each renders nowrap in a dot-separated procession).
+- 5–7 entries is the default, but the recipe outranks the count: when the Symbols carry more
+  genuinely distinct concepts, keep them all (batch-2 verdict: The Emperor runs ten). Drop
+  qualifier words ("potential rigidity" → "Rigidity"; every symbol is already a potential),
+  UNLESS the qualifier is constitutive: "completion (but heavy)" shipped as "A heavy
+  completion" (batch 4, approved), because heaviness is what that completion IS.
+  Single words preferred; "The subconscious" / "The hidden" style noun phrases allowed (each
+  renders nowrap in a dot-separated procession; 2–3 words is the comfort zone, but the cap is
+  SOFT: batch 1 chose "Breakdown of old structures" over "Collapse". Meaning outranks brevity).
+- **The recipe principle (batch-2 verdict).** A card's keyword set is a recipe; a single symbol
+  repeating across cards is fine because it is part of a larger recipe — only a wholly duplicated
+  set would be a problem. Never drop a distinct concept to avoid cross-card overlap (reversed
+  twice in batch 2: 'The subconscious' restored to The High Priestess, 'Willpower' to The
+  Chariot). Near-synonyms within one list are usually distinct concepts on inspection ('Order',
+  'Rules', 'The Establishment', 'Structure' all coexist in The Emperor's set). Condense only when
+  nothing is lost ('Inherited wisdom' was praised; 'Opposing forces' failed because the card
+  means CONTROL over them). A concept too complex to compress may be carried by the prose
+  instead (user-confirmed twice: Strength's 'taming primal urges with grace', the Two of Wands'
+  '(often between security and exploration)').
+- **The Symbols lists can be incomplete (batch-7 verdict).** When a system parallel exposes a
+  gap, propose the missing symbol and flag it: every Page is a messenger of something, the Page
+  of Swords' list lacked one, and 'A messenger of truth' was added at the user's invitation.
+  The framework is the default source, not a ceiling.
 - Order matters: lead with the card's PRIMARY territory (Moon leads "Illusion," not "Fear").
+  Reordering to lead with THIS product's take on the card is encouraged (batch 2: Wheel of
+  Fortune leads 'Luck' over the Symbols' first-listed 'Cycles' because the approved voice line
+  is about luck landing — praised as exactly the right kind of judgment call). But the SYSTEM
+  outranks the voice line (batch 6): rank-parallel symbols align across suits, so every ace
+  leads with its spark ('A mental breakthrough' leads the Ace of Swords even though the voice
+  is about clarity). Two more order rules: 'A messenger of...' symbols LEAD their Pages' sets
+  (batch-8 verdict, REVERSING batch 6's last-position rule: the messenger role is the rank's
+  identity, so it opens the recipe), and related concepts cluster so they read as one thought (Five of Swords: Conflict > Loss >
+  A Pyrrhic victory).
 - Mix at least one interior word (intuition, dreams) with at least one situational word
   (illusion, the hidden) so the set spans inner and outer life.
-- No verbs, no sentences, no judgments ("bad luck" is out; "fear" is fine — it names territory,
-  not a verdict).
+- No conjugated verbs, no sentences, no judgments ("bad luck" is out; "fear" is fine — it names
+  territory, not a verdict). Gerund phrases lifted whole from the Symbols ("Letting go,"
+  "Leaping into the unknown") count as noun phrases and are often the RIGHT pick: they keep the
+  actor inside the card's motion.
+- **Batch-1 calibration: distill less.** Three of four keyword gradings reversed a distillation
+  back to the Symbols' own phrasing: "Release" flattened "letting go" (which means more than
+  release), "Collapse" flattened "breakdown of old structures," and "The unknown" pointed at the
+  destination when the card is about the one wading in. Batch 5 added a fourth reversal:
+  "Discernment" flattened "needing discernment," which names the AWARENESS of trying to do too
+  much at once, not the act of discerning. When a Symbols phrase carries the card's action,
+  agency, or state of awareness, keep the phrase whole; shorten only when nothing is lost.
 
 ### 3 · "What the card means" (2 paragraphs)
 **Why two paragraphs and why this order:** paragraph one places the card in the world;
@@ -92,6 +133,14 @@ tonight's implication, which is what makes the section feel authoritative instea
   alone ("The Moon is the night card of the deck."). Then name its domains in plain nouns. A
   contrast against a familiar card (Sun vs Moon) is the cheapest orientation device in tarot;
   use it when one exists.
+- **Minor Arcana orientation (batch-3 verdict: APPROVED as the template for all 56).** Para 1
+  opens by placing the suit ("the suit of fire, the family of the deck that governs passion,
+  creativity, and drive") and the rank's role in it ("every ace is a seed"; fives are friction;
+  pages are students and messengers, knights the suit at its extreme, queens the suit mastered
+  as presence, kings the suit in command) before defining the card itself. The first cards
+  written in a suit carry the full orientation; later cards lean on it lightly ("the planner's
+  card of the fire suit") and may orient against an adjacent rank (the Three against the Two),
+  the same way the majors cross-reference each other.
 - **Para 2 — what drawing it means.** Translate the card into the reader's present tense
   ("some part of life is currently moonlit"). For heavier cards, this paragraph carries the
   reassurance arc: honest about the difficulty, then the built-in exit ("the road continues
@@ -178,8 +227,11 @@ reader now understands the card; this section converts that understanding into H
 - **Split approvals (user verdict):** the BODY (keywords + meaning + reading, governed by
   `status`) and the CLOSING PARAGRAPH (governed by `closing_status`) are separate pipelines.
   The body may be written for any card; `closing_para` may only be written once that card's
-  lenses are APPROVED in `lenses.csv`, because it paraphrases them. A card is app-ready
-  (mirrorable into `explorations/arcana-guide.js`) only when BOTH are approved. When writing a
+  lenses are APPROVED in `lenses.csv`, because it paraphrases them. Bodies ship on their own:
+  they are mirrored into `explorations/arcana-guide.js` even as drafts, and closing paragraphs
+  are mirrored later as a supplement to the live guidebooks whenever they're ready (lens
+  refinement runs long, so closings will trail bodies). Approval gates canon (never edit
+  approved rows), not release. When writing a
   body for a card with existing approved voice/lens copy, check the no-echo ban against it.
 - Same status lifecycle as the other layers: pending → draft → approved; never edit approved
   rows; log rejected drafts to `content/voice-history.md` tagged `guidebook rN` (body) or

@@ -269,6 +269,7 @@ Each pour also carries structured data (no voice required, accuracy only):
 | Spirit's voice | Part 1 | `content/spirit-voices.csv` | one per card |
 | Lenses | Part 2 | `content/lenses.csv` | one per lens (3–5 per card) |
 | Lens echo + pours | Parts 3A/3B/3C | `content/reveals.csv` | one per POUR (echo repeats on every row of its lens) |
+| Guidebook (Deeper Reading) | `content/guidebook-prompt.md` | `content/guidebook.csv` | one per card (body governed by `status`; closing paragraph by `closing_status` — split approvals) |
 | All draft history | — | `content/voice-history.md` | every graded attempt, every layer |
 
 **The process:**

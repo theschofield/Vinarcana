@@ -16,6 +16,14 @@ across the table, telling your fortune in spoken cadence — sly, composed, neve
   mapping, status.
 - **`reveals.csv`** — Parts 3A/3B/3C output. One row per POUR: lens echo (repeats per lens),
   blurb, wine, stats, palate values, status.
+- **`guidebook-prompt.md`** — THE prompt for the Guidebook (Deeper Reading) layer: the informative
+  booklet voice, section-by-section rationale, anti-goals, pipeline notes. Reads on top of
+  `voice-prompt.md`'s house rules and hard bans.
+- **`guidebook.csv`** — Guidebook output. One row per card: keywords + meaning + reading (the BODY,
+  governed by `status`) and the closing paragraph (governed by `closing_status`). Split approvals:
+  the closing may only be written once the card's lenses are approved in `lenses.csv`. Bodies ship
+  to the app even as drafts; closing paragraphs follow as a supplement to the live guidebooks
+  whenever they're ready. Approval gates canon, not release.
 - **`voice-history.md`** — the unified draft history for ALL layers, tagged by layer. The
   calibration file: every new writing session reads this FIRST.
 - **`uploads/Tarot & Wine_ The Complete Framework.md`** — the user's pairing map (card → wine
