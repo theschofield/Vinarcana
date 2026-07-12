@@ -43,6 +43,25 @@ html.va-doc .va:not(.vw-desk) {
   height: auto; overflow: visible;
   min-height: calc(100lvh + env(safe-area-inset-bottom));
 }
+/* THE FIELD GRADIENT IS VIEWPORT-SIZED, NOT DOCUMENT-SIZED. The .rx
+   gradient scales with its element: on the deck the element grows to
+   ~5500px, the ellipse's bright core stretched across the whole first
+   viewport, and the deck read LIGHTER than the stages — then snapped
+   darker when the deck unmounted and the element collapsed (the
+   "background suddenly gets darker after the bleed"). Paint the gradient
+   at STAGE size (one viewport + overshoot) and continue in the
+   gradient's own end color below — the visible field is identical on
+   every page, at every document height, at every scroll. */
+html.va-doc .va:not(.vw-desk) .rx-dark {
+  background-size: 100% calc(100lvh + env(safe-area-inset-bottom) + 100px);
+  background-repeat: no-repeat;
+  background-color: #121110;
+}
+html.va-doc .va:not(.vw-desk) .rx-light {
+  background-size: 100% calc(100lvh + env(safe-area-inset-bottom) + 100px);
+  background-repeat: no-repeat;
+  background-color: #d3d0ca;
+}
 html.va-doc .va:not(.vw-desk) .rx {
   position: relative; inset: auto; height: auto; overflow: visible;
   min-height: calc(100lvh + env(safe-area-inset-bottom));

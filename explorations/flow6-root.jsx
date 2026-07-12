@@ -305,8 +305,19 @@ function App() {
     // park a stage a few px into its overshoot slack after a chrome dance
     // (scrollTo(0,0) does not stick), and the pin is viewport-anchored
     const d = pinDelta();
-    setActor((a) => ({ ...(a || {}), left: r.left - d.dx, top: r.top - d.dy, width: r.width, ar: r.height / r.width, rot: 0, flip: 180, o: 1,
-      dur: 250, ease: "ease", radius: 9, shadow: "sh-rest", instant: !!instant }));
+    setActor((a) => {
+      const t2 = { left: r.left - d.dx, top: r.top - d.dy, width: r.width };
+      // tolerant + soft: a ≤1.5px drift is left alone (the instant snap a
+      // couple px before the hint was THIS re-place); a small drift glides
+      // in 200ms; only a real relayout (big delta) may cut instantly
+      if (a) {
+        const dd = Math.max(Math.abs(t2.left - a.left), Math.abs(t2.top - a.top), Math.abs(t2.width - a.width));
+        if (dd <= 1.5) return a;
+        if (dd <= 32) instant = false;
+      }
+      return { ...(a || {}), ...t2, ar: r.height / r.width, rot: 0, flip: 180, o: 1,
+        dur: 200, ease: "ease", radius: 9, shadow: "sh-rest", instant: !!instant };
+    });
   };
   const placeEyebrowOnRead = (instant) => {
     const r = slotRect("eyeb-read"); if (!r) return;
@@ -921,14 +932,10 @@ function App() {
       } });
       clock.run(ev, dur + 40, ffRef, () => { if (phaseRef.current === "todeck") { setMounts((m) => ({ ...m, deck: true })); setPhase("deck"); } });
     } else {
-      // from reading / reveal (or mid-flight): the Release sink, landing on
-      // the grid. THE VEIL PERSISTS (user law): the last card's etched art
-      // stays behind the tiles, so the next ride never introduces the
-      // texture from nothing — veilOn stays true and the card stays set
-      // (the next tile tap recedes it and bleeds the new card's art in).
+      // from reading / reveal (or mid-flight): the Release sink, landing on the grid
       const TL = tRef.current.tlReturn;
       const ev = [];
-      ev.push({ t: 0, run: () => { setPhase("release"); setReleasing(true); setGlowOn(false);
+      ev.push({ t: 0, run: () => { setPhase("release"); setReleasing(true); setVeilOn(false); setGlowOn(false);
         setActor((a) => a && ({ ...a, o: 0, top: a.top + 36, dur: dv(TL.release.d), oDur: dv(TL.release.d), ease: E("easeRelease"), instant: false }));
         setEyeb((e) => e && ({ ...e, o: 0, dur: dv(TL.release.d), oDur: dv(TL.release.d), instant: false }));
       } });
@@ -939,7 +946,7 @@ function App() {
         setMounts((m) => ({ ...m, reading: false, reveal: false, memory: false, deck: true }));
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
-        setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
+        setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
         setMemPicked(null); setPourWine(null); setDeeper(null);
         // keep the actor MOUNTED (hidden): unmounting it means the next tap
         // remounts fresh <img>s, which iOS blanks for several frames while
@@ -1059,9 +1066,11 @@ function App() {
       sh(TL.lift.s) + TL.lift.d, sh(TL.settle.s) + TL.settle.d, sh(TL.rest.s) + TL.rest.d,
       sh(TL.voice.s) + TL.voice.d, sh(TL.lenses.s) + TL.lenses.d + T.lensStep * 5);
     clock.run(ev, end, ffRef, () => {
-      // the stage begins at scroll 0, always — a stray few px here would
-      // skew every doc-space slot against the pin-hosted actor
-      if (window.scrollY) window.scrollTo(0, 0);
+      // completion guarantee: if anything interrupted the walk (a stray
+      // touch mid-ride), WALK the residue home — never teleport it, the
+      // layout is fully visible now. The reading scroll-tracker keeps the
+      // card glued while the residue drains.
+      if (window.scrollY > 1) walkScrollHome();
       setPhase("reading"); ffRef.current = 1; setFF(false);
     });
   };
@@ -1380,7 +1389,7 @@ function App() {
               onKeep={(p) => release(p, true)} onFade={(p) => release(p, false)}></Reveal>
           ) : null}
           {mounts.deck ? (
-            <DeckGrid F={F} drawingId={["deck", "todeck"].includes(phase) ? null : card} onPick={runDeckDraw}></DeckGrid>
+            <DeckGrid F={F} drawingId={card} onPick={runDeckDraw}></DeckGrid>
           ) : null}
           {mounts.memory ? (
             <MemoryScreen light={light} leaving={["memfly", "choose", "slide"].includes(phase)} pickedId={memPicked}

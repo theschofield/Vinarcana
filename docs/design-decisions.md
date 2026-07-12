@@ -1014,3 +1014,27 @@ mounted+in at 0.11 behind the grid on return.
 NOTE (sim law): the simulator cannot render Safari's chrome translucency — recordVideo
 and screenshots show the bar region as flat black regardless of the page. Chrome
 translucency is device-only evidence.
+
+
+## THE WRAP ROUND — field geometry, veil un-persist, soft arrival (Jul 12, 2026)
+1. **The lighter deck was GRADIENT GEOMETRY, not a missing texture.** The field's radial
+   gradient sizes to its element: the deck's document grows to ~5500px, stretching the
+   ellipse's bright core across the whole first viewport (deck reads LIGHTER), then the
+   deck unmounts at ride's end, the element collapses, and the field snaps darker ("the
+   background suddenly gets darker after the bleed"). Doc-flow now paints the gradient at
+   STAGE size (100lvh + safe + overshoot, no-repeat) over the gradient's own end color —
+   measured: approach 30.2/26.8 vs deck 30.1/26.6 (was ~6 points lighter). The grain was
+   present all along. LAW: the field paints per-viewport, never per-document.
+2. **Veil persistence REVERTED** — misread verdict: the etched veil does NOT persist onto
+   the deck (toDeck clears card + veilOn again). The bgReady decode gate stays.
+3. **The hint pre-snap** was the arrival re-place: placeOnReadSlot snapped the actor
+   instantly on entering the reading (pin-vs-doc drift of a few px). It is now tolerant
+   (≤1.5px: leave it) and soft (≤32px: 200ms glide); only real relayouts cut instantly.
+   Principle: arrival corrections must never be visible as motion the user didn't cause.
+4. **The ride's completion guarantee walks, never teleports**: the clock-end guard's bare
+   scrollTo(0,0) violated our own scroll law with the layout fully visible; an interrupted
+   walk's residue now drains through walkScrollHome (the tracker keeps the card glued).
+5. **iOS's overlay scroll indicator cannot be CSS-hidden for document scrolling** — with
+   the v6-budget walk it flashes ~0.7s, as the shipped glide always did. The 10ms-jump
+   alternative is disproven twice on film (bare teleport: 110ms full-tree blank; compensated
+   transform+jump: blank at layer promotion). The walk is the lawful mover; suite 6/6.
