@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>choreography regression suite</title>
+<!--
+  THE CHOREOGRAPHY LAWS, AS EXECUTABLE TESTS. Run before shipping ANY
+  transition change: open this file on the dev server (Browser pane,
+  simulator Safari, or a device) and read the report. Green = the laws
+  hold; any FAIL line names the broken law and the measured value.
+
+  T1 DECK EXIT · deep-scroll tile tap
+     · the window NEVER moves while the grid fades (exits fade in place)
+     · no tile ever travels UP (they sink 28px as they fade)
+     · the tapped card rides one smooth viewport arc — no flips, no jumps
+     · the scroll teleports home invisibly on the bleed beat
+  T2 LENS PICK · reading → pour
+     · the document holds scroll 0 for the whole transition
+     · the .va box never changes width (no horizontal squeeze)
+     · the actor's box moves continuously — no frame-to-frame teleports
+  T3 THE FLIP · deeper reading from the pour
+     · the card is never hidden before the flip face has pixels
+       (dr-swap must not appear while the flip container is transparent)
+     · the flip reaches −180° open
+  T4 RELEASE · let-it-fade from a scrolled pour
+     · the pour fades in place at its scroll depth (no glide)
+     · the window is home the moment the approach re-mounts
+
+  Machine-readable copy of the report: window.__choreoReport
+-->
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #000; }
+  #log { position: fixed; top: env(safe-area-inset-top, 0); left: 0; right: 0; z-index: 999999;
+    background: rgba(0,0,0,0.88); color: #7CFC00; font: 700 12px/1.45 Menlo, monospace;
+    padding: 8px 10px; white-space: pre-wrap; pointer-events: none; }
+  #log .fail { color: #ff5252; }
+  iframe { position: fixed; inset: 0; border: 0; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<div id="log">booting…</div>
+<iframe id="f" src="/index.html"></iframe>
+<script>
+(async () => {
+  const logEl = document.getElementById("log");
+  const lines = [];
+  const show = (extra) => { logEl.innerHTML = lines.join("\n") + (extra ? "\n" + extra : ""); };
+  const say = (m) => { lines.push(m); show(); };
+  const verdict = (name, fails) => {
+    if (!fails.length) { say(name + " — PASS"); return true; }
+    lines.push('<span class="fail">' + name + " — FAIL\n  " + fails.join("\n  ") + "</span>");
+    show(); return false;
+  };
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const f = document.getElementById("f");
+  const W = () => f.contentWindow;
+  const D = () => f.contentWindow.document;
+  const report = { pass: [], fail: [], skip: [] };
+  window.__choreoReport = report;
+  const book = (name, ok, fails) => (ok ? report.pass : report.fail).push({ name, fails });
+
+  // on desktop hosts the iframe believes it's a phone so doc mode runs
+  if (window.matchMedia("(hover: hover)").matches) {
+    const mk = (m) => ({ matches: m, media: "", addEventListener(){}, removeEventListener(){}, addListener(){}, removeListener(){} });
+    const patch = () => { try {
+      const w = W(); if (!w || w.__patched) return;
+      const om = w.matchMedia ? w.matchMedia.bind(w) : null;
+      w.matchMedia = (q) => {
+        if (q.indexOf("hover: none") >= 0 && q.indexOf("coarse") >= 0) return mk(true);
+        if (q.indexOf("hover: hover") >= 0) return mk(false);
+        if (q.indexOf("display-mode") >= 0) return mk(false);
+        if (q.indexOf("min-width") >= 0) return mk(false);
+        return om ? om(q) : mk(false);
+      };
+      w.__patched = true;
+    } catch (e) {} };
+    patch(); setTimeout(patch, 0); setTimeout(patch, 30);
+  }
+
+  // rAF sampler: collects fn(t) rows for `dur` ms
+  const sample = (dur, fn) => new Promise(done => {
+    const rows = [], t0 = performance.now();
+    const tick = () => {
+      const t = performance.now() - t0;
+      try { rows.push(Object.assign({ t: Math.round(t) }, fn())) } catch (e) {}
+      if (t < dur) requestAnimationFrame(tick); else done(rows);
+    };
+    requestAnimationFrame(tick);
+  });
+  const tap = (el) => {
+    const cw = W(), r = el.getBoundingClientRect();
+    const o = { bubbles: true, cancelable: true, pointerId: 9, pointerType: "touch",
+      clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, isPrimary: true };
+    el.dispatchEvent(new cw.PointerEvent("pointerdown", o));
+    el.dispatchEvent(new cw.PointerEvent("pointerup", o));
+    el.dispatchEvent(new cw.MouseEvent("click", o));
+  };
+  const waitPhase = async (p, tries) => {
+    let t = 0; while (W().__vaDrive.phase() !== p && t++ < (tries || 120)) await sleep(100);
+    return W().__vaDrive.phase() === p;
+  };
+
+  let t = 0; while (!(W() && W().__vaDrive) && t++ < 300) await sleep(100);
+  if (!(W() && W().__vaDrive)) return say("FAIL: app never booted");
+
+  // ---------- T1 · DECK EXIT (deep-scroll ride) ----------
+  say("T1 deck exit — running…");
+  W().__vaDrive.deck();
+  await waitPhase("deck");
+  await sleep(1600);
+  const moon = [...D().querySelectorAll(".dk-tile")].find(x => /\/moon\.webp$/.test((x.querySelector("img") || {}).src || ""));
+  if (!moon) return say("FAIL: moon tile not found");
+  W().scrollTo(0, W().scrollY + moon.getBoundingClientRect().top - 340);
+  await sleep(700);
+  const s0 = Math.round(W().scrollY);
+  // a witness tile a couple of rows above the tapped one
+  const tiles = [...D().querySelectorAll(".dk-tile")];
+  const witness = tiles[Math.max(0, tiles.indexOf(moon) - 6)];
+  const w0 = witness.getBoundingClientRect().top;
+  tap(moon);
+  const t1 = await sample(1300, () => {
+    const a = D().querySelector(".va-card-actor");
+    const wr = witness.getBoundingClientRect();
+    return {
+      s: W().scrollY,
+      aT: a ? a.getBoundingClientRect().top : NaN,
+      aO: a ? +getComputedStyle(a).opacity : NaN,
+      wT: wr.top, wO: +getComputedStyle(witness).opacity,
+    };
+  });
+  {
+    const fails = [];
+    const vh = W().innerHeight;
+    // law: the window never moves while the grid fades (fade = dUiExit 620ms)
+    const fadeRows = t1.filter(r => r.t < 600);
+    const sMax = Math.max(...fadeRows.map(r => Math.abs(r.s - s0)));
+    if (sMax > 1) fails.push("window moved " + Math.round(sMax) + "px during the fade (law: exits fade in place)");
+    // law: tiles sink, never rise
+    const wUp = Math.min(...fadeRows.map(r => r.wT - w0));
+    if (wUp < -4) fails.push("a tile travelled UP " + Math.round(-wUp) + "px (law: the grid sinks as it fades)");
+    // law: the tile is gone before the teleport beat
+    const late = t1.filter(r => r.t >= 700 && r.t < 900);
+    if (late.length && Math.min(...late.map(r => r.wO)) > 0.05)
+      fails.push("tiles still visible at 700ms (opacity " + Math.max(...late.map(r => r.wO)).toFixed(2) + ")");
+    // law: one smooth viewport arc for the card
+    let flips = 0, prevDir = 0, maxJump = 0, minY = 1e9, maxY = -1e9;
+    const ar = t1.filter(r => !isNaN(r.aT));
+    for (let i = 1; i < ar.length; i++) {
+      const dY = ar[i].aT - ar[i - 1].aT;
+      minY = Math.min(minY, ar[i].aT); maxY = Math.max(maxY, ar[i].aT);
+      maxJump = Math.max(maxJump, Math.abs(dY));
+      if (Math.abs(dY) < 2) continue;
+      const dir = dY > 0 ? 1 : -1;
+      if (prevDir && dir !== prevDir) flips++;
+      prevDir = dir;
+    }
+    if (flips > 1) fails.push("card changed direction " + flips + " times");
+    if (maxJump > 40) fails.push("card jumped " + Math.round(maxJump) + "px in one frame");
+    if (minY < -60 || maxY > vh + 10) fails.push("card left the viewport [" + Math.round(minY) + ", " + Math.round(maxY) + "]");
+    if (Math.min(...ar.map(r => r.aO)) < 0.99) fails.push("card opacity dipped to " + Math.min(...ar.map(r => r.aO)).toFixed(2));
+    // law: the teleport happened, invisibly, by bleed+100ms
+    const post = t1.filter(r => r.t >= 750);
+    if (post.length && Math.round(post[post.length - 1].s) !== 0)
+      fails.push("scroll not home after the swap (at " + Math.round(post[post.length - 1].s) + ")");
+    book("T1 deck exit", verdict("T1 deck exit (from scroll " + s0 + ")", fails), fails);
+  }
+
+  // ---------- T2 · LENS PICK (reading → pour) ----------
+  if (!(await waitPhase("reading"))) return say("FAIL: never reached reading");
+  await sleep(900);
+  say("T2 lens pick — running…");
+  const vaEl = D().querySelector(".va");
+  const vaW0 = vaEl.getBoundingClientRect().width;
+  W().__vaDrive.pick(0);
+  const t2 = await sample(2400, () => {
+    const a = D().querySelector(".va-card-actor");
+    const r = a ? a.getBoundingClientRect() : null;
+    return { s: W().scrollY, vaW: vaEl.getBoundingClientRect().width,
+      aL: r ? r.left : NaN, aT: r ? r.top : NaN, aW: r ? r.width : NaN };
+  });
+  {
+    const fails = [];
+    const sMax = Math.max(...t2.map(r => Math.abs(r.s)));
+    if (sMax > 1) fails.push("document scrolled " + Math.round(sMax) + "px mid-transition (law: stages sit at scroll 0)");
+    const wDelta = Math.max(...t2.map(r => Math.abs(r.vaW - vaW0)));
+    if (wDelta > 1) fails.push(".va width changed " + Math.round(wDelta) + "px (the horizontal squeeze)");
+    let maxJump = 0;
+    const ar = t2.filter(r => !isNaN(r.aL));
+    for (let i = 1; i < ar.length; i++)
+      maxJump = Math.max(maxJump, Math.abs(ar[i].aL - ar[i - 1].aL), Math.abs(ar[i].aT - ar[i - 1].aT), Math.abs(ar[i].aW - ar[i - 1].aW));
+    if (maxJump > 14) fails.push("actor teleported " + Math.round(maxJump) + "px in one frame (law: continuous motion)");
+    book("T2 lens pick", verdict("T2 lens pick", fails), fails);
+  }
+
+  // ---------- T3 · THE FLIP (decode-gated swap) ----------
+  if (!(await waitPhase("reveal"))) return say("FAIL: never reached reveal");
+  await sleep(900);
+  say("T3 the flip — running…");
+  W().__vaDrive.deeper("pour");
+  const t3 = await sample(1800, () => {
+    // "the card" pre-swap is whichever element carries it on this screen:
+    // the actor (reading) or the pour pane's hero card (post-handoff)
+    const vis = (el) => !!el && getComputedStyle(el).visibility !== "hidden" && +getComputedStyle(el).opacity > 0.9;
+    const fl = D().querySelector(".dr-flip");
+    const fp = D().querySelector(".dr-flipper");
+    let ang = NaN;
+    if (fp) {
+      const m = getComputedStyle(fp).transform.match(/matrix3d\(([^)]+)\)/);
+      if (m) { const v = m[1].split(",").map(Number); ang = Math.atan2(-v[2], v[0]) * 180 / Math.PI; }
+    }
+    return {
+      swap: D().querySelector(".va").className.indexOf("dr-swap") >= 0,
+      aVis: vis(D().querySelector(".va-card-actor")) || vis(D().querySelector(".rv-hero .card")),
+      fO: fl ? +getComputedStyle(fl).opacity : NaN,
+      ang,
+    };
+  });
+  {
+    const fails = [];
+    // law: never a hole — dr-swap (card hidden) requires flip pixels on screen
+    const holes = t3.filter(r => r.swap && !(r.fO > 0.5));
+    if (holes.length) fails.push("card hidden while the flip face was transparent (" + holes.length + " frames — the hole)");
+    // before the swap the real card must be the thing on screen
+    const pre = t3.filter(r => !r.swap && !isNaN(r.fO));
+    if (pre.some(r => !r.aVis && r.fO < 0.5)) fails.push("blank frame before the swap");
+    const last = t3[t3.length - 1];
+    if (!(Math.abs((last.ang || 0) + 180) < 4)) fails.push("flip ended at " + Math.round(last.ang) + "° (want −180°)");
+    book("T3 the flip", verdict("T3 the flip", fails), fails);
+  }
+  const closeBtn = D().querySelector(".gp-close-btn");
+  if (closeBtn) { tap(closeBtn); await sleep(1600); }
+
+  // ---------- T4 · RELEASE from a scrolled pour ----------
+  say("T4 release — running…");
+  W().scrollTo(0, 600);
+  await sleep(500);
+  const s4 = Math.round(W().scrollY);
+  if (s4 < 100) {
+    report.skip.push({ name: "T4 release", why: "pour too short to scroll here" });
+    say("T4 release — SKIP (pour too short to scroll: " + s4 + "px)");
+  } else {
+    W().__vaDrive.release();
+    const t4 = await sample(1100, () => ({ s: W().scrollY }));
+    const fails = [];
+    const fadeRows = t4.filter(r => r.t < 520);
+    const sMax = Math.max(...fadeRows.map(r => Math.abs(r.s - s4)));
+    if (sMax > 1) fails.push("window moved " + Math.round(sMax) + "px during the sink (law: exits fade in place)");
+    const tail = t4[t4.length - 1];
+    if (Math.round(tail.s) !== 0) fails.push("scroll not home after the swap (at " + Math.round(tail.s) + ")");
+    book("T4 release", verdict("T4 release (from scroll " + s4 + ")", fails), fails);
+    await waitPhase("approach", 40);
+  }
+
+  say("— suite done · " + report.pass.length + " pass · " + report.fail.length + " fail" +
+    (report.skip.length ? " · " + report.skip.length + " skip" : ""));
+})();
+</script>
+</body>
+</html>

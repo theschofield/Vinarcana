@@ -428,8 +428,9 @@ function App() {
   // pin to the viewport; UI floats. Deck / Pour unwrap into the document
   // WHENEVER MOUNTED — driven by the mounts, not the phase, so layouts
   // never re-wrap mid-choreography (that re-wrap was the "wild background
-  // jump"). Leaving a scrolled view glides the window home as part of the
-  // choreography instead of teleporting it.
+  // jump"). Leaving a scrolled view never glides: the content fades in
+  // place and the window TELEPORTS home at the mounts-swap beat, when
+  // everything still visible is pinned/sticky (zero visual delta).
   const docMode = isRealMobile && !phoneFrame && !desktop && !isStandalone;
   const pourMounted = !!(mounts.reveal && card && lens);
   React.useEffect(() => {
@@ -443,6 +444,12 @@ function App() {
   // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
   // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
   // the compositor on iOS and made every overlay jitter.
+  // ONE caller left: openDeeper (an in-place overlay open, not an exit).
+  // EXITS never glide — they fade in place and TELEPORT the window home at
+  // their mounts-swap beat, when everything visible is pinned/sticky. A
+  // visible glide fights the fade-down choreography (deck zoom bug) and is
+  // interruptible on device, stranding a stage on a scrolled document
+  // (the lens-pick page-contort bug).
   const glideScrollTop = (dur) => {
     if (!docMode) return;
     const y0 = window.scrollY;
@@ -647,6 +654,11 @@ function App() {
 
   const pick = (l) => {
     if (phaseRef.current !== "reading" && phaseRef.current !== "lenses") return;
+    // stages sit at scroll 0 by construction (every entry teleports home).
+    // Belt-and-braces: a stray scroll here would poison every slot measure
+    // below AND let the flow-pour unwrap clamp the document mid-beat (the
+    // "page contorts on lens pick" device bug) — reset it before anything.
+    if (window.scrollY) window.scrollTo(0, 0);
     setLens(l); setPicked(l.n); setPourWine(null);
     const TL = tRef.current.tlChoice;
     const ev = [];
@@ -716,7 +728,9 @@ function App() {
   const release = (pour, kept) => {
     const from = phaseRef.current;
     if (from === "approach" || from === "release" || from === "reform") return;
-    glideScrollTop();
+    // NO scroll glide: the release sink fades everything IN PLACE (the
+    // exit law) — the window teleports home at the unmount beat below,
+    // when nothing left on screen lives in document space.
     // a Choice clock may still be running (fade tapped mid-transition) — its
     // end callback would setPhase("reveal") OVER our release. Kill it first.
     clock.cancel();
@@ -740,6 +754,10 @@ function App() {
     // unmount only after the sink fade has fully painted — even if the Reform
     // beat is dragged earlier than the Release beat's end
     ev.push({ t: Math.max(TL.reform.s, TL.release.s + TL.release.d), run: () => {
+      // the sink is done: everything still visible hangs from a sticky pin
+      // (actor / status / veil), so the window teleports home with zero
+      // visual delta. Stages must always begin at scroll 0.
+      if (window.scrollY) window.scrollTo(0, 0);
       setReleasing(false);
       setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: false }));
       setVoiceOn(false); setVeilOn(false); setLensesOn(false);
@@ -779,7 +797,7 @@ function App() {
   const toDeck = () => {
     const p = phaseRef.current;
     if (p === "deck" || p === "todeck" || p === "deckfly") return;
-    glideScrollTop();
+    // no glide — exits fade in place; the window teleports at the swap beat
     clock.cancel();
     if (p === "approach" || p === "reform" || p === "pull") {
       // from the approach: UI + deck fade on the UI-exit curve, grid rises
@@ -806,6 +824,8 @@ function App() {
         setEyeb((e) => e && ({ ...e, o: 0, dur: dv(TL.release.d), oDur: dv(TL.release.d), instant: false }));
       } });
       ev.push({ t: TL.release.d, run: () => {
+        // sink painted out — teleport home before the grid mounts at doc top
+        if (window.scrollY) window.scrollTo(0, 0);
         setReleasing(false);
         setMounts((m) => ({ ...m, reading: false, reveal: false, memory: false, deck: true }));
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
@@ -827,10 +847,11 @@ function App() {
   // flying from the tile's own rect instead of pulling from the deck
   const runDeckDraw = (id, r) => {
     if (phaseRef.current !== "deck") return;
-    // THE RIDE: the actor is viewport-locked on the sticky pin for the whole
-    // flight, so the window can glide home on its own clock (the original
-    // chrome-smooth 320ms) without ever moving the card on screen.
-    glideScrollTop();
+    // THE RIDE: no scroll motion AT ALL during the exit. The grid fades as
+    // it drifts down IN PLACE (the exit law — a gliding window fights that
+    // choreography and reads as the deck zooming away); the actor is
+    // viewport-locked on the sticky pin; the window teleports home at the
+    // bleed beat below, once the tiles have fully faded.
     setCard(id);
     setReleasing(false);
     setDeeper(null); hintDoneRef.current = false;
@@ -862,7 +883,7 @@ function App() {
           dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
     } });
     ev.push({ t: sh(TL.settle.s), run: () => { setPhase("settle");
-      // scroll is home by now (glide ended ~340ms), so pin space == document
+      // scroll teleported home on the bleed beat, so pin space == document
       // space and the slot math needs no conversion
       setMounts((m) => ({ ...m, reading: true, deck: false }));
       const S = vaSize(); const rr = slotRect("read-card");
@@ -873,7 +894,13 @@ function App() {
       setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
         dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
     } });
-    ev.push({ t: sh(TL.bleed.s), run: () => { setPhase("bleed"); setVeilOn(true);
+    ev.push({ t: sh(TL.bleed.s), run: () => { setPhase("bleed");
+      // the tiles finished their fade-down (dUiExit 620ms < this beat at
+      // 650ms): everything still visible is viewport-locked (pin/sticky),
+      // so the window TELEPORTS home with zero visual delta — and the
+      // eyebrow below fades in fully on screen, exactly the shipped rhythm.
+      if (window.scrollY) window.scrollTo(0, 0);
+      setVeilOn(true);
       const place = (tries) => {
         const er = slotRect("eyeb-read");
         if (!er) { if (tries > 0) requestAnimationFrame(() => place(tries - 1)); return; }
@@ -903,7 +930,7 @@ function App() {
   const toMemory = () => {
     const p = phaseRef.current;
     if (p === "memory" || p === "tomem" || p === "memfly") return;
-    glideScrollTop();
+    // no glide — exits fade in place; the window teleports at the swap beat
     clock.cancel();
     migrateMemoryFromPulls();
     if (p === "approach" || p === "reform" || p === "pull") {
@@ -926,6 +953,8 @@ function App() {
         setEyeb((e) => e && ({ ...e, o: 0, dur: dv(TL.release.d), oDur: dv(TL.release.d), instant: false }));
       } });
       ev.push({ t: TL.release.d, run: () => {
+        // sink painted out — teleport home before the ledger mounts at doc top
+        if (window.scrollY) window.scrollTo(0, 0);
         setReleasing(false);
         setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: true }));
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
@@ -959,8 +988,8 @@ function App() {
       lensObj = (c.lenses || []).find((l) => l.n === k);
     }
     if (!c || !lensObj) { showToast("THIS PAGE HAS FADED"); return; }
-    // THE RIDE, ledger edition: viewport-locked actor, free-running glide
-    glideScrollTop();
+    // THE RIDE, ledger edition: no scroll motion — the ledger sinks in
+    // place, the pinned actor rises, the window teleports at the swap beat
     clock.cancel();
     setCard(entry.card);
     setLens(lensObj); setPicked(lensObj.n);
@@ -993,9 +1022,12 @@ function App() {
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
           dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
     } });
-    // the ledger has faded (and the scroll is long home, so pin space ==
-    // document space) — swap layouts and let The Pour choreograph in
+    // the ledger has faded (dUiExit 620ms < base) — teleport the window
+    // home with zero visual delta (only pinned/sticky elements remain
+    // visible), then swap layouts and let The Pour choreograph in from
+    // scroll 0, where pin space == document space
     ev.push({ t: base, run: () => { setPhase("choose");
+      if (window.scrollY) window.scrollTo(0, 0);
       setMounts((m) => ({ ...m, memory: false, reveal: true }));
       setMemPicked(null);
       setVeilOn(true);
@@ -1035,7 +1067,8 @@ function App() {
     const p = phaseRef.current;
     if (!cardRef.current || p === "approach" || p === "reform") { showToast("PULL A CARD FIRST"); return; }
     const id = cardRef.current;
-    glideScrollTop();
+    // replay is a hard cut — the window snaps home with the mounts
+    if (window.scrollY) window.scrollTo(0, 0);
     clock.cancel();
     setReleasing(false);
     setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false, deck: false, memory: false });
