@@ -77,7 +77,7 @@ function CardActor({ a, face, poster, rPct }) {
         <div className="shdw" style={{ transition: a.instant ? "none" : "box-shadow " + a.dur + "ms " + ease }}></div>
         <img src="assets/card-back.webp" alt="" draggable="false" decoding="async" />
         {poster ? <img className="face" src={poster} alt="" draggable="false" decoding="async" /> : null}
-        {face ? <img className="face" src={face} alt="" draggable="false" decoding="async" /> : null}
+        {face ? <img className="face full" src={face} alt="" draggable="false" decoding="async" /> : null}
         <div className="dr-shine"></div>
       </div>
     </div>

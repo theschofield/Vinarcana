@@ -206,6 +206,15 @@ function App() {
   const [deeper, setDeeper] = React.useState(null);
   const deeperRef = React.useRef(null); deeperRef.current = deeper;
   const hintDoneRef = React.useRef(false);
+  // the full-res face is decode-gated (see actorFace): false until the
+  // CURRENT card's face has actually decoded. Token guards a stale decode
+  // resolving after a newer draw.
+  const [faceReady, setFaceReady] = React.useState(false);
+  const faceTokenRef = React.useRef(0);
+  // same gate for the veil's etched -bg art: the bleed's slow crawl only
+  // begins once the art can actually paint — an undecoded img "pops in"
+  // whenever the decode lands instead of emerging on the designed curve
+  const [bgReady, setBgReady] = React.useState(false);
   const [card, setCard] = React.useState(null);
   const cardRef = React.useRef(null); cardRef.current = card;
   const [lens, setLens] = React.useState(null);
@@ -507,19 +516,23 @@ function App() {
     requestAnimationFrame(step);
   };
   // the quiet walk home — used ONLY under fully faded content (deck and
-  // memory rides). Velocity-held at 2.1px/ms (the raster-safe speed
-  // measured at 60fps), applied per PAINTED frame with the per-frame step
-  // hard-capped: refresh-rate independent (a 120Hz display halves the
-  // step, not doubles the speed) and a stall can never catch-up-jump
-  // (jumps blank the compositor tree — the scroll law). Even the deck's
-  // BOTTOM tile (~4700px of debt) is home in ~2.2s, under the veil bleed.
+  // memory rides). Frame-stepped (a stall can never catch-up-jump — jumps
+  // blank the compositor tree) but paced on the v6 GLIDE BUDGET: the whole
+  // walk finishes in ≤ ~680ms from ANY depth, the duration the shipped v6
+  // glide proved clean on device for months. That keeps iOS's scroll
+  // indicator to the same blink it always was and lands the window long
+  // before the rest beat, even from the deck's bottom row.
   const walkScrollHome = (onDone) => {
     if (!docMode || window.scrollY < 2) { if (onDone) onDone(); return; }
+    const v = Math.min(8, Math.max(2.1, window.scrollY / 680));  // px per ms
     let last = null;
     const step = (now) => {
-      const dt = last == null ? 16.7 : Math.min(40, now - last);
+      // dt capped at 24ms: after a frame stall the walk advances at most
+      // 24ms-worth in one paint (bounded catch-up — a stall lengthens the
+      // walk, never spikes it)
+      const dt = last == null ? 16.7 : Math.min(24, now - last);
       last = now;
-      const px = Math.min(45, Math.max(6, dt * 2.1));
+      const px = Math.max(6, dt * v);
       const y = window.scrollY;
       if (y <= px) { window.scrollTo(0, 0); if (onDone) onDone(); return; }
       window.scrollTo(0, y - px);
@@ -604,9 +617,15 @@ function App() {
     // decoding mid-flip is a guaranteed dropped frame on its mount beat
     const pre = new Image(); pre.src = "assets/cards/" + c.file + ".webp";
     pre.onload = () => { if (pre.naturalWidth) faceARRef.current = pre.naturalHeight / pre.naturalWidth; };
-    if (pre.decode) pre.decode().catch(() => {});
+    setFaceReady(false);
+    const faceTok = ++faceTokenRef.current;
+    const faceOk = () => { if (faceTokenRef.current === faceTok) setFaceReady(true); };
+    if (pre.decode) pre.decode().then(faceOk).catch(faceOk); else pre.onloadend = faceOk;
     const preBg = new Image(); preBg.src = "assets/cards/" + c.file + "-bg.webp";
-    if (preBg.decode) preBg.decode().catch(() => {});
+    setBgReady(false);
+    const bgTok = faceTokenRef.current;
+    const bgOk = () => { if (faceTokenRef.current === bgTok) setBgReady(true); };
+    if (preBg.decode) preBg.decode().then(bgOk).catch(bgOk); else preBg.onload = bgOk;
     if (tRef.current.uiExit === "smoke") smokeUi();
 
     const T = tRef.current, TL = T.tlDraw;
@@ -745,7 +764,30 @@ function App() {
     // echo: the pane's own fades (headline · bottle · name) ride this beat —
     // but the actor→pane card handoff must wait for the slide to finish, or an
     // echo dragged earlier than the slide teleports the card (visible flash).
-    ev.push({ t: TL.echo.s, run: () => { setPhase("echo"); setEchoOn(true); setEyeb((e) => e && ({ ...e, lensOn: true })); } });
+    // THE RETARGET: the slide's targets were measured at its first frame; on
+    // device the viewport can shift a few px mid-flight (chrome settling).
+    // Re-measure the SETTLED slots here and re-aim the running transitions
+    // over the slide's remaining time — retargeting a CSS transition is
+    // smooth, so the cut lands exactly on the live pane and the eyebrow
+    // never hops at the handoff.
+    ev.push({ t: TL.echo.s, run: () => { setPhase("echo"); setEchoOn(true);
+      const rem = Math.max(120, TL.slide.s + TL.slide.d - TL.echo.s);
+      const rr2 = slotRect("reveal-card"), er3 = slotRect("eyeb-rev");
+      setActor((a) => {
+        if (!a || !rr2) return a;
+        if (Math.abs(rr2.left - a.left) < 1 && Math.abs(rr2.top - a.top) < 1 && Math.abs(rr2.width - a.width) < 1) return a;
+        return { ...a, left: rr2.left, top: rr2.top, width: rr2.width, ar: rr2.height / rr2.width,
+          dur: dv(rem), ease: E("easeSlide"), instant: false };
+      });
+      setEyeb((e) => {
+        if (!e) return e;
+        const next = { ...e, lensOn: true };
+        if (er3 && (Math.abs(er3.left - e.left) >= 1 || Math.abs(er3.top - e.top) >= 1)) {
+          next.left = er3.left; next.top = er3.top; next.dur = dv(rem); next.instant = false;
+        }
+        return next;
+      });
+    } });
     // actor→pane handoff: keyed to the actor's ACTUAL transitionend, not the
     // nominal slide end — the CSS transition starts a couple frames after the
     // state move and the slide ease has a long tail, so cutting at
@@ -879,10 +921,14 @@ function App() {
       } });
       clock.run(ev, dur + 40, ffRef, () => { if (phaseRef.current === "todeck") { setMounts((m) => ({ ...m, deck: true })); setPhase("deck"); } });
     } else {
-      // from reading / reveal (or mid-flight): the Release sink, landing on the grid
+      // from reading / reveal (or mid-flight): the Release sink, landing on
+      // the grid. THE VEIL PERSISTS (user law): the last card's etched art
+      // stays behind the tiles, so the next ride never introduces the
+      // texture from nothing — veilOn stays true and the card stays set
+      // (the next tile tap recedes it and bleeds the new card's art in).
       const TL = tRef.current.tlReturn;
       const ev = [];
-      ev.push({ t: 0, run: () => { setPhase("release"); setReleasing(true); setVeilOn(false); setGlowOn(false);
+      ev.push({ t: 0, run: () => { setPhase("release"); setReleasing(true); setGlowOn(false);
         setActor((a) => a && ({ ...a, o: 0, top: a.top + 36, dur: dv(TL.release.d), oDur: dv(TL.release.d), ease: E("easeRelease"), instant: false }));
         setEyeb((e) => e && ({ ...e, o: 0, dur: dv(TL.release.d), oDur: dv(TL.release.d), instant: false }));
       } });
@@ -893,7 +939,7 @@ function App() {
         setMounts((m) => ({ ...m, reading: false, reveal: false, memory: false, deck: true }));
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
-        setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
+        setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
         setMemPicked(null); setPourWine(null); setDeeper(null);
         // keep the actor MOUNTED (hidden): unmounting it means the next tap
         // remounts fresh <img>s, which iOS blanks for several frames while
@@ -926,9 +972,15 @@ function App() {
     const c = ARCANA[id];
     const pre = new Image(); pre.src = "assets/cards/" + c.file + ".webp";
     pre.onload = () => { if (pre.naturalWidth) faceARRef.current = pre.naturalHeight / pre.naturalWidth; };
-    if (pre.decode) pre.decode().catch(() => {});
+    setFaceReady(false);
+    const faceTok = ++faceTokenRef.current;
+    const faceOk = () => { if (faceTokenRef.current === faceTok) setFaceReady(true); };
+    if (pre.decode) pre.decode().then(faceOk).catch(faceOk); else pre.onloadend = faceOk;
     const preBg = new Image(); preBg.src = "assets/cards/" + c.file + "-bg.webp";
-    if (preBg.decode) preBg.decode().catch(() => {});
+    setBgReady(false);
+    const bgTok = faceTokenRef.current;
+    const bgOk = () => { if (faceTokenRef.current === bgTok) setBgReady(true); };
+    if (preBg.decode) preBg.decode().then(bgOk).catch(bgOk); else preBg.onload = bgOk;
 
     // the actor takes over the tapped tile IN PIN (viewport) SPACE, face
     // already showing — from here the scroll cannot touch it
@@ -1094,9 +1146,15 @@ function App() {
     setWhispered(false);
     const pre = new Image(); pre.src = "assets/cards/" + c.file + ".webp";
     pre.onload = () => { if (pre.naturalWidth) faceARRef.current = pre.naturalHeight / pre.naturalWidth; };
-    if (pre.decode) pre.decode().catch(() => {});
+    setFaceReady(false);
+    const faceTok = ++faceTokenRef.current;
+    const faceOk = () => { if (faceTokenRef.current === faceTok) setFaceReady(true); };
+    if (pre.decode) pre.decode().then(faceOk).catch(faceOk); else pre.onloadend = faceOk;
     const preBg = new Image(); preBg.src = "assets/cards/" + c.file + "-bg.webp";
-    if (preBg.decode) preBg.decode().catch(() => {});
+    setBgReady(false);
+    const bgTok = faceTokenRef.current;
+    const bgOk = () => { if (faceTokenRef.current === bgTok) setBgReady(true); };
+    if (preBg.decode) preBg.decode().then(bgOk).catch(bgOk); else preBg.onload = bgOk;
 
     // the actor takes over the row's mini card IN PIN (viewport) SPACE
     // (face up, −4° like the row)
@@ -1256,11 +1314,15 @@ function App() {
 
   const c = card ? ARCANA[card] : null;
   const face = c ? "assets/cards/" + c.file + ".webp" : null;
-  // the actor carries the poster thumb (sharp at flight sizes, warm from the
-  // boot preload) through every MOVING beat; the full-res face only mounts
-  // once the card is at rest (bleed onward). Painting a 400KB decode the
-  // moment it arrives mid-flip was the visible stutter before the apex.
-  const actorFace = ["pull", "lift", "drop", "settle", "deckfly"].includes(phase) ? null : face;
+  // the full-res face mounts ONCE per ride — as soon as it is DECODED and
+  // the card isn't face-down — and never unmounts. The old phase list
+  // flapped it (mounted at bleed, UNmounted at settle, remounted at rest):
+  // the thumb→full swap fired 130ms after the apex, where the full scan's
+  // edge artifacts (the Chariot's white corner) popped visibly. Decode-
+  // gating replaces phase games: warm faces mount at the takeover, at tile
+  // size, before any motion; cold ones fade in over the poster (flow2.css
+  // faceIn) whenever the decode lands. The poster always stays beneath.
+  const actorFace = (!faceReady || ["pull", "lift", "drop"].includes(phase)) ? null : face;
   const faceBg = c ? "assets/cards/" + c.file + "-bg.webp" : null;
   const vaCls = "va p-" + phase + (releasing ? " p-release" : "") +
     (deeper ? " dr-open" : "") +
@@ -1285,7 +1347,7 @@ function App() {
       <div className={vaCls} style={phoneFrame ? { ...vars, width: "393px", height: "852px", flex: "none", transform: "scale(" + shellScale + ")" } : vars} ref={vaRef}>
         <div className={"rx " + (light ? "rx-light" : "rx-dark")}>
           {c ? (
-            <div className={"va-veilwrap" + (F.veilIn ? " in" : "")}><div className="rx-veil"><img src={faceBg} alt="" decoding="async" /></div></div>
+            <div className={"va-veilwrap" + (F.veilIn && bgReady ? " in" : "")}><div className="rx-veil"><img src={faceBg} alt="" decoding="async" /></div></div>
           ) : null}
           <div className="rx-grain"></div>
           {F.echoIn || phase === "release" ? <div className={"rv-glow" + (F.glowIn ? " on" : "")}></div> : null}
@@ -1318,7 +1380,7 @@ function App() {
               onKeep={(p) => release(p, true)} onFade={(p) => release(p, false)}></Reveal>
           ) : null}
           {mounts.deck ? (
-            <DeckGrid F={F} drawingId={card} onPick={runDeckDraw}></DeckGrid>
+            <DeckGrid F={F} drawingId={["deck", "todeck"].includes(phase) ? null : card} onPick={runDeckDraw}></DeckGrid>
           ) : null}
           {mounts.memory ? (
             <MemoryScreen light={light} leaving={["memfly", "choose", "slide"].includes(phase)} pickedId={memPicked}

@@ -99,12 +99,24 @@ function DeeperAffordance({ onOpen, hintArm, onHinted }) {
   const clearAll = () => {
     hintTimers.current.forEach(clearTimeout); hintTimers.current = [];
     const { actor, flip, shdw } = actorEls(); if (!actor) return;
-    ["--drx", "--dry", "--ds", "--dmx", "--dmy", "--dsh", "--dshDur",
-      "--hpx", "--hpy", "--hrx", "--hry"].forEach((v) => actor.style.removeProperty(v));
-    hintLive.current = false;
-    actor.classList.remove("dr-hov", "dr-press");
-    if (flip) flip.style.transition = "";
-    if (shdw) shdw.style.transition = "";
+    // a hint mid-raise settles out over 200ms instead of snapping flat —
+    // the affordance unmounts the moment a lens is picked, and an instant
+    // var wipe here was the "card jumps a bit" at the start of the pour
+    // flight (the raise vanished in one frame while the slide began)
+    const misc = () => {
+      const a2 = actorEls().actor; if (!a2) return;
+      ["--drx", "--dry", "--ds", "--dmx", "--dmy"].forEach((v) => a2.style.removeProperty(v));
+      a2.classList.remove("dr-hov", "dr-press");
+      const e2 = actorEls();
+      if (e2.flip) e2.flip.style.transition = "";
+      if (e2.shdw) e2.shdw.style.transition = "";
+    };
+    if (hintLive.current) { hintSettleOut(); setTimeout(misc, 230); }
+    else {
+      ["--hpx", "--hpy", "--hrx", "--hry", "--dsh", "--dshDur"].forEach((v) => actor.style.removeProperty(v));
+      hintLive.current = false;
+      misc();
+    }
   };
 
   // one-shot arrival hint: the bottom-right corner GENTLY RAISES, pivoting

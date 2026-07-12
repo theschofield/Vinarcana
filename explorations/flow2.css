@@ -61,6 +61,10 @@
 .va-card-actor img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit;
   backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: box-shadow 600ms ease; }
 .va-card-actor img.face { transform: rotateY(180deg); }
+/* a face that mounts late (cold decode) fades in over the poster instead
+   of popping — the poster is always stacked beneath it */
+@keyframes vaFaceIn { from { opacity: 0; } }
+.va-card-actor img.face.full { animation: vaFaceIn 240ms ease; }
 .va-card-actor.sh-deck img { box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.65); }
 .va-card-actor.sh-air img { box-shadow: 0 70px 120px -40px rgba(0, 0, 0, 0.95); }
 .va-card-actor.sh-rest img { box-shadow: 0 30px 64px -22px rgba(0, 0, 0, 0.88); }
