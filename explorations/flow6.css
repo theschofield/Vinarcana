@@ -112,9 +112,11 @@
    which read as the new cards "loading behind" the old card). Drop the actor
    below the grid for exactly the two beats where both are on screen
    together; deckfly (a tile was tapped) needs the actor back on top. The
-   Memory ledger gets the identical treatment (memfly keeps the default 20). */
-.va.p-todeck .va-card-actor, .va.p-deck .va-card-actor,
-.va.p-tomem .va-card-actor, .va.p-memory .va-card-actor { z-index: 2; }
+   Memory ledger gets the identical treatment (memfly keeps the default 20).
+   The rule lives on the PIN (the actor's permanent home and stacking
+   context) — a z-index on the actor inside it couldn't escape it. */
+.va.p-todeck .va-actor-pin, .va.p-deck .va-actor-pin,
+.va.p-tomem .va-actor-pin, .va.p-memory .va-actor-pin { z-index: 2; }
 
 /* ---- THE RIDE's viewport anchor ----
    During deck/memory flights on a scrolled page the actor hangs from this

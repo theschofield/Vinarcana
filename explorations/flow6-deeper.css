@@ -29,9 +29,14 @@
 .va.dr-veil-up .rx-light .rx-veil img { opacity: calc(var(--va-veil-o-light, 0.1) * 1.45); }
 .va .rx-veil img { transition: opacity 700ms ease; }
 
-/* while the flip container owns the card, the resting renditions hide */
-.va.dr-open .va-card-actor { visibility: hidden; }
-.va.dr-open .rv-hero .card, .va.dr-open .rv-hero .card.live { visibility: hidden; }
+/* While the flip container owns the card, the resting renditions hide.
+   Keyed to dr-swap (component-managed), NOT dr-open: the swap may only
+   happen once the container's face img has DECODED — iOS blanks fresh
+   <img>s for several frames, and hiding the real card on the mount frame
+   left a hole where the card should be. dr-open keeps driving the scrim,
+   veil raise and bottle, which have no decode dependency. */
+.va.dr-swap .va-card-actor { visibility: hidden; }
+.va.dr-swap .rv-hero .card, .va.dr-swap .rv-hero .card.live { visibility: hidden; }
 
 /* The Pour's bottle steps aside for the flip: it slides right and fades on
    its own bottle-beat transition (the fx slide-l vocabulary it entered

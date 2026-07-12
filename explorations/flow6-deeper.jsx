@@ -161,10 +161,12 @@ function DeeperAffordance({ onOpen, hintArm, onHinted }) {
     actor.classList.remove("dr-press");
   };
   const up = (e) => {
-    if (fine) { interrupt(); onOpen(); return; }
+    if (fine) { interrupt(); setPose(0.5, 0.45, false, 160); onOpen(); return; }
     const p = pressRef.current;
     cancelPress();
-    if (p && Math.abs(e.clientX - p.x) < 12 && Math.abs(e.clientY - p.y) < 12) onOpen();
+    // the pose glides flat on the persistent actor while the flip container
+    // decodes behind the scenes — no snap in the visible frame or two
+    if (p && Math.abs(e.clientX - p.x) < 12 && Math.abs(e.clientY - p.y) < 12) { setPose(0.5, 0.45, false, 160); onOpen(); }
   };
   const moveTouch = (e) => {
     const p = pressRef.current; if (fine || !p) return;
@@ -231,30 +233,49 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
     flip.style.setProperty("--drPW", t.width + "px");
     flip.style.setProperty("--drPH", t.height + "px");
     flip.style.transition = "none"; flipper.style.transition = "none"; shdw.style.transition = "none";
+    flip.style.opacity = "0";  // invisible until the face has DECODED
     apply(flip, o.r, o.radius, o.rot);
     shdw.style.boxShadow = o.shadow;
     flipper.style.transform = "rotateY(0deg)";
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      // the Approach flip's vocabulary: rect, rotation and shadow all ride
-      // the flip beat's own duration and curve, together
-      const tr = "left DURms EASE, top DURms EASE, width DURms EASE, height DURms EASE, border-radius DURms EASE, transform DURms EASE"
-        .replace(/DUR/g, flipDur).replace(/EASE/g, flipEase);
-      flip.style.transition = tr;
-      flipper.style.transition = "transform " + flipDur + "ms " + flipEase;
-      shdw.style.transition = "box-shadow " + flipDur + "ms " + flipEase;
-      apply(flip, t, 18, 0);
-      shdw.style.boxShadow = DR_PANEL_SHADOW[light ? "light" : "dark"];
-      // continue the hinted motion: the lifted right corner keeps coming
-      // toward the viewer and the card turns over to the LEFT
-      flipper.style.transform = "rotateY(-180deg)";
-      const va = vaRoot(); if (va) va.classList.add("dr-veil-up");
-      setInCls(true); setShown(true);
-      setTimeout(() => { if (stageRef.current === "opening") stageRef.current = "open"; }, flipDur + 60);
-    }));
+    // scrim + veil raise can start immediately (no decode dependency)
+    const va = vaRoot(); if (va) va.classList.add("dr-veil-up");
+    setInCls(true);
+    // DECODE GATE: the real card stays visible until the container's face
+    // img is actually paintable — iOS blanks fresh <img>s while decoding,
+    // and swapping on the mount frame left a card-shaped hole on device
+    let dead = false;
+    const img = flip.querySelector(".dr-face img");
+    const decoded = img && img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+    Promise.race([decoded, new Promise((r) => setTimeout(r, 250))]).then(() => {
+      if (dead) return;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (dead) return;
+        // same-frame swap: container becomes visible as the originals hide
+        if (va) va.classList.add("dr-swap");
+        flip.style.opacity = "1";
+        // the Approach flip's vocabulary: rect, rotation and shadow all
+        // ride the flip beat's own duration and curve, together
+        const tr = "left DURms EASE, top DURms EASE, width DURms EASE, height DURms EASE, border-radius DURms EASE, transform DURms EASE"
+          .replace(/DUR/g, flipDur).replace(/EASE/g, flipEase);
+        flip.style.transition = tr;
+        flipper.style.transition = "transform " + flipDur + "ms " + flipEase;
+        shdw.style.transition = "box-shadow " + flipDur + "ms " + flipEase;
+        apply(flip, t, 18, 0);
+        shdw.style.boxShadow = DR_PANEL_SHADOW[light ? "light" : "dark"];
+        // continue the hinted motion: the lifted right corner keeps coming
+        // toward the viewer and the card turns over to the LEFT
+        flipper.style.transform = "rotateY(-180deg)";
+        setShown(true);
+        setTimeout(() => { if (stageRef.current === "opening") stageRef.current = "open"; }, flipDur + 60);
+      }));
+    });
+    return () => { dead = true; };
   }, []);
 
-  // the veil raise must never outlive the layer (release-path unmounts skip close())
-  React.useEffect(() => () => { const va = vaRoot(); if (va) va.classList.remove("dr-veil-up"); }, []);
+  // neither the veil raise nor the card swap may outlive the layer
+  // (release-path unmounts skip close(); the unmount commit restores the
+  // real card in the same frame the container disappears)
+  React.useEffect(() => () => { const va = vaRoot(); if (va) { va.classList.remove("dr-veil-up"); va.classList.remove("dr-swap"); } }, []);
 
   const close = () => {
     if (stageRef.current === "closing") return;
@@ -288,7 +309,7 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
       <div ref={flipRef} className={"dr-flip" + (shown ? " shown" : "")}>
         <div ref={flipperRef} className="dr-flipper">
           <div ref={shdwRef} className="shdw"></div>
-          <div className="dr-face"><img src={face} alt="" draggable={false} /></div>
+          <div className="dr-face"><img src={face} alt="" draggable={false} decoding="sync" /></div>
           <div className="dr-back">
             <div className="rx-grain"></div>
             <div className="dr-panelfix" style={{ transitionDelay: shown ? Math.round(flipDur * 0.42) + "ms" : "0ms" }}>
@@ -317,10 +338,14 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
                 {guide.meaning.paras.map((p, i) => <p key={i} className="gp-para">{p}</p>)}
                 <div className="gp-label"><span className="rule"></span><span className="txt">{guide.reading.label}</span></div>
                 {guide.reading.paras.map((p, i) => <p key={i} className="gp-para">{p}</p>)}
-                <div className="gp-label"><span className="rule"></span><span className="txt">{guide.closing.label}</span></div>
-                <p className="gp-para">{guide.closing.para}</p>
+                {guide.closing ? (
+                  <React.Fragment>
+                    <div className="gp-label"><span className="rule"></span><span className="txt">{guide.closing.label}</span></div>
+                    <p className="gp-para">{guide.closing.para}</p>
+                  </React.Fragment>
+                ) : null}
                 <div className="gp-closing">
-                  <div className="gp-close-line">{guide.closing.line}</div>
+                  <div className="gp-close-line">Turn toward the one that knows you.</div>
                   <div className="gp-close-btn" onClick={close}>TURN THE CARD BACK</div>
                 </div>
               </div>

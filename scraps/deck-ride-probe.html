@@ -99,6 +99,35 @@
     "  band [" + Math.round(minY) + ", " + Math.round(maxY) + "]  vh:" + vh +
     "\nscroll " + sy0 + " → " + Math.round(sys[sys.length - 1]) +
     "  frames:" + ys.length + "  phase:" + W().__vaDrive.phase(), !ok);
+
+  // then exercise THE FLIP with diagnostics: sample the container's
+  // computed styles while it should be rotating. The deckfly timeline
+  // reaches "reading" ~6.3s after the tap — WAIT for it, don't guess.
+  t = 0; while (W().__vaDrive.phase() !== "reading" && t++ < 120) await sleep(100);
+  await sleep(800);
+  if (W().__vaDrive.phase() === "reading") {
+    W().__vaDrive.deeper();
+    const lines = [];
+    for (let k = 0; k < 5; k++) {
+      await sleep(320);
+      const fl = d.querySelector(".dr-flip");
+      const fp = d.querySelector(".dr-flipper");
+      if (!fl || !fp) { lines.push(k + ": no container"); continue; }
+      const cs = getComputedStyle(fp);
+      const m = cs.transform.match(/matrix3d\(([^)]+)\)/);
+      let ang = "flat";
+      if (m) { const v = m[1].split(",").map(Number); ang = (Math.atan2(-v[2], v[0]) * 180 / Math.PI).toFixed(0) + "°"; }
+      else if (cs.transform !== "none") ang = "2d:" + cs.transform.slice(0, 24);
+      lines.push(k + ": ang " + ang + " w" + Math.round(fl.getBoundingClientRect().width) +
+        " o" + getComputedStyle(fl).opacity +
+        " tr[" + (fp.style.transition || "unset").slice(0, 38) + "]" +
+        " swap:" + (d.documentElement.querySelector(".va").className.includes("dr-swap") ? "y" : "n"));
+    }
+    log("FLIP DIAG\n" + lines.join("\n"));
+    await sleep(1200);
+    const btn = d.querySelector(".gp-close-btn");
+    if (btn) btn.click();
+  }
 })();
 </script>
 </body>

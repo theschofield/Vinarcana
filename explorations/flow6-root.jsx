@@ -812,7 +812,11 @@ function App() {
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
         setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
         setMemPicked(null); setPourWine(null); setDeeper(null);
-        setActor(null); setEyeb(null);
+        // keep the actor MOUNTED (hidden): unmounting it means the next tap
+        // remounts fresh <img>s, which iOS blanks for several frames while
+        // decoding — the vanishing-card flash on device
+        setActor((a) => a && ({ ...a, o: 0, dur: 0, instant: true }));
+        setEyeb(null);
         setPhase("deck");
       } });
       clock.run(ev, TL.release.d + 40, ffRef, () => { ffRef.current = 1; setFF(false); });
@@ -844,7 +848,7 @@ function App() {
     // already showing — from here the scroll cannot touch it
     const dl0 = pinDelta();
     setActor({ left: r.left - dl0.dx, top: r.top - dl0.dy, width: r.width, ar: r.height / r.width, rot: 0, flip: 180, o: 1,
-      dur: 0, radius: 8, shadow: "sh-rest", instant: true, pin: true });
+      dur: 0, radius: 8, shadow: "sh-rest", instant: true });
 
     const T = tRef.current, TL = T.tlDraw;
     const off = TL.lift.s; // timeline starts at the lift — no pull, no flip
@@ -858,20 +862,16 @@ function App() {
           dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
     } });
     ev.push({ t: sh(TL.settle.s), run: () => { setPhase("settle");
-      // hand the actor back to document space AT REST first (zero visual
-      // delta — the pin's live offset IS the conversion), then settle
-      const dl = pinDelta();
-      setActor((a) => a && ({ ...a, pin: false, left: a.left + dl.dx, top: a.top + dl.dy, dur: 0, instant: true }));
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        setMounts((m) => ({ ...m, reading: true, deck: false }));
-        const S = vaSize(); const rr = slotRect("read-card");
-        const ar = rr ? rr.height / rr.width : faceARRef.current;
-        const dw2 = (desktop ? tRef.current.deckWDesk : tRef.current.deckW) || 0;
-        const w = Math.min(Math.max(rr ? rr.width : 0, dw2) * (tRef.current.settleScale || 1.16), S.w * 0.58) || S.w * 0.5;
-        const cy = S.h * (tRef.current.centerY / 100);
-        setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
-          dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
-      }));
+      // scroll is home by now (glide ended ~340ms), so pin space == document
+      // space and the slot math needs no conversion
+      setMounts((m) => ({ ...m, reading: true, deck: false }));
+      const S = vaSize(); const rr = slotRect("read-card");
+      const ar = rr ? rr.height / rr.width : faceARRef.current;
+      const dw2 = (desktop ? tRef.current.deckWDesk : tRef.current.deckW) || 0;
+      const w = Math.min(Math.max(rr ? rr.width : 0, dw2) * (tRef.current.settleScale || 1.16), S.w * 0.58) || S.w * 0.5;
+      const cy = S.h * (tRef.current.centerY / 100);
+      setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
+        dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
     } });
     ev.push({ t: sh(TL.bleed.s), run: () => { setPhase("bleed"); setVeilOn(true);
       const place = (tries) => {
@@ -932,7 +932,9 @@ function App() {
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
         setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
         setMemPicked(null); setPourWine(null); setDeeper(null);
-        setActor(null); setEyeb(null);
+        // same as toDeck: hidden, never unmounted (iOS img-remount flash)
+        setActor((a) => a && ({ ...a, o: 0, dur: 0, instant: true }));
+        setEyeb(null);
         setPhase("memory");
       } });
       clock.run(ev, TL.release.d + 40, ffRef, () => { ffRef.current = 1; setFF(false); });
@@ -978,7 +980,7 @@ function App() {
     // (face up, −4° like the row)
     const dl0 = pinDelta();
     setActor({ left: r.left - dl0.dx, top: r.top - dl0.dy, width: r.width, ar: r.height / r.width, rot: -4, flip: 180, o: 1,
-      dur: 0, radius: 4, shadow: "sh-rest", instant: true, pin: true });
+      dur: 0, radius: 4, shadow: "sh-rest", instant: true });
 
     const T = tRef.current, TLd = T.tlDraw, TLc = T.tlChoice;
     // rise first; the ledger completes its exit-curve sink beneath the flight
@@ -991,17 +993,12 @@ function App() {
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
           dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
     } });
-    // the ledger has faded — hand the actor back to document space at rest
-    // (zero delta), then swap layouts and let The Pour choreograph in
-    ev.push({ t: base, run: () => {
-      const dl = pinDelta();
-      setActor((a) => a && ({ ...a, pin: false, left: a.left + dl.dx, top: a.top + dl.dy, dur: 0, instant: true }));
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        setPhase("choose");
-        setMounts((m) => ({ ...m, memory: false, reveal: true }));
-        setMemPicked(null);
-        setVeilOn(true);
-      }));
+    // the ledger has faded (and the scroll is long home, so pin space ==
+    // document space) — swap layouts and let The Pour choreograph in
+    ev.push({ t: base, run: () => { setPhase("choose");
+      setMounts((m) => ({ ...m, memory: false, reveal: true }));
+      setMemPicked(null);
+      setVeilOn(true);
     } });
     ev.push({ t: base + TLc.slide.s, run: () => { setPhase("slide");
       const hs = (vaRoot() || document).querySelector(".rv-hero .hero-scale");
@@ -1162,13 +1159,16 @@ function App() {
           <div className="va-status-pin"><StatusBar6 light={light} onHome={home} onDeck={toDeck} onToast={showToast}
             deckOn={["todeck", "deck", "deckfly"].includes(phase)}
             onMemory={toMemory} memOn={["tomem", "memory", "memfly"].includes(phase)}></StatusBar6></div>
-          {/* THE RIDE's viewport anchor: zero-height sticky (the status-pin
-              recipe), DOM-early so sticky can pin — hosts the actor only
-              while a deck/memory flight is riding a scroll collapse */}
+          {/* THE ACTOR'S ONE HOME: a zero-height sticky pin (the status-pin
+              recipe), DOM-early so sticky can pin. Its origin is the
+              viewport in doc mode and the .va box everywhere else — equal to
+              document space whenever scroll is 0 (every resting beat), so
+              all slot math holds; the two scrolled takeovers convert via
+              pinDelta. The actor must NEVER remount or re-parent: iOS blanks
+              freshly-mounted imgs for several frames while it decodes them
+              (the vanishing-card flash on device). */}
           <div className="va-actor-pin" ref={actorPinRef}>
-            {actor && actor.pin ? (
-              <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
-            ) : null}
+            <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
           </div>
 
           {mounts.approach ? (
@@ -1202,9 +1202,6 @@ function App() {
               onClosed={() => setDeeper(null)}></DeeperReading>
           ) : null}
 
-          {actor && actor.pin ? null : (
-            <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
-          )}
           {c ? <EyebrowActor e={eyeb} num={c.num} name={c.name} lens={lens ? lens.name : ""}></EyebrowActor> : null}
           <SmokeFX light={light}></SmokeFX>
 
