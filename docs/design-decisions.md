@@ -779,3 +779,238 @@ guidebook type) + `round10.css`/`round13.css`. Boards: `deeper-v{3,5}-boards.jsx
   skinny 36px light-grey outline pill "CARD MEANING" (mono 8px / 0.22em), 56px below the region line.
 - Content status: only GUIDE_MOON is written. Guidebook copy for other cards flows through the
   content pipeline (voice-prompt.md) before batch-writing.
+
+
+## THE RIDE — single-home actor law (Jul 11, 2026)
+Three generations of fixing "tap a deep card in the Deck → card zips in from nowhere" on iOS:
+1. **Spring-matched scroll glide — REJECTED on device.** JS scrollTo and CSS transitions run on
+   different threads in iOS Safari; they can NEVER be paired frame-to-frame (the --va-sy law,
+   relearned). Felt like the card was "yanked back down the whole time."
+2. **Sticky pin + conditional reparent — REJECTED on device.** Viewport-locking the actor on a
+   zero-height sticky pin was RIGHT, but reparenting CardActor into the pin only during flight
+   remounted the <img> — and iOS async-decodes freshly-mounted images, painting BLANK for
+   ~150ms. That's the "big black flashes / card vanishes."
+3. **Single home — SHIPPED.** `.va-actor-pin` (zero-height sticky, DOM-early next to the status
+   pin, z-20) permanently hosts CardActor in EVERY phase. Pin space == doc space whenever
+   scroll is 0; `pinDelta()` converts rects for scrolled takeovers. Actor is never unmounted
+   between rides — retired actors fade to o:0 instantly instead of `setActor(null)`.
+LAWS:
+- **Never remount or reparent the card actor.** Any new/moved <img> on iOS = multi-frame blank
+  while it re-decodes. One permanent DOM home; move it with transforms and rect takeovers only.
+- **Decode-gate every face swap.** The Flip holds the swap (opacity 0, dr-swap class withheld)
+  until `img.decode()` resolves (250ms cap), then swaps on a double-rAF. Scrim/veil start
+  immediately so the beat still feels instant; only the card-hide + rotation wait for pixels.
+- **`dr-swap` (hides card/hero) is a separate class from `dr-open` (scrim/veil/bottle)** —
+  hiding the real card before the flip face has pixels is the hole.
+
+## VERIFICATION — recorded video or it didn't happen (Jul 11, 2026)
+Geometry probes (getBoundingClientRect traces) returned PASS while the screen showed black —
+rects exist while pixels are blank. The Browser pane is Chromium; iOS bugs are WebKit-only.
+The trusted loop for any transition work:
+1. `xcrun simctl` iPhone simulator against `http://127.0.0.1:8123` (device 46FFD9B2…).
+2. `simctl io recordVideo` the whole choreography; extract frames with
+   scratchpad extract-frames.swift (AVFoundation; no ffmpeg needed) and EYEBALL them.
+3. scraps/deck-ride-probe.html drives the ride + flip synthetically and overlays PASS/FAIL +
+   FLIP DIAG (per-beat rotation angle / width / opacity / swap class) on screen, so the
+   recording carries its own instrumentation.
+Ship nothing transition-related on Chromium evidence alone.
+
+
+## THE EXIT LAW — corrected (Jul 11, 2026)
+The sticky-pin ride (above) was right; the SCROLL GLIDE that rode under it was not — two
+device bugs traced straight to it:
+1. **Deck zoom:** tapping a deep tile glided the window ~1000px to top at full speed WHILE the
+   tiles were fading down in place — two animations fighting; the grid visibly rocketed up.
+2. **Lens-pick contort:** on device the glide is INTERRUPTIBLE (touch/rubber-band), so a stage
+   could arrive on a still-scrolled document; picking a lens then unwrapped The Pour into the
+   document (va-flow-pour), the doc height collapsed, the scroll clamped mid-beat — the whole
+   page contorted/squeezed.
+THE LAW: **exits fade in place; the window never visibly moves.** Every exit (deck tap,
+ledger tap, toDeck/toMemory, release, replay) teleports `scrollTo(0,0)` at its mounts-swap
+beat — the moment the old layout has fully faded and everything still visible (card actor,
+status, veil) hangs from a sticky pin, so the teleport has ZERO visual delta. Stages
+therefore ALWAYS begin at scroll 0 (pick() keeps a belt-and-braces reset). The one glide
+left is openDeeper — an in-place overlay open, not an exit; it was approved on device.
+
+## THE CHOREOGRAPHY SUITE — scraps/choreo-tests.html (Jul 11, 2026)
+The laws above are now EXECUTABLE. Run before shipping any transition change: open
+`/scraps/choreo-tests.html` on the dev server (simulator Safari, Browser pane, or device) —
+it drives deck-exit / lens-pick / flip / release and prints PASS/FAIL per law on screen
+(machine copy: `window.__choreoReport`). It supersedes deck-ride-probe.html (deleted).
+Asserts: window frozen during fades · tiles sink, never rise · actor continuity (no
+teleports, no direction flips, opacity ≥ 0.99) · scroll home after each swap · .va width
+constant through the pick · the flip never hides the card while its face is transparent ·
+flip reaches −180°. Suite PASS is necessary, not sufficient — finish with recorded-video
+frames (the VERIFICATION entry) and the user's hands on device.
+
+
+## POLISH ROUND — apex flash · hint rebuild · deck cache · panel seat (Jul 11, 2026)
+1. **Apex grey flash (deck ride):** the teleport was firing on a still-TALL document (deck
+   mounted) — a bare 978px scroll jump makes iOS paint unrasterized tiles for a beat, in the
+   html background colour (#201e1c — LIGHTER than the field's #1e1c1a→#121110, hence "grey").
+   Fixes: the deck now UNMOUNTS in the same commit as the teleport (bleed beat — one
+   reflow+paint, no stale-tile window), and html/body/theme-color moved to #151413, inside
+   the field's range, so any residual transient is invisible. LAW: teleports ride a
+   mounts-swap commit, never a bare scrollTo on unchanged layout.
+2. **Flip hint rebuilt (user spec):** corner raise ONLY — no scale swell, no dr-hov shadow
+   swap, no shine (the blend-mode shine repainted every tilt frame on device = the jitter).
+   250ms lead after the lenses settle → raise 950ms (supple) → hold 300ms → back 340ms
+   (gentle). One-shot, interruptible, house springs only.
+3. **Deck thumbs never "load" twice:** the complete-at-ref check missed cached images (cache
+   resolves a microtask after mount), so EVERY deck open re-ran the 240ms fade. Now: decode()
+   gates the reveal; anything ready <160ms appears WITH its tile (ld-i, no fade); only true
+   network loads fade. The background warm loop now decode()s thumbs too (fetch alone still
+   popped on first open). Verified: reopen at +300ms = 78/78 instant, 0 blank.
+4. **Deeper panel seat:** drPanelRect centered on vaSize().h = the 100lvh+overshoot BOX, so
+   the panel sat low and slid under the bottom chrome. It now centers in
+   visualViewport.height (a measurement — cannot summon the toolbar backdrop). Verified in
+   simulator: top gap == bottom gap. LAW: anything centered on a stage centers on the
+   VISUAL viewport, never the layout box.
+Suite: 4/4 PASS after all changes (T1 witness now stops sampling once the deck unmounts).
+
+
+## THE SCROLL LAW, THIRD EDITION — the quiet glide (Jul 12, 2026)
+Real-page forensics (safaridriver driving simulator Safari on /index.html — NO iframe —
+recorded at 60fps): the exit TELEPORT blanked the ENTIRE compositor tree for ~110ms at the
+ride's apex — luma 0.30 → 0.12 — even sticky layers (card, status, veil) vanished, leaving
+bare html background. A scroll jump + unmount invalidates everything; rasterization is
+async on device; "one commit" does not mean "one paint".
+THE LAW: **the window GLIDES, never jumps — but only under content that cannot show it.**
+· Deck/Memory rides: tiles fade in place first (620ms, untouched choreography), THEN the
+  window glides home on the bleed beat (~340ms) — card/status/veil/GRAIN are all
+  viewport-locked, so the glide moves only the soft field gradient. Verified: luma never
+  left the designed dim curve (min 0.221 vs the flash's 0.117).
+· The GRAIN is now sticky/viewport-locked in doc mode (film grain rides the lens, not the
+  scene) — flow6-docflow.css; this is what makes the glide invisible.
+· Return paths (release/toDeck/toMemory): the shipped tap-time glide is RESTORED — the
+  whole screen sinks at once there, so the glide hides inside the sink.
+· Beats that measure doc-space slots carry `if (scrollY > 1) scrollTo(0,0)` INSURANCE for
+  an interrupted glide; pick() keeps its defensive reset.
+· The eyebrow (doc-anchored) places + fades via glideScrollTop's onDone callback — in
+  place, never riding the moving document.
+
+## HINT, SECOND CORRECTION — the corner pivot (Jul 12, 2026)
+A center-pivot tilt see-saws: raising the bottom-right corner sank the top-left ("some
+sort of rhombus transform" — user). The raise now lives on the actor's OUTER element
+(--hrx/--hry with transform-origin 14% 10% — the inner flip3d carries rotateY(180) and
+cannot move its origin without displacing the flip), with perspective on the pin. The
+shimmer is BACK (user call): the .dr-shine pool fades in on the lifting corner over the
+raise's own duration (--dshDur) and out with the return. Rhythm: +250ms after the lenses
+settle → 950ms supple raise → 300ms hold → 340ms gentle return. Interruptions settle out
+in 200ms, never snap.
+
+## THE POUR — column laws (Jul 12, 2026)
+· The name column is TOP-ANCHORED on phones: THE POUR label is the top; everything flows
+  DOWN (round13 centered it — top 90 + translateY(-50%) — so a three-line wine name grew
+  UPWARD into the headline). Desktop keeps its own tuned geometry (.vw-desk override).
+· The blurb fills its measure (text-wrap: normal on phones): pretty-wrap's deep rag read
+  as "the column is narrower than the attributes". Headline keeps pretty (widow control).
+· Width audit (real page, measured): headline/body/stats/panes are ALL full-bleed 402px —
+  there never was a width constraint, only the rag.
+
+## BOTTOM-BAR BACKDROP — cleared (Jul 12, 2026)
+The band behind Safari's bottom bar seen during simulator testing is NOT a regression:
+A/B on the pre-session build (b04f75f, same journey, same scroll) shows the IDENTICAL
+band; theme-color (#151413 vs #201e1c) A/B also identical. The crafted construction is
+untouched. If it bothers on device, it predates this work — investigate separately.
+
+## VERIFICATION — real page, real Safari, hard timeouts (Jul 12, 2026)
+safaridriver (ships with macOS) + `safari:useSimulator` drives the REAL /index.html in
+simulator Safari — executeScript replaces the iframe probes' fidelity gap (real document
+scroll, real rasterization). scratchpad drive.py wraps it; EVERY request hard-capped at
+15s (a hung W3C /actions call once ate 40 minutes — W3C touch actions hang against the
+simulator; use executeScript dispatch instead). Recording leaks: if simctl recordVideo
+dies unkilled, CoreSimulator holds "Host recording in progress" — reboot the device.
+
+
+## STAGE CONSTRUCTION IS SACRED — grain lock scoped to flow (Jul 12, 2026)
+The viewport-locked grain (sticky, 100lvh) applied to ALL pages summoned the iOS toolbar
+backdrop on THE STAGES (Approach / Lenses) — the hand-tuned pages where any in-flow
+viewport-sized element brings it back. User caught it on device. CORRECTED: the sticky
+grain is scoped to `html.va-doc.va-flow` (deck/memory/pour) — every quiet glide runs while
+a flow view is mounted, so nothing is lost; the stages keep round10's absolute grain,
+their construction byte-identical to the tuned build. The pin also lost its perspective
+property — the hint's depth now comes from perspective() INSIDE the actor's own transform.
+LAW: **never add position/size/viewport-unit properties to anything that renders on the
+stages.** If a flow view needs a pinned layer, scope it to .va-flow. Verified: grain
+computes absolute on stages / sticky on deck; ride luma clean (min 0.202 = the veil dim);
+Lenses bottom edge clean; suite 4/4.
+
+
+## THE POISON RULE IS ABSOLUTE — and the walk home (Jul 12, 2026)
+I violated the docflow hard rule twice (a sticky viewport-sized grain, then "scoped" to
+flow views) and it summoned the toolbar backdrop on the deck — a PRIMARY FAIL: every
+scrolling view must scroll off the bottom edge behind the chrome, edge to edge. THE RULE
+HAS NO EXCEPTIONS AND NO NEW MEMBERS: the only pinned/viewport-sized elements in this app
+are the ones in the hand-tuned build (veil, status pin, actor pin [zero-height], foot
+pin). Nothing else. Ever. Not "scoped", not "only during", not paint-hinted.
+The deck-exit scroll, final resolved form (every alternative measured at 60fps on the
+real page): tiles fade down in place (untouched) → the window WALKS home under the faded
+page — FRAME-BASED, 22px per painted frame (~1400px/s), because wall-clock eased glides
+catch-up-jump after stalls and any jump blanks the whole compositor tree, as do teleports
+and layer promotions (transform-compensated commits blank too — promotion rasterizes from
+scratch). The faded deck STAYS MOUNTED until the rest beat (unmounting mid-walk collapses
+the doc and clamp-jumps the scroll — same blank); the ledger likewise leaves at the slide
+beat, with `leaving` held through choose/slide. Safari may park a stage a few px into its
+overshoot slack after the chrome dance — scrollTo(0,0) does not stick — so the pin-hosted
+actor tracks document scroll on the reading and re-places through pinDelta (verified: the
+card sits at dxdy [0,0] with the stage parked at 10-22px). glideScrollTop starts its
+clock on the FIRST FRAME, not at call time (the suite caught a 4.3px/ms catch-up jump).
+Hint: corner pivot via the translate-rotate-translate sandwich INSIDE the flipper's
+transform (pure vars, identity when unset) — no transform-origin change, no perspective()
+on the actor, no new rendering contexts anywhere. Suite: 4/4; ride luma clean end to end.
+
+
+## CANVAS REVIEW ADOPTED + THE MEMBERSHIP FIX (Jul 12, 2026)
+The grammar and stage docs came back CANVAS-REVIEWED (claude-code-handoff/choreography-
+grammar.md, stage-construction.md — now canon; every ⚑ resolved). Ed's DECISION: the
+canvas construction stands for Deck → Lenses — same-frame tile → actor takeover at flight
+start, ONE persistent actor to rest, no apex handoff (declined), the Lenses' card is a
+hidden measuring slot. The frame-walk is the permanent scroll mechanism.
+Landed with the adoption:
+· `.dr-hit` joins the pan-eating regime (touch-action: none) — dragging the Lenses card no
+  longer scrolls the decoy's overshoot slack (the membership rule, now suite-enforced).
+· The walk is VELOCITY-held (2.1px/ms per painted frame, hard-capped per frame) — the old
+  per-frame constant doubled its speed on 120Hz displays.
+· The rest beat has two regimes: mid-walk → plain doc coords (== the slot's final viewport
+  position; pin-converting aimed the card off-screen, caught by the suite at −613px);
+  landed-and-parked → pinDelta glue. The faded deck releases only once the walk is home.
+· Suite: T1 now rides the ABSOLUTE BOTTOM tile (scroll 4730 — real max debt, Ed's case);
+  new T5 stage-pan-membership (elementFromPoint grid — every touchable point must resolve
+  through touch-action:none); new T6 handoff continuity (actor → pane card cut ≤ 2.5px).
+  6/6 PASS. Real-page bottom-tile ride: 480 frames, zero blanks, lands scroll 0, actor
+  dxdy [0,0] on its slot.
+
+
+## THE RAFT — five verdicts landed together (Jul 12, 2026)
+1. **The walk paces the v6 glide budget** (≤ ~680ms from any depth, ≈7px/ms max — the
+   duration the shipped v6 glide proved clean on device for months). The 2.1px/ms sim-
+   conservative walk made the scroll indicator linger and finished late from the bottom
+   row. Frame-stepped, dt capped at 24ms (bounded stall catch-up — never spikes).
+2. **The full-res face is decode-gated and monotonic.** The old phase list FLAPPED it:
+   mounted at bleed (130ms after the apex — the "corner radius snap" on the Chariot, which
+   was never radius at all but the thumb→full-scan swap), unmounted at settle, remounted at
+   rest. Now: mounts once decoded and not face-down, never unmounts; cold decodes fade in
+   over the poster (vaFaceIn 240ms); the poster always stays beneath. Radius verified
+   token-true (5.3% of width) throughout.
+3. **The veil is decode-gated and PERSISTS behind the deck** (user law): toDeck keeps
+   veilOn + the card, so the last card's etched art stays behind the grid (0.11) — the next
+   ride recedes it and bleeds the new card's art in, never introducing texture from
+   nothing. drawingId is phase-scoped so the persistent card doesn't put the grid in its
+   leaving state. The bleed's crawl starts only once the -bg art has decoded (bgReady) —
+   an undecoded art "popped in" wherever the decode landed.
+4. **The hint settles out gracefully when interrupted** — picking a lens mid-raise
+   unmounts the affordance, which used to wipe the tilt vars in one frame (the "card jumps
+   a bit" at the pour flight's start). clearAll now routes a live hint through the 200ms
+   settle-out.
+5. **The slide RETARGETS at the echo beat**: the pour targets are re-measured against the
+   settled pane 245ms before the cut and the running transitions re-aimed (CSS retargeting
+   is smooth) — the eyebrow's downward hop at the cut was doCut's drift-glide correcting a
+   stale target; now the cut lands exact and the drift path is a rare fallback.
+Suite 6/6 (T1 velocity now windowed ≥30ms — adjacent-sample deltas read 2× true speed when
+the sampler and walk interleave frames; threshold 12px/ms = teleport scale). Verified on
+the real page: face imgs ["back","face","face full"] stable at 400ms AND 1.2s; veil
+mounted+in at 0.11 behind the grid on return.
+NOTE (sim law): the simulator cannot render Safari's chrome translucency — recordVideo
+and screenshots show the bar region as flat black regardless of the page. Chrome
+translucency is device-only evidence.

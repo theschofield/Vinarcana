@@ -1,0 +1,7 @@
+# the public deploy carries the app only — canon docs, content pipeline
+# sources, and session tooling stay out of the published site
+docs
+content
+.claude
+CLAUDE.md
+claude-code-handoff

@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
-const PORT = 8123;
+const PORT = process.env.PORT || 8123;
 const TYPES = {
   ".html": "text/html", ".js": "text/javascript", ".jsx": "text/babel",
   ".css": "text/css", ".json": "application/json", ".png": "image/png",

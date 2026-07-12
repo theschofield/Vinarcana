@@ -1,0 +1,65 @@
+# Vintner's Arcana — session canon
+
+Tarot-meets-wine ritual app. React 18 UMD + Babel-standalone, no build step.
+**The repo root IS the public deploy** (push to main → vinarcana.vercel.app).
+`.vercelignore` keeps docs/content off the site — check it before adding files.
+Case-sensitive paths: a wrong-case asset name 404s on Vercel but works locally.
+
+## The canon — read before touching the relevant area
+
+- **docs/choreography-grammar.md** — how cards move between screens (actors,
+  handoff contracts, the apex, device laws). Canvas-reviewed. Read before ANY
+  transition work.
+- **docs/stage-construction.md** — the scroll decoy that keeps Safari's
+  chrome translucent (poison rule, membership rule, scroll laws). Read before
+  touching layout, positioning, or anything viewport-related.
+- **docs/design-decisions.md** — the append-only verdict log (user taste +
+  hard-won laws). Append new verdicts there; never rewrite history.
+
+Hard laws in one breath: nothing is ever `position: fixed`, pinned, or
+viewport-sized beyond the four approved anchors (poison rule — absolute);
+every interactive element on a stage eats the pan (`touch-action: none`);
+no mid-choreography scroll motion in any form (teleports and wall-clock
+glides blank the compositor tree — the frame-stepped walk is the only lawful
+mover); every image swap is decode-gated (iOS blanks fresh `<img>`s); the
+card actor is never remounted or reparented; one shadow, one element, one
+clock.
+
+## Verification duties (non-negotiable for transition/layout changes)
+
+1. `scraps/choreo-tests.html` on the dev server — six tests, must be 6/6.
+2. Anything touching scroll/compositing: safaridriver against the REAL page
+   in the iOS simulator (no iframe), `simctl recordVideo`, extract frames,
+   luma-trace for blanks. Suite PASS is necessary, never sufficient.
+3. The simulator cannot render chrome translucency (bar region reads black)
+   or real gestures — the user's device pass is the final gate.
+4. Hard-timeout every driver/network call (a hung W3C touch action once ate
+   40 minutes). W3C touch actions hang against the simulator — use
+   executeScript event dispatch instead.
+
+## Repo map
+
+- `index.html` + `explorations/` — the live app (nearly every file in
+  explorations/ is loaded; check index.html before assuming anything is dead).
+- `assets/` — art. `content/` — the content pipeline (CSV + prompts; the
+  content chats work here; `scraps/mirror-guidebook.js` mirrors guidebook.csv
+  into `explorations/arcana-guide.js` — never hand-edit the mirror output).
+- `scraps/` — test harnesses (deployed on purpose, so the suite runs on
+  device against the live site).
+- `docs/` — the canon above. `claude-code-handoff/` — see below.
+
+## The exchange station — claude-code-handoff/ (INTAKE PROTOCOL)
+
+The folder is a **gitignored transfer station** for Claude Design (canvas)
+exchanges. Nothing in it is ever canon, and it must never be committed.
+
+- Ed drops canvas exports/briefs there; sessions read them as INPUT only.
+- **Intake**: diff incoming material against the canon in `docs/`; merge
+  forward — the canvas wins on design intent, the Claude Code canon wins on
+  device-era laws; conflicts go to Ed, never silently resolved. Update
+  `docs/` (committed), then DELETE the integrated files from the station.
+- Never edit a doc inside the station that has a canonical counterpart in
+  `docs/` — update the canon and regenerate the outbound copy if the canvas
+  needs one.
+- If the station is non-empty at session start and its contents look
+  integrated (their learnings already in docs/), ask Ed whether to clear it.
