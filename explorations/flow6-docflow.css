@@ -83,12 +83,17 @@ html.va-doc .va:not(.vw-desk) .va-veilwrap {
    always appeared on). Desktop keeps it. */
 html.va-doc .va:not(.vw-desk) .rv-glow { display: none; }
 
-/* layer 2b: the paper grain rides the LENS, not the scene — viewport-locked
-   with the veil's sticky recipe. This also lets the deck-exit's quiet glide
-   run invisibly: with grain and veil pinned, the only thing the glide moves
-   is the soft field gradient. (Scoped to the field's own grain — the deeper
-   panel's .dr-back grain stays put inside its layer.) */
-html.va-doc .va:not(.vw-desk) .rx > .rx-grain {
+/* layer 2b: the paper grain viewport-locks ONLY in the FLOW modes (deck /
+   memory / pour — html.va-flow), where the quiet glide needs it: with grain
+   and veil pinned, the glide moves nothing but the soft field gradient.
+   THE STAGES (Approach / Lenses) ARE UNTOUCHED — their construction is
+   hand-tuned against the iOS toolbar backdrop, and adding ANY in-flow
+   viewport-sized element there summons it (learned the hard way: a
+   stage-wide sticky grain brought the backdrop back). Every glide runs
+   while a flow view is still mounted, so this scope loses nothing.
+   (Scoped to the field's own grain — the deeper panel's .dr-back grain
+   stays put inside its layer.) */
+html.va-doc.va-flow .va:not(.vw-desk) .rx > .rx-grain {
   position: sticky; top: 0; bottom: auto; left: auto; right: auto;
   display: block; width: 100%;
   height: calc(100lvh + env(safe-area-inset-bottom));

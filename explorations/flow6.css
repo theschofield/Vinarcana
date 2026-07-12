@@ -138,10 +138,7 @@
    flight (a plain CSS transition in viewport space) and the scroll can
    never fight — pairing them any other way jittered on iOS Safari (the
    --va-sy lesson). DOM-early in .rx, or sticky can't pin. */
-.va .va-actor-pin { position: sticky; top: 0; height: 0; overflow: visible; z-index: 20;
-  /* depth for the Deeper hint's corner raise on the actor's OUTER element
-     (3D transforms need perspective from the PARENT; inert otherwise) */
-  perspective: 1400px; }
+.va .va-actor-pin { position: sticky; top: 0; height: 0; overflow: visible; z-index: 20; }
 
 /* ---- one card, ONE shadow, on ONE persistent element ----
    History, so nobody regresses it: shadows on the actor's imgs

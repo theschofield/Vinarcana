@@ -63,8 +63,10 @@ function CardActor({ a, face, poster, rPct }) {
         /* --hrx/--hry/--hto: the Deeper hint's corner-raise vocabulary on the
            OUTER element (the inner flip3d carries rotateY(180) and cannot
            change transform-origin without displacing the flip). Unset they
-           resolve to identity. Depth comes from perspective on the pin. */
-        transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ") rotateX(var(--hrx, 0deg)) rotateY(var(--hry, 0deg))",
+           resolve to identity. Depth comes from perspective() INSIDE this
+           transform — never from an ancestor: the pin must stay exactly as
+           the docflow construction had it. */
+        transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ") perspective(1400px) rotateX(var(--hrx, 0deg)) rotateY(var(--hry, 0deg))",
         transformOrigin: "var(--hto, 50% 50%)", transition: tr }}>
       {/* --drx/--dry/--ds are the Deeper Reading affordance's tilt vocabulary
           (flow6-deeper) — unset they resolve to identity, so every other beat
