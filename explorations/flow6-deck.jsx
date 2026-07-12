@@ -57,9 +57,26 @@ function DeckGrid({ F, drawingId, onPick }) {
                 style={{ "--dki": (140 + Math.min(i * 13, 420)) + "ms" }}
                 onClick={(e) => tap(e, id)} onPointerMove={move} onPointerLeave={leave}>
                 <div className="dk-tilt">
+                  {/* reveal discipline: a thumb that's ready QUICKLY (cache
+                      hit — every visit after the first) appears WITH its
+                      tile (ld-i, no fade); only a genuine network load gets
+                      the 240ms fade (ld). decode() gates both so iOS never
+                      paints a half-decoded pop (the img decode law). The
+                      old complete-at-ref check missed cached images (the
+                      cache resolves a microtask later), so every deck open
+                      re-ran the fade — tiles read as "loading" forever. */}
                   <img src={"assets/cards/thumbs/" + c.file + ".webp"} alt={c.name} decoding="async" draggable={false}
-                    onLoad={(e) => e.currentTarget.classList.add("ld")}
-                    ref={(el) => { if (el && el.complete && el.naturalWidth) el.classList.add("ld"); }} />
+                    onLoad={(e) => { const el = e.currentTarget;
+                      if (el.classList.contains("ld") || el.classList.contains("ld-i")) return;
+                      const t0 = el.dataset.t0 ? +el.dataset.t0 : 0;
+                      const quick = t0 && performance.now() - t0 < 160;
+                      const done = () => el.classList.add(quick ? "ld-i" : "ld");
+                      if (el.decode) el.decode().then(done).catch(done); else done();
+                    }}
+                    ref={(el) => { if (!el || el.dataset.t0) return;
+                      el.dataset.t0 = String(performance.now());
+                      if (el.complete && el.naturalWidth) el.classList.add("ld-i");
+                    }} />
                   <div className="dk-shine"></div>
                 </div>
               </div>

@@ -414,7 +414,10 @@ function App() {
       if (cancelled) return;
       if (ti >= thumbs.length) { if (--lanes === 0) faceNext(); return; }
       const im = new Image();
-      im.onload = im.onerror = thumbNext;
+      // DECODE, don't just fetch: a warmed-but-undecoded thumb still pops
+      // on the deck's first open while iOS rasterizes it
+      im.onload = () => { if (im.decode) im.decode().catch(() => {}).then(thumbNext); else thumbNext(); };
+      im.onerror = thumbNext;
       im.src = thumbs[ti++];
     };
     const t0 = setTimeout(() => { lanes = 8; for (let k = 0; k < 8; k++) thumbNext(); }, 250);
@@ -899,6 +902,11 @@ function App() {
       // 650ms): everything still visible is viewport-locked (pin/sticky),
       // so the window TELEPORTS home with zero visual delta — and the
       // eyebrow below fades in fully on screen, exactly the shipped rhythm.
+      // The deck UNMOUNTS in the same commit: unmount + scroll land in ONE
+      // reflow+paint, so iOS never shows a stale-tile (grey) frame for the
+      // 978px the viewport just crossed (a bare scroll jump on a still-tall
+      // document rasterizes late on device — the apex grey flash).
+      setMounts((m) => ({ ...m, reading: true, deck: false }));
       if (window.scrollY) window.scrollTo(0, 0);
       setVeilOn(true);
       const place = (tries) => {

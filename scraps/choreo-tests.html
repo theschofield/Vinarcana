@@ -121,12 +121,15 @@
   tap(moon);
   const t1 = await sample(1300, () => {
     const a = D().querySelector(".va-card-actor");
-    const wr = witness.getBoundingClientRect();
+    // the witness detaches when the deck unmounts on the bleed beat —
+    // detached rects read as 0 and would fake a "travelled up" failure
+    const alive = witness.isConnected;
     return {
       s: W().scrollY,
       aT: a ? a.getBoundingClientRect().top : NaN,
       aO: a ? +getComputedStyle(a).opacity : NaN,
-      wT: wr.top, wO: +getComputedStyle(witness).opacity,
+      wT: alive ? witness.getBoundingClientRect().top : NaN,
+      wO: alive ? +getComputedStyle(witness).opacity : 0,
     };
   });
   {

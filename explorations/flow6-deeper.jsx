@@ -23,9 +23,16 @@ const DR_PANEL_AR = 2100 / 3600;    // width / height of the card face
 
 function drPanelRect() {
   const S = vaSize();
-  const w = Math.min(0.872 * S.w, 0.83 * S.h * DR_PANEL_AR);
+  // center in the VISIBLE viewport, not the layout box: on the stages the
+  // .va box is 100lvh + overshoot (taller than what iOS actually shows with
+  // its chrome up), so centering on S.h sat the panel low and slid its foot
+  // under the bottom bar. visualViewport.height is the real visible height
+  // — a measurement, not a bottom-anchored element, so it cannot summon the
+  // toolbar backdrop. (Stages sit at scroll 0, so viewport top == box top.)
+  const vh = Math.min(S.h, (window.visualViewport && window.visualViewport.height) || window.innerHeight);
+  const w = Math.min(0.872 * S.w, 0.83 * vh * DR_PANEL_AR);
   const h = w / DR_PANEL_AR;
-  return { left: (S.w - w) / 2, top: (S.h - h) / 2, width: w, height: h };
+  return { left: (S.w - w) / 2, top: (vh - h) / 2, width: w, height: h };
 }
 
 const DR_PANEL_SHADOW = {
@@ -98,32 +105,28 @@ function DeeperAffordance({ onOpen, hintArm, onHinted }) {
     if (shdw) shdw.style.transition = "";
   };
 
-  // one-shot arrival hint, on the house curves: after a quiet beat the card
-  // leans up by its bottom-right corner (supple, a breath over), the light
-  // catches as the tilt develops, it holds a moment, then settles back down
-  // (gentle). Never loops; any real contact interrupts it.
+  // one-shot arrival hint: the bottom-right corner GENTLY RAISES — and
+  // nothing else. No scale swell, no shadow swap, no shine (the old
+  // three-stage version read as the card "jittering larger while a shadow
+  // appears": the dr-hov shadow + the blend-mode shine repainted every
+  // frame of the tilt on device). One rise on a house spring with a long
+  // settling tail, a short hold at the top, one release back to rest.
+  // Never loops; any real contact interrupts it.
   React.useEffect(() => {
     if (!hintArm || !rect) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { onHinted(); return; }
     const T = hintTimers.current;
     const cx = 0.88, cy = 0.93, boost = 1.2;  // the corner, a shade past hover amplitude
+    const RISE = 950, HOLD = 300, BACK = 340, LEAD = 250;
     T.push(setTimeout(() => {
-      const { actor } = actorEls(); if (!actor) return;
       setVars({ px: cx, py: cy,
         rx: -(cy - 0.5) * DR_TILT.rx * boost, ry: -(cx - 0.5) * DR_TILT.ry * boost,
-        sc: 1.055, ms: 1600, ease: easeCss({ p: "supple" }) });
-      actor.classList.add("dr-hov");
-    }, 700));
+        sc: 1, ms: RISE, ease: easeCss({ p: "supple" }) });
+    }, LEAD));
     T.push(setTimeout(() => {
-      const { actor } = actorEls(); if (actor) actor.style.setProperty("--dsh", "1");
-    }, 1400));
-    T.push(setTimeout(() => {
-      const { actor } = actorEls(); if (!actor) return;
-      setVars({ px: cx, py: cy, rx: 0, ry: 0, sc: 1, ms: 1300, ease: easeCss({ p: "gentle" }) });
-      actor.style.setProperty("--dsh", "0");
-      actor.classList.remove("dr-hov");
-    }, 2900));
-    T.push(setTimeout(() => { onHinted(); }, 4400));
+      setVars({ px: cx, py: cy, rx: 0, ry: 0, sc: 1, ms: BACK, ease: easeCss({ p: "gentle" }) });
+    }, LEAD + RISE + HOLD));
+    T.push(setTimeout(() => { onHinted(); }, LEAD + RISE + HOLD + BACK + 60));
     return () => { T.forEach(clearTimeout); hintTimers.current = []; };
   }, [!!rect, hintArm]);
 
