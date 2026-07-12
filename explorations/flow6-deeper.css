@@ -163,7 +163,7 @@
 /* the specular pool rides INSIDE the flip, oriented with the face */
 .va .va-card-actor .dr-shine { position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   transform: rotateY(180deg); backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  opacity: var(--dsh, 0); transition: opacity 300ms ease;
+  opacity: var(--dsh, 0); transition: opacity var(--dshDur, 300ms) ease;
   background: radial-gradient(130% 95% at var(--dmx, 50%) var(--dmy, 45%),
     rgba(255, 243, 222, 0.30), rgba(255, 243, 222, 0.08) 42%, transparent 68%);
   mix-blend-mode: screen; }

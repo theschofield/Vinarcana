@@ -99,40 +99,78 @@ function DeeperAffordance({ onOpen, hintArm, onHinted }) {
   const clearAll = () => {
     hintTimers.current.forEach(clearTimeout); hintTimers.current = [];
     const { actor, flip, shdw } = actorEls(); if (!actor) return;
-    ["--drx", "--dry", "--ds", "--dmx", "--dmy", "--dsh"].forEach((v) => actor.style.removeProperty(v));
+    ["--drx", "--dry", "--ds", "--dmx", "--dmy", "--dsh", "--dshDur",
+      "--hrx", "--hry", "--hto"].forEach((v) => actor.style.removeProperty(v));
+    if (hintPrevTr.current != null) { actor.style.transition = hintPrevTr.current; hintPrevTr.current = null; }
     actor.classList.remove("dr-hov", "dr-press");
     if (flip) flip.style.transition = "";
     if (shdw) shdw.style.transition = "";
   };
 
-  // one-shot arrival hint: the bottom-right corner GENTLY RAISES — and
-  // nothing else. No scale swell, no shadow swap, no shine (the old
-  // three-stage version read as the card "jittering larger while a shadow
-  // appears": the dr-hov shadow + the blend-mode shine repainted every
-  // frame of the tilt on device). One rise on a house spring with a long
-  // settling tail, a short hold at the top, one release back to rest.
+  // one-shot arrival hint: the bottom-right corner GENTLY RAISES, pivoting
+  // from up near the OPPOSITE corner — a center pivot see-saws (raising one
+  // corner sinks the other: the "rhombus" read). The raise lives on the
+  // actor's OUTER element (--hrx/--hry/--hto; the inner flip3d carries the
+  // 180° flip and can't change its origin), with a soft light catching the
+  // lifting corner as it comes up. No scale swell, no shadow swap. One rise
+  // on a house spring with a long settling tail, a short hold, one release.
   // Never loops; any real contact interrupts it.
+  const hintPrevTr = React.useRef(null);
+  // remove every hint fingerprint and give the actor its transition back;
+  // ms > 0 defers the removal so an in-flight settle-out can land first
+  const hintClear = (ms) => {
+    const fin = () => {
+      const a2 = actorEls().actor; if (!a2) return;
+      ["--hrx", "--hry", "--dsh", "--dshDur", "--hto"].forEach((v) => a2.style.removeProperty(v));
+      if (hintPrevTr.current != null) { a2.style.transition = hintPrevTr.current; hintPrevTr.current = null; }
+    };
+    if (ms) setTimeout(fin, ms); else fin();
+  };
+  // graceful out for interruptions: settle the raise flat, then clear
+  const hintSettleOut = () => {
+    const { actor } = actorEls();
+    if (actor && hintPrevTr.current != null) {
+      actor.style.transition = "transform 200ms ease";
+      actor.style.setProperty("--hrx", "0deg");
+      actor.style.setProperty("--hry", "0deg");
+      actor.style.setProperty("--dshDur", "200ms");
+      actor.style.setProperty("--dsh", "0");
+      hintClear(220);
+    }
+  };
   React.useEffect(() => {
     if (!hintArm || !rect) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { onHinted(); return; }
     const T = hintTimers.current;
-    const cx = 0.88, cy = 0.93, boost = 1.2;  // the corner, a shade past hover amplitude
     const RISE = 950, HOLD = 300, BACK = 340, LEAD = 250;
     T.push(setTimeout(() => {
-      setVars({ px: cx, py: cy,
-        rx: -(cy - 0.5) * DR_TILT.rx * boost, ry: -(cx - 0.5) * DR_TILT.ry * boost,
-        sc: 1, ms: RISE, ease: easeCss({ p: "supple" }) });
+      const { actor } = actorEls(); if (!actor) return;
+      if (hintPrevTr.current == null) hintPrevTr.current = actor.style.transition || "";
+      actor.style.transition = "transform " + RISE + "ms " + easeCss({ p: "supple" });
+      actor.style.setProperty("--hto", "14% 10%");   // pivot near the far corner
+      actor.style.setProperty("--hrx", "8.5deg");    // bottom edge toward the viewer
+      actor.style.setProperty("--hry", "-10.5deg");  // right edge toward the viewer
+      actor.style.setProperty("--dmx", "88%");       // the light pools on the corner
+      actor.style.setProperty("--dmy", "93%");
+      actor.style.setProperty("--dshDur", RISE + "ms");
+      actor.style.setProperty("--dsh", "0.8");
     }, LEAD));
     T.push(setTimeout(() => {
-      setVars({ px: cx, py: cy, rx: 0, ry: 0, sc: 1, ms: BACK, ease: easeCss({ p: "gentle" }) });
+      const { actor } = actorEls(); if (!actor) return;
+      actor.style.transition = "transform " + BACK + "ms " + easeCss({ p: "gentle" });
+      actor.style.setProperty("--hrx", "0deg");
+      actor.style.setProperty("--hry", "0deg");
+      actor.style.setProperty("--dshDur", BACK + "ms");
+      actor.style.setProperty("--dsh", "0");
     }, LEAD + RISE + HOLD));
-    T.push(setTimeout(() => { onHinted(); }, LEAD + RISE + HOLD + BACK + 60));
-    return () => { T.forEach(clearTimeout); hintTimers.current = []; };
+    T.push(setTimeout(() => { hintClear(0); onHinted(); }, LEAD + RISE + HOLD + BACK + 60));
+    return () => { T.forEach(clearTimeout); hintTimers.current = []; hintSettleOut(); };
   }, [!!rect, hintArm]);
 
   const interrupt = () => {
     if (!hintTimers.current.length) return;
     hintTimers.current.forEach(clearTimeout); hintTimers.current = [];
+    hintSettleOut();
     onHinted();
   };
 

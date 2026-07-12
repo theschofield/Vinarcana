@@ -14,7 +14,8 @@
      · the window NEVER moves while the grid fades (exits fade in place)
      · no tile ever travels UP (they sink 28px as they fade)
      · the tapped card rides one smooth viewport arc — no flips, no jumps
-     · the scroll teleports home invisibly on the bleed beat
+     · then the window glides home QUIETLY under the faded page (bleed
+       beat) and is home before the settle beat measures its slots
   T2 LENS PICK · reading → pour
      · the document holds scroll 0 for the whole transition
      · the .va box never changes width (no horizontal squeeze)
@@ -24,7 +25,8 @@
        (dr-swap must not appear while the flip container is transparent)
      · the flip reaches −180° open
   T4 RELEASE · let-it-fade from a scrolled pour
-     · the pour fades in place at its scroll depth (no glide)
+     · the window GLIDES home smoothly inside the whole-screen sink
+       (no instant jumps — a teleport blanks the compositor tree)
      · the window is home the moment the approach re-mounts
 
   Machine-readable copy of the report: window.__choreoReport
@@ -246,9 +248,19 @@
     W().__vaDrive.release();
     const t4 = await sample(1100, () => ({ s: W().scrollY }));
     const fails = [];
-    const fadeRows = t4.filter(r => r.t < 520);
-    const sMax = Math.max(...fadeRows.map(r => Math.abs(r.s - s4)));
-    if (sMax > 1) fails.push("window moved " + Math.round(sMax) + "px during the sink (law: exits fade in place)");
+    // the release GLIDES home inside the whole-screen sink: smooth (no
+    // instant jumps — teleports blank the compositor tree), monotonic
+    // toward home, and done by the swap beat. Judge VELOCITY, not px per
+    // sample: a dropped frame doubles the px of a legitimate glide step
+    // (peak ≈ 3.3px/ms), while a teleport is hundreds of px in one frame.
+    let maxV = 0, rose = 0;
+    for (let i = 1; i < t4.length; i++) {
+      const dt = Math.max(1, t4[i].t - t4[i - 1].t);
+      maxV = Math.max(maxV, Math.abs(t4[i].s - t4[i - 1].s) / dt);
+      if (t4[i].s > t4[i - 1].s + 1) rose++;
+    }
+    if (maxV > 6) fails.push("window moved " + maxV.toFixed(1) + "px/ms (glide, never teleport)");
+    if (rose) fails.push("scroll moved AWAY from home " + rose + " times");
     const tail = t4[t4.length - 1];
     if (Math.round(tail.s) !== 0) fails.push("scroll not home after the swap (at " + Math.round(tail.s) + ")");
     book("T4 release", verdict("T4 release (from scroll " + s4 + ")", fails), fails);
