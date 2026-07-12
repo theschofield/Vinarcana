@@ -60,18 +60,20 @@ function CardActor({ a, face, poster, rPct }) {
     <div className={"va-card-actor " + (a.shadow || "sh-deck")}
       style={{ left: a.left + "px", top: a.top + "px", width: a.width + "px", height: h + "px",
         opacity: a.o, borderRadius: rad + "px",
-        /* --hrx/--hry/--hto: the Deeper hint's corner-raise vocabulary on the
-           OUTER element (the inner flip3d carries rotateY(180) and cannot
-           change transform-origin without displacing the flip). Unset they
-           resolve to identity. Depth comes from perspective() INSIDE this
-           transform — never from an ancestor: the pin must stay exactly as
-           the docflow construction had it. */
-        transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ") perspective(1400px) rotateX(var(--hrx, 0deg)) rotateY(var(--hry, 0deg))",
-        transformOrigin: "var(--hto, 50% 50%)", transition: tr }}>
+        transform: "rotate(" + (a.rot || 0) + "deg) scale(" + (a.sc || 1) + ")", transition: tr }}>
       {/* --drx/--dry/--ds are the Deeper Reading affordance's tilt vocabulary
           (flow6-deeper) — unset they resolve to identity, so every other beat
-          renders exactly as before */}
-      <div className="flip3d" style={{ transform: "rotateY(" + (a.flip || 0) + "deg) rotateX(var(--drx, 0deg)) rotateY(var(--dry, 0deg)) scale(var(--ds, 1))", transition: ftr }}>
+          renders exactly as before. --hpx/--hpy/--hrx/--hry are the arrival
+          hint's CORNER-PIVOT slots: the translate-rotate-translate sandwich
+          rotates about a point near the card's far corner without touching
+          transform-origin (which would displace the 180° flip) and without
+          any new rendering context — depth comes from the actor's existing
+          perspective property. All identity when unset. */}
+      <div className="flip3d" style={{ transform: "rotateY(" + (a.flip || 0) + "deg)"
+        + " translate3d(var(--hpx, 0%), var(--hpy, 0%), 0)"
+        + " rotateX(var(--hrx, 0deg)) rotateY(var(--hry, 0deg))"
+        + " translate3d(calc(-1 * var(--hpx, 0%)), calc(-1 * var(--hpy, 0%)), 0)"
+        + " rotateX(var(--drx, 0deg)) rotateY(var(--dry, 0deg)) scale(var(--ds, 1))", transition: ftr }}>
         <div className="shdw" style={{ transition: a.instant ? "none" : "box-shadow " + a.dur + "ms " + ease }}></div>
         <img src="assets/card-back.webp" alt="" draggable="false" decoding="async" />
         {poster ? <img className="face" src={poster} alt="" draggable="false" decoding="async" /> : null}

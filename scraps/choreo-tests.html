@@ -11,11 +11,12 @@
   hold; any FAIL line names the broken law and the measured value.
 
   T1 DECK EXIT · deep-scroll tile tap
-     · the window NEVER moves while the grid fades (exits fade in place)
-     · no tile ever travels UP (they sink 28px as they fade)
+     · NOTHING scrolls while the grid fades (exits fade in place)
+     · then the window WALKS home under the faded page — linear, velocity
+       capped (teleports and fast glides blank the compositor tree)
+     · no tile ever travels UP (they sink 28px as they fade, in place)
      · the tapped card rides one smooth viewport arc — no flips, no jumps
-     · then the window glides home QUIETLY under the faded page (bleed
-       beat) and is home before the settle beat measures its slots
+     · the window is home by the end of the walk
   T2 LENS PICK · reading → pour
      · the document holds scroll 0 for the whole transition
      · the .va box never changes width (no horizontal squeeze)
@@ -121,7 +122,7 @@
   const witness = tiles[Math.max(0, tiles.indexOf(moon) - 6)];
   const w0 = witness.getBoundingClientRect().top;
   tap(moon);
-  const t1 = await sample(1300, () => {
+  const t1 = await sample(1700, () => {
     const a = D().querySelector(".va-card-actor");
     // the witness detaches when the deck unmounts on the bleed beat —
     // detached rects read as 0 and would fake a "travelled up" failure
@@ -137,12 +138,20 @@
   {
     const fails = [];
     const vh = W().innerHeight;
-    // law: the window never moves while the grid fades (fade = dUiExit 620ms)
+    // law: nothing scrolls while the grid fades
     const fadeRows = t1.filter(r => r.t < 600);
     const sMax = Math.max(...fadeRows.map(r => Math.abs(r.s - s0)));
     if (sMax > 1) fails.push("window moved " + Math.round(sMax) + "px during the fade (law: exits fade in place)");
+    // law: the walk is velocity-capped (a jump blanks the compositor tree)
+    let sV = 0;
+    for (let i = 1; i < t1.length; i++) {
+      const dt = Math.max(1, t1[i].t - t1[i - 1].t);
+      sV = Math.max(sV, Math.abs(t1[i].s - t1[i - 1].s) / dt);
+    }
+    if (sV > 2.6) fails.push("scroll moved " + sV.toFixed(1) + "px/ms (the walk must stay under raster speed)");
     // law: tiles sink, never rise
-    const wUp = Math.min(...fadeRows.map(r => r.wT - w0));
+    const wRows = fadeRows.filter(r => !isNaN(r.wT));
+    const wUp = Math.min(...wRows.map(r => r.wT - w0));
     if (wUp < -4) fails.push("a tile travelled UP " + Math.round(-wUp) + "px (law: the grid sinks as it fades)");
     // law: the tile is gone before the teleport beat
     const late = t1.filter(r => r.t >= 700 && r.t < 900);
