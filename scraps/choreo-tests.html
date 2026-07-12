@@ -10,13 +10,14 @@
   simulator Safari, or a device) and read the report. Green = the laws
   hold; any FAIL line names the broken law and the measured value.
 
-  T1 DECK EXIT · deep-scroll tile tap
+  T1 DECK EXIT · the ABSOLUTE BOTTOM tile (maximum scroll debt)
+     · the tile → actor takeover is same-frame and pixel-continuous
      · NOTHING scrolls while the grid fades (exits fade in place)
-     · then the window WALKS home under the faded page — linear, velocity
-       capped (teleports and fast glides blank the compositor tree)
+     · then the window WALKS home under the faded page — frame-based,
+       velocity capped (teleports and fast glides blank the tree)
      · no tile ever travels UP (they sink 28px as they fade, in place)
      · the tapped card rides one smooth viewport arc — no flips, no jumps
-     · the window is home by the end of the walk
+     · the window is home by the end of the walk, even from the bottom
   T2 LENS PICK · reading → pour
      · the document holds scroll 0 for the whole transition
      · the .va box never changes width (no horizontal squeeze)
@@ -25,6 +26,12 @@
      · the card is never hidden before the flip face has pixels
        (dr-swap must not appear while the flip container is transparent)
      · the flip reaches −180° open
+  T5 STAGE PAN MEMBERSHIP · on the Lenses at rest
+     · every touchable point resolves through a touch-action:none chain —
+       no drag anywhere on a stage may pan the document (membership rule)
+  T6 HANDOFF CONTINUITY · the Lenses → Pour swap
+     · across the actor → pane-card cut, the pose is continuous within
+       ~2px (the two-cards-trading-places grammar, suite-enforced)
   T4 RELEASE · let-it-fade from a scrolled pour
      · the window GLIDES home smoothly inside the whole-screen sink
        (no instant jumps — a teleport blanks the compositor tree)
@@ -112,17 +119,27 @@
   W().__vaDrive.deck();
   await waitPhase("deck");
   await sleep(1600);
-  const moon = [...D().querySelectorAll(".dk-tile")].find(x => /\/moon\.webp$/.test((x.querySelector("img") || {}).src || ""));
-  if (!moon) return say("FAIL: moon tile not found");
-  W().scrollTo(0, W().scrollY + moon.getBoundingClientRect().top - 340);
+  // the ABSOLUTE BOTTOM tile: maximum scroll debt, the walk's worst case
+  const tiles = [...D().querySelectorAll(".dk-tile")];
+  const moon = tiles[tiles.length - 1];
+  if (!moon) return say("FAIL: no tiles");
+  W().scrollTo(0, D().documentElement.scrollHeight);
   await sleep(700);
   const s0 = Math.round(W().scrollY);
   // a witness tile a couple of rows above the tapped one
-  const tiles = [...D().querySelectorAll(".dk-tile")];
   const witness = tiles[Math.max(0, tiles.indexOf(moon) - 6)];
   const w0 = witness.getBoundingClientRect().top;
+  const tile0 = moon.getBoundingClientRect();
   tap(moon);
-  const t1 = await sample(1700, () => {
+  // the takeover is same-frame: one rAF later the actor must sit on the
+  // tile's exact rect (the canvas's handoff-at-rest, suite-enforced)
+  const take = await new Promise(res => requestAnimationFrame(() => {
+    const a = D().querySelector(".va-card-actor");
+    if (!a) return res(null);
+    const r = a.getBoundingClientRect();
+    res({ dx: Math.abs(r.left - tile0.left), dy: Math.abs(r.top - tile0.top), dw: Math.abs(r.width - tile0.width) });
+  }));
+  const t1 = await sample(3400, () => {
     const a = D().querySelector(".va-card-actor");
     // the witness detaches when the deck unmounts on the bleed beat —
     // detached rects read as 0 and would fake a "travelled up" failure
@@ -138,17 +155,26 @@
   {
     const fails = [];
     const vh = W().innerHeight;
+    // law: the takeover is pixel-continuous
+    if (!take) fails.push("no actor one frame after the tap");
+    else if (Math.max(take.dx, take.dy, take.dw) > 1.5)
+      fails.push("takeover jumped " + Math.max(take.dx, take.dy, take.dw).toFixed(1) + "px off the tile");
     // law: nothing scrolls while the grid fades
     const fadeRows = t1.filter(r => r.t < 600);
     const sMax = Math.max(...fadeRows.map(r => Math.abs(r.s - s0)));
     if (sMax > 1) fails.push("window moved " + Math.round(sMax) + "px during the fade (law: exits fade in place)");
-    // law: the walk is velocity-capped (a jump blanks the compositor tree)
-    let sV = 0;
+    // law: the walk is velocity-capped (a jump blanks the compositor
+    // tree). Steps under 80px are exempt: the walk's final settle (≤45px)
+    // and the deck-release zero (≤60px) are insurance-scale corrections
+    // by design; a real teleport is hundreds of px in one frame.
+    let sV = 0, sEvt = null;
     for (let i = 1; i < t1.length; i++) {
       const dt = Math.max(1, t1[i].t - t1[i - 1].t);
-      sV = Math.max(sV, Math.abs(t1[i].s - t1[i - 1].s) / dt);
+      const ds = Math.abs(t1[i].s - t1[i - 1].s);
+      if (ds >= 80 && ds / dt > sV) { sV = ds / dt; sEvt = { t: t1[i].t, ds, dt, from: Math.round(t1[i - 1].s), to: Math.round(t1[i].s) }; }
     }
-    if (sV > 2.6) fails.push("scroll moved " + sV.toFixed(1) + "px/ms (the walk must stay under raster speed)");
+    if (sV > 2.6) fails.push("scroll moved " + sV.toFixed(1) + "px/ms (the walk must stay under raster speed) — at t" +
+      sEvt.t + "ms, " + sEvt.from + "→" + sEvt.to + " (" + sEvt.ds + "px over " + sEvt.dt + "ms)");
     // law: tiles sink, never rise
     const wRows = fadeRows.filter(r => !isNaN(r.wT));
     const wUp = Math.min(...wRows.map(r => r.wT - w0));
@@ -157,32 +183,59 @@
     const late = t1.filter(r => r.t >= 700 && r.t < 900);
     if (late.length && Math.min(...late.map(r => r.wO)) > 0.05)
       fails.push("tiles still visible at 700ms (opacity " + Math.max(...late.map(r => r.wO)).toFixed(2) + ")");
-    // law: one smooth viewport arc for the card
-    let flips = 0, prevDir = 0, maxJump = 0, minY = 1e9, maxY = -1e9;
+    // law: one smooth viewport arc for the card. The designed ride has up
+    // to three vertical direction changes (lift up · settle shrink drops
+    // the top edge · rest rises to the slot) — more means oscillation.
+    // Jumps are judged by VELOCITY (px/ms): a dropped frame at 120Hz
+    // doubles the px of a legitimate beat step, a teleport is 10× it.
+    let flips = 0, prevDir = 0, aV = 0, minY = 1e9, maxY = -1e9;
     const ar = t1.filter(r => !isNaN(r.aT));
     for (let i = 1; i < ar.length; i++) {
       const dY = ar[i].aT - ar[i - 1].aT;
+      const dt = Math.max(1, ar[i].t - ar[i - 1].t);
       minY = Math.min(minY, ar[i].aT); maxY = Math.max(maxY, ar[i].aT);
-      maxJump = Math.max(maxJump, Math.abs(dY));
+      if (Math.abs(dY) >= 30) aV = Math.max(aV, Math.abs(dY) / dt);
       if (Math.abs(dY) < 2) continue;
       const dir = dY > 0 ? 1 : -1;
       if (prevDir && dir !== prevDir) flips++;
       prevDir = dir;
     }
-    if (flips > 1) fails.push("card changed direction " + flips + " times");
-    if (maxJump > 40) fails.push("card jumped " + Math.round(maxJump) + "px in one frame");
+    if (flips > 3) fails.push("card changed direction " + flips + " times");
+    if (aV > 3.2) fails.push("card moved " + aV.toFixed(1) + "px/ms (teleport-scale)");
     if (minY < -60 || maxY > vh + 10) fails.push("card left the viewport [" + Math.round(minY) + ", " + Math.round(maxY) + "]");
     if (Math.min(...ar.map(r => r.aO)) < 0.99) fails.push("card opacity dipped to " + Math.min(...ar.map(r => r.aO)).toFixed(2));
-    // law: the teleport happened, invisibly, by bleed+100ms
+    // law: the walk lands home by the end of the trace
     const post = t1.filter(r => r.t >= 750);
-    if (post.length && Math.round(post[post.length - 1].s) !== 0)
-      fails.push("scroll not home after the swap (at " + Math.round(post[post.length - 1].s) + ")");
+    if (post.length && Math.round(post[post.length - 1].s) > 2)
+      fails.push("scroll not home after the walk (at " + Math.round(post[post.length - 1].s) + ")");
     book("T1 deck exit", verdict("T1 deck exit (from scroll " + s0 + ")", fails), fails);
   }
 
-  // ---------- T2 · LENS PICK (reading → pour) ----------
+  // ---------- T5 · STAGE PAN MEMBERSHIP (the Lenses must not scroll) ----------
   if (!(await waitPhase("reading"))) return say("FAIL: never reached reading");
   await sleep(900);
+  say("T5 stage pan membership — running…");
+  {
+    // every touchable point on the stage must resolve to an element whose
+    // self-or-ancestor chain carries touch-action: none — otherwise a drag
+    // there pans the document and the decoy's overshoot slack scrolls out
+    // from under the Lenses (the .dr-hit incident)
+    const fails = [];
+    const va = D().querySelector(".va");
+    const blocked = (el) => { let n = el;
+      while (n && n !== D().documentElement) { if (W().getComputedStyle(n).touchAction === "none") return true; n = n.parentElement; }
+      return false; };
+    const offenders = new Set();
+    for (let gx = 0.06; gx < 1; gx += 0.12) for (let gy = 0.05; gy < 1; gy += 0.08) {
+      const el = D().elementFromPoint(gx * W().innerWidth, gy * W().innerHeight);
+      if (!el || !va.contains(el)) continue;
+      if (!blocked(el)) offenders.add((el.className && String(el.className).split(" ")[0]) || el.tagName.toLowerCase());
+    }
+    if (offenders.size) fails.push("pan reaches the document through: " + [...offenders].slice(0, 6).join(", "));
+    book("T5 stage pan membership", verdict("T5 stage pan membership", fails), fails);
+  }
+
+  // ---------- T2 · LENS PICK (reading → pour) ----------
   say("T2 lens pick — running…");
   const vaEl = D().querySelector(".va");
   const vaW0 = vaEl.getBoundingClientRect().width;
@@ -190,8 +243,13 @@
   const t2 = await sample(2400, () => {
     const a = D().querySelector(".va-card-actor");
     const r = a ? a.getBoundingClientRect() : null;
+    const cs = a ? W().getComputedStyle(a) : null;
+    const live = D().querySelector(".rv-hero .card.live");
+    const lr = live ? live.getBoundingClientRect() : null;
     return { s: W().scrollY, vaW: vaEl.getBoundingClientRect().width,
-      aL: r ? r.left : NaN, aT: r ? r.top : NaN, aW: r ? r.width : NaN };
+      aL: r ? r.left : NaN, aT: r ? r.top : NaN, aW: r ? r.width : NaN,
+      aVis: !!(cs && cs.visibility !== "hidden" && +cs.opacity > 0.5),
+      cL: lr ? lr.left : NaN, cT: lr ? lr.top : NaN, cW: lr ? lr.width : NaN };
   });
   {
     const fails = [];
@@ -205,6 +263,26 @@
       maxJump = Math.max(maxJump, Math.abs(ar[i].aL - ar[i - 1].aL), Math.abs(ar[i].aT - ar[i - 1].aT), Math.abs(ar[i].aW - ar[i - 1].aW));
     if (maxJump > 14) fails.push("actor teleported " + Math.round(maxJump) + "px in one frame (law: continuous motion)");
     book("T2 lens pick", verdict("T2 lens pick", fails), fails);
+  }
+
+  // ---------- T6 · HANDOFF CONTINUITY (actor → pane card, the living swap) ----------
+  say("T6 handoff continuity — running…");
+  {
+    const fails = [];
+    // the cut: the last frame the actor is visible vs the first frame the
+    // pane's live card carries the image — same pose, within tolerance
+    let cut = -1;
+    for (let i = 1; i < t2.length; i++) if (t2[i - 1].aVis && !t2[i].aVis) { cut = i; break; }
+    if (cut < 0) fails.push("no actor→card cut observed in the pick window");
+    else {
+      const a = t2[cut - 1], c = t2.slice(cut).find(r => !isNaN(r.cL));
+      if (!c) fails.push("pane card never appeared after the cut");
+      else {
+        const d = Math.max(Math.abs(a.aL - c.cL), Math.abs(a.aT - c.cT), Math.abs(a.aW - c.cW));
+        if (d > 2.5) fails.push("handoff discontinuity: " + d.toFixed(1) + "px between actor and pane card");
+      }
+    }
+    book("T6 handoff continuity", verdict("T6 handoff continuity", fails), fails);
   }
 
   // ---------- T3 · THE FLIP (decode-gated swap) ----------

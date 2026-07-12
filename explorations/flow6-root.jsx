@@ -507,16 +507,22 @@ function App() {
     requestAnimationFrame(step);
   };
   // the quiet walk home — used ONLY under fully faded content (deck and
-  // memory rides). FRAME-BASED, not wall-clock: a fixed step per painted
-  // frame (~1400px/s at 60fps) can never catch-up-jump after a stall —
-  // a wall-clock ease does exactly that and the jump blanks the tree.
+  // memory rides). Velocity-held at 2.1px/ms (the raster-safe speed
+  // measured at 60fps), applied per PAINTED frame with the per-frame step
+  // hard-capped: refresh-rate independent (a 120Hz display halves the
+  // step, not doubles the speed) and a stall can never catch-up-jump
+  // (jumps blank the compositor tree — the scroll law). Even the deck's
+  // BOTTOM tile (~4700px of debt) is home in ~2.2s, under the veil bleed.
   const walkScrollHome = (onDone) => {
     if (!docMode || window.scrollY < 2) { if (onDone) onDone(); return; }
-    const stepPx = 22;
-    const step = () => {
+    let last = null;
+    const step = (now) => {
+      const dt = last == null ? 16.7 : Math.min(40, now - last);
+      last = now;
+      const px = Math.min(45, Math.max(6, dt * 2.1));
       const y = window.scrollY;
-      if (y <= stepPx) { window.scrollTo(0, 0); if (onDone) onDone(); return; }
-      window.scrollTo(0, y - stepPx);
+      if (y <= px) { window.scrollTo(0, 0); if (onDone) onDone(); return; }
+      window.scrollTo(0, y - px);
       requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
@@ -971,19 +977,29 @@ function App() {
       walkScrollHome(() => place(30));
     } });
     ev.push({ t: sh(TL.rest.s), run: () => { setPhase("rest");
-      // the walk is long home (bleed + ≤700ms << this beat at 2635):
-      // tiny insurance, release the faded grid (scroll is 0 — no clamp),
-      // then re-zero AFTER the unmount commit (the doc collapse can nudge
-      // scrollY a few px) and measure the slot on the settled document
-      if (window.scrollY > 1) window.scrollTo(0, 0);
-      setMounts((m) => ({ ...m, deck: false }));
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        if (window.scrollY) window.scrollTo(0, 0);
-        const rr = slotRect("read-card");
-        const d = pinDelta();  // pin space ≠ doc space if Safari re-parks the stage
-        if (rr) setActor((a) => a && ({ ...a, left: rr.left - d.dx, top: rr.top - d.dy, width: rr.width, ar: rr.height / rr.width,
-          dur: dv(TL.rest.d), ease: E("easeRest"), instant: false }));
-      }));
+      // the actor moves to its slot ON THE BEAT. Two regimes:
+      // · walk still landing (scroll large): NO conversion — plain doc
+      //   coords in pin space ARE the slot's final viewport position at
+      //   scroll 0, so the card glides to where the slot will be while
+      //   the doc walks home beneath it (converting here aimed the card
+      //   at the slot's CURRENT spot — off-screen above; the bottom-tile
+      //   suite run caught the card at viewport −613)
+      // · walk landed, Safari parked the stage a few px: pin-convert to
+      //   glue to the slot where it actually sits
+      const rr = slotRect("read-card");
+      const d = window.scrollY > 60 ? { dx: 0, dy: 0 } : pinDelta();
+      if (rr) setActor((a) => a && ({ ...a, left: rr.left - d.dx, top: rr.top - d.dy, width: rr.width, ar: rr.height / rr.width,
+        dur: dv(TL.rest.d), ease: E("easeRest"), instant: false }));
+      // the faded grid releases only once the walk is home — unmounting
+      // mid-walk collapses the document and clamp-jumps the scroll (a
+      // blank). Small residues are zeroed; large ones wait for the walk.
+      const releaseDeck = () => {
+        if (phaseRef.current === "deck") return;  // user already went back
+        if (window.scrollY > 60) { requestAnimationFrame(releaseDeck); return; }
+        if (window.scrollY > 1) window.scrollTo(0, 0);
+        setMounts((m) => (m.deck ? { ...m, deck: false } : m));
+      };
+      releaseDeck();
     } });
     ev.push({ t: sh(TL.voice.s), run: () => { setPhase("voice"); setVoiceOn(true); } });
     ev.push({ t: sh(TL.lenses.s), run: () => { setPhase("lenses"); setLensesOn(true); } });

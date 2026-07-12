@@ -177,8 +177,12 @@
 .va .va-card-actor.dr-press.sh-rest .shdw { box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.6); }
 .rx-light .va-card-actor.dr-press.sh-rest .shdw { box-shadow: 0 6px 18px -8px rgba(21, 34, 49, 0.35); }
 
-/* the invisible hit surface over the resting card */
-.va .dr-hit { position: absolute; z-index: 22; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+/* the invisible hit surface over the resting card. THE MEMBERSHIP RULE
+   (stage-construction.md §3.2): every interactive element on a stage eats
+   the pan — this surface sits OUTSIDE the pan-blocking .va-layer, so
+   without touch-action:none a drag on the card scrolled the stage's
+   overshoot slack (the decoy's ballast) out from under the Lenses. */
+.va .dr-hit { position: absolute; z-index: 22; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
 
 /* ---------- doc-flow (phones): the open panel is a stage ---------- */
 /* the layer eats the pan so the page never scrolls behind the panel;
