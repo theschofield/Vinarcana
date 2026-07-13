@@ -1038,3 +1038,26 @@ translucency is device-only evidence.
    the v6-budget walk it flashes ~0.7s, as the shipped glide always did. The 10ms-jump
    alternative is disproven twice on film (bare teleport: 110ms full-tree blank; compensated
    transform+jump: blank at layer promotion). The walk is the lawful mover; suite 6/6.
+
+
+## THE APEX BREATH + THE VANISH, FOUND AT PIXEL GRANULARITY (Jul 12, 2026)
+1. **The apex breath (user verdict):** the deck ride holds its apex +300ms before the
+   sequence resumes (settle/bleed/rest/voice/lenses all shift). The walk starts at
+   fade-end (dUiExit), unaffected by the hold.
+2. **The layout-high guarantee, completed:** the walk re-arms itself if a live touch
+   swallowed its final zero, and the doc-anchored fades (eyebrow, VOICE, LENSES) gate on
+   `whenScrollHome` (bounded 2.5s) — an interrupted walk can no longer compose the
+   Lenses visibly high; it composes when home.
+3. **The finger-lift vanish was the CARD BACK.** The actor mounts pre-flipped; the back
+   img had no backface-visibility:hidden, so its mirrored backface rendered behind the
+   poster — and while a freshly-src'd poster decoded (1–3 frames, iOS), the opaque dark
+   back was all that painted over the tile. Fixes: backfaces never paint on actor imgs
+   (the correct flip construction), and the tile-hide + flight-launch are gated TOGETHER
+   on the poster's decode (250ms cap), in one commit — until then the tile carries the
+   image and the actor sits transparent on top. decode() resolving is NOT "painted" on
+   iOS: hiding the tile one frame after decode still showed a dark frame.
+4. **TESTING LAW — patch luma, not just whole-screen:** the takeover vanish was invisible
+   to rect asserts (geometry ≠ pixels) and to whole-screen luma (a tile-sized 2-frame dip
+   is under its floor). Takeover-class verification = crop the ELEMENT's rect from the
+   recorded frames and trace ITS luma (measured here: 127→50→121 before, worst drop 8.9
+   after — the designed fade gradient). Suite 6/6.

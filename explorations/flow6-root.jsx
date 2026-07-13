@@ -215,6 +215,11 @@ function App() {
   // begins once the art can actually paint — an undecoded img "pops in"
   // whenever the decode lands instead of emerging on the designed curve
   const [bgReady, setBgReady] = React.useState(false);
+  // the tapped tile hides only once the actor's poster has DECODED — the
+  // takeover swapped geometry same-frame but not PIXELS: the fresh poster
+  // src blanks 1-3 frames on iOS while it decodes (the split-second
+  // vanish on finger-lift). One overlap frame of identical pixels instead.
+  const [pickedId, setPickedId] = React.useState(null);
   const [card, setCard] = React.useState(null);
   const cardRef = React.useRef(null); cardRef.current = card;
   const [lens, setLens] = React.useState(null);
@@ -545,11 +550,31 @@ function App() {
       last = now;
       const px = Math.max(6, dt * v);
       const y = window.scrollY;
-      if (y <= px) { window.scrollTo(0, 0); if (onDone) onDone(); return; }
+      if (y <= px) {
+        window.scrollTo(0, 0);
+        // a live touch can swallow programmatic scrolls — verify the zero
+        // actually landed and keep walking until it does
+        requestAnimationFrame(() => {
+          if (window.scrollY > 1) { last = null; requestAnimationFrame(step); }
+          else if (!fired) { fired = true; if (onDone) onDone(); }
+        });
+        return;
+      }
       window.scrollTo(0, y - px);
       requestAnimationFrame(step);
     };
+    let fired = false;
     requestAnimationFrame(step);
+  };
+  // gate for beats that compose visible doc-anchored layout: run only once
+  // the window is home (bounded — never stall the ride beyond 2.5s)
+  const whenScrollHome = (fn) => {
+    const t0 = performance.now();
+    const w = () => {
+      if (window.scrollY <= 2 || performance.now() - t0 > 2500) fn();
+      else requestAnimationFrame(w);
+    };
+    w();
   };
 
   // ---- THE RIDE (deck/memory tile → center, on a scrolled page) ----
@@ -994,19 +1019,34 @@ function App() {
     const dl0 = pinDelta();
     setActor({ left: r.left - dl0.dx, top: r.top - dl0.dy, width: r.width, ar: r.height / r.width, rot: 0, flip: 180, o: 1,
       dur: 0, radius: 8, shadow: "sh-rest", instant: true });
+    setPickedId(null);
 
     const T = tRef.current, TL = T.tlDraw;
     const off = TL.lift.s; // timeline starts at the lift — no pull, no flip
+    // THE APEX BREATH (user verdict): the card holds its apex 300ms before
+    // the rest of the sequence resumes — presence for the moment, and the
+    // walk gets a head start on the scroll debt
+    const HOLD = 300;
     const sh = (x) => Math.max(0, x - off);
     const ev = [];
     ev.push({ t: 0, run: () => { setPhase("deckfly"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));
       const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
       const cy = S.h * (tRef.current.centerY / 100);
-      requestAnimationFrame(() => requestAnimationFrame(() =>
+      // the tile hides and the flight launches in ONE commit, gated on the
+      // actor's poster DECODE (250ms cap): decode() resolving isn't the
+      // same as painted on iOS — hiding the tile a frame early showed one
+      // dark frame (patch-luma caught 127→50→121). Until this commit the
+      // tile carries the image and the actor sits invisible on top of it.
+      const launch = () => requestAnimationFrame(() => requestAnimationFrame(() => {
+        setPickedId(id);
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
-          dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
+          dur: dv(TL.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }));
+      }));
+      const el = vaRoot() && vaRoot().querySelector(".va-card-actor img.face");
+      const pr = el && el.decode ? Promise.race([el.decode().catch(() => {}), new Promise((r) => setTimeout(r, 250))]) : Promise.resolve();
+      pr.then(launch);
     } });
-    ev.push({ t: sh(TL.settle.s), run: () => { setPhase("settle");
+    ev.push({ t: sh(TL.settle.s) + HOLD, run: () => { setPhase("settle");
       // the quiet walk may still be underway — that's fine: this beat's
       // actor math is PIN (viewport) space and slotRect widths are
       // scroll-independent. NO scroll correction here (a teleport
@@ -1022,10 +1062,12 @@ function App() {
       setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
         dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
     } });
-    ev.push({ t: sh(TL.bleed.s), run: () => { setPhase("bleed"); setVeilOn(true);
-      // the tiles finished their fade-down (dUiExit 620 < 650): start the
-      // quiet walk home. The eyebrow is doc-anchored, so it places and
-      // fades once the window is home — immediately when not scrolled.
+    // the walk starts the moment the tiles finish fading (dUiExit) — it
+    // does not wait for the apex breath
+    ev.push({ t: T.dUiExit, run: () => walkScrollHome() });
+    ev.push({ t: sh(TL.bleed.s) + HOLD, run: () => { setPhase("bleed"); setVeilOn(true);
+      // the eyebrow is doc-anchored: it places and fades only once the
+      // window is home — immediately when not scrolled
       const place = (tries) => {
         const er = slotRect("eyeb-read");
         if (!er) { if (tries > 0) requestAnimationFrame(() => place(tries - 1)); return; }
@@ -1033,9 +1075,9 @@ function App() {
         requestAnimationFrame(() => requestAnimationFrame(() =>
           setEyeb((e) => e && ({ ...e, o: 1, dur: 650, oDur: 650, instant: false }))));
       };
-      walkScrollHome(() => place(30));
+      whenScrollHome(() => place(30));
     } });
-    ev.push({ t: sh(TL.rest.s), run: () => { setPhase("rest");
+    ev.push({ t: sh(TL.rest.s) + HOLD, run: () => { setPhase("rest");
       // the actor moves to its slot ON THE BEAT. Two regimes:
       // · walk still landing (scroll large): NO conversion — plain doc
       //   coords in pin space ARE the slot's final viewport position at
@@ -1060,9 +1102,12 @@ function App() {
       };
       releaseDeck();
     } });
-    ev.push({ t: sh(TL.voice.s), run: () => { setPhase("voice"); setVoiceOn(true); } });
-    ev.push({ t: sh(TL.lenses.s), run: () => { setPhase("lenses"); setLensesOn(true); } });
-    const end = Math.max(
+    // the quote and the lenses are doc-anchored: their fades wait for the
+    // window to be home (bounded), or an interrupted walk composes them
+    // visibly high — the "Lenses layout rendered too high" device bug
+    ev.push({ t: sh(TL.voice.s) + HOLD, run: () => { setPhase("voice"); whenScrollHome(() => setVoiceOn(true)); } });
+    ev.push({ t: sh(TL.lenses.s) + HOLD, run: () => { setPhase("lenses"); whenScrollHome(() => setLensesOn(true)); } });
+    const end = HOLD + Math.max(
       sh(TL.lift.s) + TL.lift.d, sh(TL.settle.s) + TL.settle.d, sh(TL.rest.s) + TL.rest.d,
       sh(TL.voice.s) + TL.voice.d, sh(TL.lenses.s) + TL.lenses.d + T.lensStep * 5);
     clock.run(ev, end, ffRef, () => {
@@ -1389,7 +1434,7 @@ function App() {
               onKeep={(p) => release(p, true)} onFade={(p) => release(p, false)}></Reveal>
           ) : null}
           {mounts.deck ? (
-            <DeckGrid F={F} drawingId={card} onPick={runDeckDraw}></DeckGrid>
+            <DeckGrid F={F} drawingId={card} pickedId={pickedId} onPick={runDeckDraw}></DeckGrid>
           ) : null}
           {mounts.memory ? (
             <MemoryScreen light={light} leaving={["memfly", "choose", "slide"].includes(phase)} pickedId={memPicked}

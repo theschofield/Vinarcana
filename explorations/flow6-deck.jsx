@@ -13,7 +13,7 @@ function dkFinePointer() {
 
 const DK_TILT = { rx: 9, ry: 11 };
 
-function DeckGrid({ F, drawingId, onPick }) {
+function DeckGrid({ F, drawingId, pickedId, onPick }) {
   const ids = window.ARCANA_ORDER || [];
   const fine = React.useMemo(dkFinePointer, []);
 
@@ -53,7 +53,7 @@ function DeckGrid({ F, drawingId, onPick }) {
           {ids.map((id, i) => {
             const c = ARCANA[id];
             return (
-              <div key={id} className={"dk-tile" + (drawingId === id ? " picked" : "")}
+              <div key={id} className={"dk-tile" + (pickedId === id ? " picked" : "")}
                 style={{ "--dki": (140 + Math.min(i * 13, 420)) + "ms" }}
                 onClick={(e) => tap(e, id)} onPointerMove={move} onPointerLeave={leave}>
                 <div className="dk-tilt">

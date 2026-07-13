@@ -59,6 +59,13 @@
 .va-card-actor { position: absolute; z-index: 20; pointer-events: none; perspective: 1400px; }
 .va-card-actor .flip3d { position: absolute; inset: 0; transform-style: preserve-3d; border-radius: inherit; }
 .va-card-actor img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit;
+  /* backfaces NEVER paint: at flip 180 the back img's mirrored backface
+     was rendering behind the poster — while a fresh poster decoded (1-3
+     frames, iOS), the opaque dark back was all that showed over the
+     still-visible tile: the "card vanishes on finger-lift". With
+     backfaces hidden the actor is transparent until its face has pixels,
+     and the tile beneath carries the image (decode law). */
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
   backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: box-shadow 600ms ease; }
 .va-card-actor img.face { transform: rotateY(180deg); }
 /* a face that mounts late (cold decode) fades in over the poster instead
