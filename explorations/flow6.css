@@ -98,13 +98,18 @@
    Desktop (.vw-desk) keeps its own tuned geometry. */
 .va:not(.vw-desk) .rv-namewrap { top: 12px; transform: none; }
 
-/* PARAGRAPHS FILL THEIR MEASURE — no pretty-wrap anywhere on body text
-   (Ed, Jul 12 2026: lines were breaking early "even when there is
-   clearly enough room for the next word"; the rag/widow control isn't
-   worth the short lines). Display text keeps its deliberate wrap
-   control: rv-headline (pretty, widow law), rv-wine (balance), the
-   voice line. round13 stays untouched — this override is the canon. */
-.va .rv-body { text-wrap: normal; }
+/* PARAGRAPHS FILL THEIR MEASURE (Ed, Jul 12 2026: body lines were
+   breaking early "even when there is clearly enough room" — Safari's
+   pretty reshapes EVERY line for rag/widows; measured 79-88% fills,
+   97-98% after). THE VALUE MUST BE `wrap`: `normal` is NOT a text-wrap
+   keyword — the old phone override parsed invalid and was silently
+   dropped, which is why round13's pretty survived it and the "fix"
+   was a placebo. Display text keeps its deliberate wrap control:
+   rv-headline pretty (widow law — verified NOT the early-break culprit;
+   its multi-span fragments fooled the line probe), rv-wine balance,
+   the voice line. round13 stays untouched — this override is the
+   canon. */
+.va .rv-body { text-wrap: wrap; }
 
 /* ---- header: DECK link active state ---- */
 .rx-dark .rx-status .dk-link.on { color: var(--apri); }

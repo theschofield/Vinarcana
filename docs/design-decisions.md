@@ -1266,3 +1266,14 @@ definition). Measured after: --vaH 714 against offsetHeight 854; hero margin
 reading's rest layout is slot-based and unmoved (fingerprints identical); vh-tall
 consumers are desktop-only; the studio phone frame never had ballast, so tuned
 values there are unchanged — the device now matches them. Suite 6/6.
+
+· CORRECTION, same day — `text-wrap: normal` DOES NOT EXIST. The valid neutral
+  value is `wrap` — `normal` parses invalid and is silently dropped, so BOTH the
+  original phone override (the Jul 12 column-laws "fix", a placebo all along) and
+  today's first attempt left round13's `pretty` alive on the Pour body. Safari's
+  pretty reshapes every line (79-88% fills measured); with `.va .rv-body
+  { text-wrap: wrap; }` the body fills 97-98%. The headline's "67/27/27" scare was
+  a probe artifact (its roman+italic spans read as separate fragments — it renders
+  ONE line); rv-headline keeps its canon pretty, rv-wine keeps balance. LAW: never
+  write `text-wrap: normal`; the probe for wrap work measures LINE fills on
+  single-span text only.
