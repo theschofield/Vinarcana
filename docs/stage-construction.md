@@ -96,10 +96,10 @@ The z-stack, bottom to top:
    frame stalls and blank identically; first-time transform promotions
    rasterize from scratch and blank. Scroll may only change: (a) under a
    user's finger, (b) as a frame-based capped walk beneath fully faded
-   content — paced on the v6 glide budget (≤ ~680ms from any depth, the
-   duration the shipped glide proved clean on device), frame-stepped so a
-   stall can never catch-up-jump (the wall-clock form this law bans;
-   never resurrect it from older log entries), or
+   content — 350ms budget from any depth (≈ brisk-flick speed, which
+   native momentum runs without blanking; steady speed was never the
+   blank trigger — catch-up SPIKES were, so the walk bounds stall
+   catch-up at 40ms-worth per painted frame), or
    (c) never visibly — the swap-grammar origin adoption proposed in
    choreography-grammar.md §6.
 4. **SAFARI PARKS STAGES.** After the chrome settles, Safari may leave a

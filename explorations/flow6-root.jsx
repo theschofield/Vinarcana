@@ -540,22 +540,25 @@ function App() {
   // before the rest beat, even from the deck's bottom row.
   const walkScrollHome = (onDone) => {
     if (!docMode || window.scrollY < 2) { if (onDone) onDone(); return; }
-    const v = Math.min(8, Math.max(2.1, window.scrollY / 680));  // px per ms
-    let last = null;
+    // 350ms budget from ANY depth (user verdict): ~13.5px/ms from the
+    // deck's bottom row — brisk-flick speed, which native momentum runs
+    // without blanking. TRUE wall-clock dt (the old 24ms/frame throttle
+    // stretched the walk 3-5x under real device jank); stall catch-up is
+    // bounded at 40ms-worth per painted frame — proportional, never a
+    // teleport.
+    const v = Math.max(2, window.scrollY / 350);  // px per ms
+    let last = null, fired = false;
     const step = (now) => {
-      // dt capped at 24ms: after a frame stall the walk advances at most
-      // 24ms-worth in one paint (bounded catch-up — a stall lengthens the
-      // walk, never spikes it)
-      const dt = last == null ? 16.7 : Math.min(24, now - last);
+      const dt = last == null ? 16.7 : Math.min(40, now - last);
       last = now;
       const px = Math.max(6, dt * v);
       const y = window.scrollY;
       if (y <= px) {
         window.scrollTo(0, 0);
-        // a live touch can swallow programmatic scrolls — verify the zero
-        // actually landed and keep walking until it does
+        // a live touch can swallow the zero — re-arm for REAL residue;
+        // a few parked px are Safari's own and are accepted (parking law)
         requestAnimationFrame(() => {
-          if (window.scrollY > 1) { last = null; requestAnimationFrame(step); }
+          if (window.scrollY > 40) { last = null; requestAnimationFrame(step); }
           else if (!fired) { fired = true; if (onDone) onDone(); }
         });
         return;
@@ -563,15 +566,20 @@ function App() {
       window.scrollTo(0, y - px);
       requestAnimationFrame(step);
     };
-    let fired = false;
     requestAnimationFrame(step);
   };
-  // gate for beats that compose visible doc-anchored layout: run only once
-  // the window is home (bounded — never stall the ride beyond 2.5s)
+  // gate for beats that compose visible doc-anchored layout: run once the
+  // scroll is HOME AND STABLE (user verdict: "gets to 0 and stays at 0")
+  // — at 0, or parked-stable within Safari's overshoot slack. The old
+  // fixed timeout fired mid-walk and painted the Lenses high.
   const whenScrollHome = (fn) => {
     const t0 = performance.now();
+    let lastY = null, stable = 0;
     const w = () => {
-      if (window.scrollY <= 2 || performance.now() - t0 > 2500) fn();
+      const y = window.scrollY;
+      stable = (lastY != null && Math.abs(y - lastY) <= 1) ? stable + 1 : 0;
+      lastY = y;
+      if (y <= 2 || (stable >= 8 && y <= 40) || performance.now() - t0 > 3500) fn();
       else requestAnimationFrame(w);
     };
     w();
@@ -1023,10 +1031,9 @@ function App() {
 
     const T = tRef.current, TL = T.tlDraw;
     const off = TL.lift.s; // timeline starts at the lift — no pull, no flip
-    // THE APEX BREATH (user verdict): the card holds its apex 300ms before
-    // the rest of the sequence resumes — presence for the moment, and the
-    // walk gets a head start on the scroll debt
-    const HOLD = 300;
+    // no fixed apex pause (user verdict, superseding the 300ms breath):
+    // the doc-anchored fades below gate on scroll-home-and-stable instead
+    const HOLD = 0;
     const sh = (x) => Math.max(0, x - off);
     const ev = [];
     ev.push({ t: 0, run: () => { setPhase("deckfly"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));

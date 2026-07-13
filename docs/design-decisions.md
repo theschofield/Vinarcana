@@ -1061,3 +1061,20 @@ translucency is device-only evidence.
    is under its floor). Takeover-class verification = crop the ELEMENT's rect from the
    recorded frames and trace ITS luma (measured here: 127→50→121 before, worst drop 8.9
    after — the designed fade gradient). Suite 6/6.
+
+
+## THE 350MS WALK + THE SETTLED GATE (Jul 12, 2026)
+The "Lenses paints high almost every time" regression was the gate's own timeout: it fired
+mid-walk and composed the layout at whatever scroll remained — and the walk itself crawled
+3-5× longer than nominal under device jank because its anti-jump throttle capped progress
+at 24ms-worth per frame (real frames run 30-120ms mid-ride). Superseding verdicts:
+· **The walk runs on a 350ms budget from any depth** (~13.5px/ms from the bottom row —
+  brisk-flick speed, which native momentum sustains without blanking). Wall-clock dt, stall
+  catch-up bounded at 40ms-worth/frame. Verified: bottom-tile ride, 301 frames, ZERO luma
+  steps — steady speed was never the blank trigger; spikes were.
+· **No fixed apex pause** (supersedes the 300ms breath): the doc-anchored fades (eyebrow,
+  voice, lenses) gate on scroll HOME-AND-STABLE — at ≤2px, or parked-stable within
+  Safari's slack (≤40px for 8 frames); the 3.5s ceiling is a last resort, no longer the
+  common path. The walk accepts Safari's park (≤40px) instead of fighting it forever.
+Landed: eyebrow 14px clear of the menu from scroll 4770; suite 6/6 (velocity threshold
+tracks the budget).

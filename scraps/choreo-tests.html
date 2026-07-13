@@ -14,7 +14,7 @@
      · the tile → actor takeover is same-frame and pixel-continuous
      · NOTHING scrolls while the grid fades (exits fade in place)
      · then the window WALKS home under the faded page — frame-based on
-       the v6 glide budget (≤ ~680ms from any depth; teleports blank)
+       a 350ms budget from any depth (brisk-flick speed; teleports blank)
      · no tile ever travels UP (they sink 28px as they fade, in place)
      · the tapped card rides one smooth viewport arc — no flips, no jumps
      · the window is home by the end of the walk, even from the bottom
@@ -175,9 +175,10 @@
       const v = Math.abs(t1[j].s - t1[i].s) / (t1[j].t - t1[i].t);
       if (v > sV) { sV = v; sEvt = { t: t1[i].t, from: Math.round(t1[i].s), to: Math.round(t1[j].s) }; }
     }
-    // walk nominal ≤8px/ms; bounded stall catch-up can read ~1.4× over a
-    // window; a teleport (hundreds of px in one frame) reads 20-100+
-    if (sV > 12) fails.push("scroll moved " + sV.toFixed(1) + "px/ms (teleport-scale) — at t" +
+    // walk nominal ≤ ~13.5px/ms (350ms budget — brisk-flick speed);
+    // bounded stall catch-up reads higher over a window; a teleport
+    // (thousands of px in one frame) reads 30-100+
+    if (sV > 22) fails.push("scroll moved " + sV.toFixed(1) + "px/ms (teleport-scale) — at t" +
       sEvt.t + "ms, " + sEvt.from + "→" + sEvt.to);
     // law: tiles sink, never rise
     const wRows = fadeRows.filter(r => !isNaN(r.wT));
