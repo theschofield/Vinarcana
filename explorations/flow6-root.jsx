@@ -540,13 +540,11 @@ function App() {
   // before the rest beat, even from the deck's bottom row.
   const walkScrollHome = (onDone) => {
     if (!docMode || window.scrollY < 2) { if (onDone) onDone(); return; }
-    // 350ms budget from ANY depth (user verdict): ~13.5px/ms from the
-    // deck's bottom row — brisk-flick speed, which native momentum runs
-    // without blanking. TRUE wall-clock dt (the old 24ms/frame throttle
-    // stretched the walk 3-5x under real device jank); stall catch-up is
-    // bounded at 40ms-worth per painted frame — proportional, never a
-    // teleport.
-    const v = Math.max(2, window.scrollY / 350);  // px per ms
+    // 520ms budget from ANY depth (user verdict — the v6 glide's own
+    // ceiling, ~9px/ms from the bottom row; 350ms/13.5px/ms flickered the
+    // UI on device). TRUE wall-clock dt; stall catch-up bounded at
+    // 40ms-worth per painted frame — proportional, never a teleport.
+    const v = Math.max(2, window.scrollY / 520);  // px per ms
     let last = null, fired = false;
     const step = (now) => {
       const dt = last == null ? 16.7 : Math.min(40, now - last);
@@ -1031,12 +1029,12 @@ function App() {
 
     const T = tRef.current, TL = T.tlDraw;
     const off = TL.lift.s; // timeline starts at the lift — no pull, no flip
-    // no fixed apex pause (user verdict, superseding the 300ms breath):
-    // the doc-anchored fades below gate on scroll-home-and-stable instead
-    const HOLD = 0;
     const sh = (x) => Math.max(0, x - off);
-    const ev = [];
-    ev.push({ t: 0, run: () => { setPhase("deckfly"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));
+    const rideT0 = performance.now();
+
+    // ---- clock A: the flight to the apex + the walk home ----
+    const evA = [];
+    evA.push({ t: 0, run: () => { setPhase("deckfly"); setMounts((m) => (m.reading ? m : { ...m, reading: true }));
       const S = vaSize(); const w = Math.min(S.w * 0.62, 300); const ar = faceARRef.current;
       const cy = S.h * (tRef.current.centerY / 100);
       // the tile hides and the flight launches in ONE commit, gated on the
@@ -1053,13 +1051,27 @@ function App() {
       const pr = el && el.decode ? Promise.race([el.decode().catch(() => {}), new Promise((r) => setTimeout(r, 250))]) : Promise.resolve();
       pr.then(launch);
     } });
-    ev.push({ t: sh(TL.settle.s) + HOLD, run: () => { setPhase("settle");
-      // the quiet walk may still be underway — that's fine: this beat's
-      // actor math is PIN (viewport) space and slotRect widths are
-      // scroll-independent. NO scroll correction here (a teleport
-      // mid-walk blanks the tree) and NO deck unmount yet (collapsing
-      // the document mid-walk clamp-jumps the scroll — same blank). The
-      // faded grid holds the document height until the rest beat.
+    // the walk starts the moment the tiles finish fading (dUiExit)
+    evA.push({ t: T.dUiExit, run: () => walkScrollHome() });
+
+    // ---- THE APEX HOLD (user law): the card rests at its apex for at
+    // least 300ms, and LONGER until the scroll is home AND stable — a
+    // Safari rubber-band bounce at 0 must fully settle before the rest of
+    // the sequence is allowed to compose the Lenses. Hard ceiling 6s.
+    const resumeAt = TL.lift.d + dv(300);
+    const evB = [];
+    const base = sh(TL.bleed.s);  // the first post-apex beat
+    evB.push({ t: sh(TL.bleed.s) - base, run: () => { setPhase("bleed"); setVeilOn(true);
+      const place = (tries) => {
+        const er = slotRect("eyeb-read");
+        if (!er) { if (tries > 0) requestAnimationFrame(() => place(tries - 1)); return; }
+        setEyeb({ left: er.left, top: er.top, fs: 9.5, ls: 0.3, o: 0, dur: 0, rules: true, lensOn: false, mode: "read", instant: true });
+        requestAnimationFrame(() => requestAnimationFrame(() =>
+          setEyeb((e) => e && ({ ...e, o: 1, dur: 650, oDur: 650, instant: false }))));
+      };
+      place(30);
+    } });
+    evB.push({ t: sh(TL.settle.s) - base, run: () => { setPhase("settle");
       setMounts((m) => ({ ...m, reading: true }));
       const S = vaSize(); const rr = slotRect("read-card");
       const ar = rr ? rr.height / rr.width : faceARRef.current;
@@ -1069,61 +1081,37 @@ function App() {
       setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0, sc: 1,
         dur: dv(TL.settle.d), ease: E("easeSettle"), shadow: "sh-rest", radius: 9, instant: false }));
     } });
-    // the walk starts the moment the tiles finish fading (dUiExit) — it
-    // does not wait for the apex breath
-    ev.push({ t: T.dUiExit, run: () => walkScrollHome() });
-    ev.push({ t: sh(TL.bleed.s) + HOLD, run: () => { setPhase("bleed"); setVeilOn(true);
-      // the eyebrow is doc-anchored: it places and fades only once the
-      // window is home — immediately when not scrolled
-      const place = (tries) => {
-        const er = slotRect("eyeb-read");
-        if (!er) { if (tries > 0) requestAnimationFrame(() => place(tries - 1)); return; }
-        setEyeb({ left: er.left, top: er.top, fs: 9.5, ls: 0.3, o: 0, dur: 0, rules: true, lensOn: false, mode: "read", instant: true });
-        requestAnimationFrame(() => requestAnimationFrame(() =>
-          setEyeb((e) => e && ({ ...e, o: 1, dur: 650, oDur: 650, instant: false }))));
-      };
-      whenScrollHome(() => place(30));
-    } });
-    ev.push({ t: sh(TL.rest.s) + HOLD, run: () => { setPhase("rest");
-      // the actor moves to its slot ON THE BEAT. Two regimes:
-      // · walk still landing (scroll large): NO conversion — plain doc
-      //   coords in pin space ARE the slot's final viewport position at
-      //   scroll 0, so the card glides to where the slot will be while
-      //   the doc walks home beneath it (converting here aimed the card
-      //   at the slot's CURRENT spot — off-screen above; the bottom-tile
-      //   suite run caught the card at viewport −613)
-      // · walk landed, Safari parked the stage a few px: pin-convert to
-      //   glue to the slot where it actually sits
+    evB.push({ t: sh(TL.rest.s) - base, run: () => { setPhase("rest");
+      // scroll settled before this clock started — pin-convert for the
+      // few parked px Safari may keep (parking law)
       const rr = slotRect("read-card");
-      const d = window.scrollY > 60 ? { dx: 0, dy: 0 } : pinDelta();
+      const d = pinDelta();
       if (rr) setActor((a) => a && ({ ...a, left: rr.left - d.dx, top: rr.top - d.dy, width: rr.width, ar: rr.height / rr.width,
         dur: dv(TL.rest.d), ease: E("easeRest"), instant: false }));
-      // the faded grid releases only once the walk is home — unmounting
-      // mid-walk collapses the document and clamp-jumps the scroll (a
-      // blank). Small residues are zeroed; large ones wait for the walk.
-      const releaseDeck = () => {
-        if (phaseRef.current === "deck") return;  // user already went back
-        if (window.scrollY > 60) { requestAnimationFrame(releaseDeck); return; }
-        if (window.scrollY > 1) window.scrollTo(0, 0);
-        setMounts((m) => (m.deck ? { ...m, deck: false } : m));
-      };
-      releaseDeck();
+      // release the faded grid (scroll is settled — no clamp-jump)
+      setMounts((m) => (m.deck ? { ...m, deck: false } : m));
     } });
-    // the quote and the lenses are doc-anchored: their fades wait for the
-    // window to be home (bounded), or an interrupted walk composes them
-    // visibly high — the "Lenses layout rendered too high" device bug
-    ev.push({ t: sh(TL.voice.s) + HOLD, run: () => { setPhase("voice"); whenScrollHome(() => setVoiceOn(true)); } });
-    ev.push({ t: sh(TL.lenses.s) + HOLD, run: () => { setPhase("lenses"); whenScrollHome(() => setLensesOn(true)); } });
-    const end = HOLD + Math.max(
-      sh(TL.lift.s) + TL.lift.d, sh(TL.settle.s) + TL.settle.d, sh(TL.rest.s) + TL.rest.d,
-      sh(TL.voice.s) + TL.voice.d, sh(TL.lenses.s) + TL.lenses.d + T.lensStep * 5);
-    clock.run(ev, end, ffRef, () => {
-      // completion guarantee: if anything interrupted the walk (a stray
-      // touch mid-ride), WALK the residue home — never teleport it, the
-      // layout is fully visible now. The reading scroll-tracker keeps the
-      // card glued while the residue drains.
-      if (window.scrollY > 1) walkScrollHome();
-      setPhase("reading"); ffRef.current = 1; setFF(false);
+    evB.push({ t: sh(TL.voice.s) - base, run: () => { setPhase("voice"); setVoiceOn(true); } });
+    evB.push({ t: sh(TL.lenses.s) - base, run: () => { setPhase("lenses"); setLensesOn(true); } });
+    const endB = Math.max(
+      sh(TL.settle.s) + TL.settle.d, sh(TL.rest.s) + TL.rest.d,
+      sh(TL.voice.s) + TL.voice.d, sh(TL.lenses.s) + TL.lenses.d + T.lensStep * 5) - base;
+
+    clock.run(evA, Math.max(TL.lift.d + 40, T.dUiExit + 30), ffRef, () => {
+      let lastY = null, stable = 0;
+      const hold = () => {
+        if (phaseRef.current !== "deckfly") return;  // ride abandoned
+        const y = window.scrollY;
+        stable = (lastY != null && Math.abs(y - lastY) <= 1) ? stable + 1 : 0;
+        lastY = y;
+        const heldLongEnough = performance.now() - rideT0 >= resumeAt;
+        const settled = y <= 2 || (stable >= 10 && y <= 40);
+        const ceiling = performance.now() - rideT0 > 6000;
+        if ((heldLongEnough && settled) || ceiling) {
+          clock.run(evB, endB, ffRef, () => { setPhase("reading"); ffRef.current = 1; setFF(false); });
+        } else requestAnimationFrame(hold);
+      };
+      hold();
     });
   };
 

@@ -1078,3 +1078,16 @@ at 24ms-worth per frame (real frames run 30-120ms mid-ride). Superseding verdict
   common path. The walk accepts Safari's park (≤40px) instead of fighting it forever.
 Landed: eyebrow 14px clear of the menu from scroll 4770; suite 6/6 (velocity threshold
 tracks the budget).
+
+
+## THE APEX HOLD, STRUCTURAL (Jul 12, 2026 — supersedes the 350ms walk entry)
+User law, final form: the deck ride is TWO clocks around a hard gate. Clock A flies the
+card to the apex and starts the 520ms walk (the v6 ceiling — 350ms/13.5px/ms flickered
+the UI on device; 520ms ≈ 9px/ms is the proven speed). Then the ride HOLDS at the apex:
+minimum 300ms, and as long as it takes for the scroll to be home AND stable (rubber-band
+bounce at 0 must fully settle — 10 stable frames; parked ≤40px accepted; 6s ceiling).
+Only then does clock B run the rest of the sequence (bleed → settle → rest → voice →
+lenses, original relative rhythm). The Lenses layout structurally CANNOT compose while
+scrolled — no gates on individual fades, no timeouts that fire mid-walk.
+Verified: bottom tile (scroll 4770) — sequence resumed only at sy 0; landed sy 0, eyebrow
+17px clear of the menu; suite 6/6.
