@@ -24,14 +24,18 @@ makes the app feel claustrophobic. Two goals, both absolute:
 - **Stages (Approach, Lenses) read as viewport-sized designs** — no
   scrolling, nothing moves — *without* triggering that same background.
 
-How each scrolls (Ed's architecture, Jul 12 2026): the POUR and the
-MEMORY ledger scroll the DOCUMENT (doc-flow, `va-flow-*` classes). THE
-DECK DOES NOT: its grid is an independent scroller (`.dk-scroll`,
-overflow-y auto, `overscroll-behavior: contain`, layer sized
-100lvh + safe-bottom for the edge-to-edge run) layered ABOVE the shared
-field in z-space. The document stays stage-shaped while the deck is up,
-so the Lenses composes exactly like the Approach — indifferent to grid
-depth — and no scroll reconciliation exists on that path at all.
+How each scrolls (Ed's architecture, Jul 12 2026): only the MEMORY
+ledger still scrolls the DOCUMENT (doc-flow, `va-flow-mem`). THE DECK
+AND THE POUR DO NOT: their content scrolls in its own layer ABOVE the
+shared field in z-space — the deck's grid (`.dk-scroll`, layer sized
+100lvh + safe + 100px overshoot) and the pour's panes (`.rv-pours`
+snap-x with per-pane `.rv-vscroll`, layer sized 100lvh + safe), both
+with overscroll containment so no pan ever reaches the document. The
+document stays stage-shaped while they are up, every screen composes
+exactly like the Approach, and the pour's foot bar keeps its locked
+top-referenced geometry as an ABSOLUTE child of the pan-eating layer —
+dropping `position: fixed` there is what finally cleared the pour's
+toolbar backdrop (band 2.03 → 3.57, the reading's own clean value).
 
 Chrome state itself (collapsed vs expanded) is **inconsequential by
 design**: stages have no hard bottom edge (the field fades into vignette),
@@ -111,10 +115,11 @@ The z-stack, bottom to top:
    slack. Any interactive element added to a stage must be audited against
    this rule, and the suite's stage pan-block test (to be added) makes the
    audit executable.
-3. **THE SCROLL LAWS (doc-flow — the Pour and the Memory ledger; the
-   deck's grid is NOT the document).** The document scroll belongs to
-   the doc-flow views alone. Stages park it and block pans; the deck's
-   grid scrolls itself and contains its overscroll. Mid-choreography
+3. **THE SCROLL LAWS (doc-flow — the Memory ledger alone; the deck's
+   grid and the pour's panes are NOT the document).** The document
+   scroll belongs to the ledger alone. Stages park it and block pans;
+   the deck and the pour scroll themselves and contain their
+   overscroll. Mid-choreography
    DOCUMENT scroll motion is forbidden in every form — instant teleports
    blank the entire compositor tree (~110ms, measured on the real page
    at 60fps; even sticky layers vanish); wall-clock-eased glides
@@ -122,9 +127,10 @@ The z-stack, bottom to top:
    transform promotions rasterize from scratch and blank. Document
    scroll may only change: (a) under a user's finger, (b) as a
    frame-based capped walk beneath fully faded content (the MEMORY ride
-   — the deck ride has no document debt to pay, by construction), or
-   (c) never visibly. The deck ride's law is stricter and simpler:
-   **the document must not move a pixel** (suite T1).
+   — the deck and pour paths have no document debt to pay, by
+   construction), or (c) never visibly. The deck ride's and the pour's
+   law is stricter and simpler: **the document must not move a pixel**
+   (suite T1, T2, T4).
 4. **SAFARI PARKS STAGES — on its own clock; never fight it, never
    shear.** The engine can move a settled stage's scroll a few px into
    the overshoot slack on a chrome settle (no CSS opt-out;
@@ -148,7 +154,7 @@ The z-stack, bottom to top:
   grid's own scroll holds still, tile sink, card arc), lens pick
   (scroll 0, width stability, actor continuity), the flip (decode gate,
   no hole, −180°), stage pan membership, handoff continuity, release
-  (glide smoothness, home at swap).
+  (from a scrolled PANE — the document never moves).
 - **Recorded video or it didn't happen.** Anything touching scroll,
   compositing, or the pinned set gets a safaridriver run on the REAL page
   (no iframe — the iframe hides document-scroll rasterization behavior),

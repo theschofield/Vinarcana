@@ -1277,3 +1277,33 @@ values there are unchanged — the device now matches them. Suite 6/6.
   ONE line); rv-headline keeps its canon pretty, rv-wine keeps balance. LAW: never
   write `text-wrap: normal`; the probe for wrap work measures LINE fills on
   single-span text only.
+
+
+## ★★ THE POUR LEAVES THE DOCUMENT TOO — and its backdrop dies (Jul 12, 2026)
+Ed's review request, then his call: build The Pour like the Deck. Findings that
+drove it (all measured on the real page in the sim): the doc-scroll pour read the
+chrome band at 2.03 = FLAT FILL (the backdrop, present in the sim after all)
+against the reading's 3.57 with identical veil/field/grain; the "weird color
+break" at scroll end was the page's visual floor — the document sized exactly to
+content, so the field/veil reach (100lvh + safe) ended on a hard line with the
+raw page background below it; and the last palate row sat 33px UNDER the buttons
+at max scroll (clearance 24px + safe against a bar band ~110px tall).
+THE BUILD: `va-flow-pour` is dead — the wrapped construction (rv-pours snap-x,
+per-pane rv-vscroll with the r13 opacity mask) runs on phones too, the rv-screen
+layer at 100lvh + safe so panes scroll edge-to-edge behind the chrome,
+`overscroll-behavior: contain` on both axes (no pan ever reaches the document,
+no rubber-band past the field), vscroll end padding calc(200px + safe). THE FOOT
+BAR keeps the locked top-referenced geometry (top: foot-vh − 88px) but drops
+`position: fixed` — it is an ABSOLUTE child of the pan-eating layer now. The
+fixed bottom-hugging bar was the prime remaining suspect, and the band probe
+convicts it: pour band 2.03 → 3.57 (the reading's own clean value) after the
+conversion. The ghost button's blur rides along (rescoped va-flow-pour → va-doc).
+Only the MEMORY ledger still scrolls the document.
+Verified: band probe PASS all three (deck-mid 42.34 · reading 3.57 · pour 3.57);
+suite 6/6 with T4 rewritten to the new law (pane scrolled 600, THE DOCUMENT NEVER
+MOVES through the release); last palate row rests 103px ABOVE the buttons at max
+pane scroll (was −33); the veil texture runs unbroken through the button zone and
+behind the chrome pills (the color break is gone); memory → pour re-entry lands
+reveal at y 0 with the layer edge-to-edge; desktop/wrapped loop untouched, zero
+console errors. Ed's device pass is the final gate — the pour's chrome is the
+thing to look at.

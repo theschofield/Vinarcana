@@ -503,20 +503,20 @@ function App() {
   // place and the window TELEPORTS home at the mounts-swap beat, when
   // everything still visible is pinned/sticky (zero visual delta).
   const docMode = isRealMobile && !phoneFrame && !desktop && !isStandalone;
-  const pourMounted = !!(mounts.reveal && card && lens);
   React.useEffect(() => {
     const H = document.documentElement;
     H.classList.toggle("va-doc", docMode);
-    // THE DECK IS NOT A FLOW VIEW (Ed's construction, Jul 12 2026): its
-    // grid is an independent scroller layered over the stage, so the
-    // document keeps the stage shape while the deck is up — the Lenses
-    // then composes exactly like the Approach, indifferent to the grid's
-    // scroll depth. Only the ledger and the pour unwrap into the document.
+    // THE DECK AND THE POUR ARE NOT FLOW VIEWS (Ed's construction,
+    // Jul 12 2026): their content scrolls in its own layer over the
+    // stage, so the document keeps the stage shape whenever they are
+    // up — every screen composes like the Approach, and the document
+    // never moves under a transition. Only the MEMORY ledger still
+    // scrolls the document.
     H.classList.remove("va-flow-deck");
+    H.classList.remove("va-flow-pour");
     H.classList.toggle("va-flow-mem", docMode && mounts.memory);
-    H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.memory);
-    H.classList.toggle("va-flow", docMode && (mounts.memory || pourMounted));
-  }, [docMode, mounts.memory, pourMounted]);
+    H.classList.toggle("va-flow", docMode && mounts.memory);
+  }, [docMode, mounts.memory]);
   // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
   // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
   // the compositor on iOS and made every overlay jitter.

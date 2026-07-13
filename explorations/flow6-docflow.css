@@ -93,14 +93,15 @@ html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx {
   min-height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 
-/* stage layers: viewport-capped, pan-blocking. The deck's layer is
-   exempt from the pan-eating regime: it is a SCROLL OWNER — its inner
-   .dk-scroll consumes the pan (touch-action: pan-y, overscroll
-   contained), which is what keeps the document still beneath it. */
+/* stage layers: viewport-capped, pan-blocking. The deck's and the
+   pour's layers are exempt from the pan-eating regime: they are
+   SCROLL OWNERS — their inner scrollers (.dk-scroll / .rv-pours +
+   .rv-vscroll) consume the pans, with overscroll containment keeping
+   every pan out of the document beneath. */
 html.va-doc .va:not(.vw-desk) .va-layer,
 html.va-doc .va:not(.vw-desk) .va-smoke-fx,
 html.va-doc .va:not(.vw-desk) .va-ff-catch { height: 100dvh; bottom: auto; }
-html.va-doc:not(.va-flow) .va:not(.vw-desk) .va-layer:not(.dk-screen),
+html.va-doc:not(.va-flow) .va:not(.vw-desk) .va-layer:not(.dk-screen):not(.rv-screen),
 html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx-status { touch-action: none; }
 
 /* DEAD END — never resurrect: THE STAGE PIN (a zero-height sticky pin
@@ -198,55 +199,60 @@ html.va-flow-mem .va:not(.vw-desk) .mf-empty {
   flex: none; min-height: calc(100svh - max(24px, env(safe-area-inset-top)) - 160px);
 }
 
-/* ---- THE POUR, unwrapped whenever mounted ----
-   NO padding-top on rv-screen: the eyebrow must sit exactly where the
-   Lenses eyebrow sits, so the pour transition moves it horizontally only. */
-html.va-flow-pour .va:not(.vw-desk) .rv-screen {
-  position: static; height: auto; min-height: 0;
+/* ---- THE POUR: pane scrollers ON the stage (Ed's construction,
+   Jul 12 2026 — supersedes the unwrap; the deck's playbook). The
+   document stays stage-shaped and never scrolls: the wrapped
+   construction — rv-pours snap-x, per-pane rv-vscroll with the r13
+   opacity mask — now runs on phones too. The rv-screen layer reaches
+   the physical screen bottom so pane content scrolls edge-to-edge
+   behind the translucent chrome; the vscroll's end padding rests the
+   last palate row above the buttons (it sat 33px UNDER them in the
+   doc-scroll build). NO touch-action restrictions on the scrollers:
+   the vertical pan belongs to the vscroll and the horizontal swipe
+   must chain up to the snap container — overscroll containment is
+   what keeps every pan out of the document. */
+html.va-doc .va:not(.vw-desk) .rv-screen {
+  height: calc(100lvh + env(safe-area-inset-bottom));
 }
-html.va-flow-pour .va:not(.vw-desk) .rv-pourswrap { flex: none; display: block; }
-html.va-flow-pour .va:not(.vw-desk) .rv-pours { flex: none; height: auto; min-height: 0; }
-html.va-flow-pour .va:not(.vw-desk) .rv-pane { height: auto; }
-html.va-flow-pour .va:not(.vw-desk) .rv-vscroll {
-  flex: none; position: static; inset: auto; height: auto; overflow: visible;
-  -webkit-mask-image: none; mask-image: none;
-  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+html.va-doc .va:not(.vw-desk) .rv-vscroll {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(200px + env(safe-area-inset-bottom));
 }
-/* pour actions + dots: the OLD VEIL RECIPE, verbatim — a fixed,
-   TOP-anchored, 100dvh, transparent, click-through frame with the bars
-   at its flex-end. This exact construction (fixed top-0 dvh) is what the
-   veil used in the round where the pour scroll ran beneath the chrome,
-   and because dvh tracks the chrome, the buttons ride it as it grows and
-   shrinks — natively. The backdrop that appeared alongside it back then
-   is now attributed to the glow (same-beat confounder), which document
-   mode no longer renders. */
-html.va-flow-pour .va:not(.vw-desk) .va-foot-pin {
-  /* Buttons TRACK the iOS chrome via the VisualViewport: --foot-vh is the live
-     visible-viewport height (JS-set on visualViewport resize/scroll), so the bar
-     is topped at (foot-vh - 88px) and rides the chrome edge down as it collapses
-     — staying at the clean floor above it, never bottom-anchored (which triggers
-     the toolbar backdrop). Falls back to 100svh before JS runs / if unsupported. */
+html.va-doc .va:not(.vw-desk) .rv-pours {
+  overscroll-behavior-x: contain;
+}
+/* the foot bar keeps the LOCKED top-referenced geometry
+   (top: foot-vh − 88px — the clean floor above the expanded chrome)
+   but drops position:fixed: it is absolute INSIDE the pan-eating
+   layer now. The fixed bottom-hugging bar was the prime remaining
+   backdrop suspect — the doc-scroll pour read band stddev 2.03 (flat
+   fill) against the reading's 3.57 with identical veil/field/grain.
+   With the document never scrolling, --foot-vh is constant and the
+   bar simply sits. */
+html.va-doc .va:not(.vw-desk) .va-foot-pin {
   display: flex; flex-direction: column; justify-content: flex-end;
-  position: fixed; left: 0; right: 0; top: calc(var(--foot-vh, 100svh) - 88px); bottom: auto;
+  position: absolute; left: 0; right: 0;
+  top: calc(var(--foot-vh, 100svh) - 88px); bottom: auto;
   height: auto; margin: 0; pointer-events: none; z-index: 35; overflow: visible;
 }
-html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap {
+html.va-doc .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap {
   order: 0; position: static; display: flex; justify-content: center;
   margin: 0 0 10px; pointer-events: none;
 }
-html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap > * { pointer-events: auto; }
-html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions {
+html.va-doc .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap > * { pointer-events: auto; }
+html.va-doc .va:not(.vw-desk) .va-foot-pin > .rv-actions {
   order: 1; position: static; margin: 0; background: none;
   padding: 14px 24px calc(24px + env(safe-area-inset-bottom));
   pointer-events: none;
 }
-html.va-flow-pour .va:not(.vw-desk) .va-foot-pin > .rv-actions > * { pointer-events: auto; }
+html.va-doc .va:not(.vw-desk) .va-foot-pin > .rv-actions > * { pointer-events: auto; }
 /* LET IT FADE (ghost) button: the bar now floats over live scrolling content,
    so blur what's behind the transparent button to keep its label readable. */
-html.va-flow-pour .va:not(.vw-desk) .rv-btn.ghost {
+html.va-doc .va:not(.vw-desk) .rv-btn.ghost {
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   background: rgba(20, 19, 18, 0.22);
 }
-html.va-flow-pour .va:not(.vw-desk) .rx-light .rv-btn.ghost {
+html.va-doc .va:not(.vw-desk) .rx-light .rv-btn.ghost {
   background: rgba(210, 207, 201, 0.30);
 }

@@ -33,9 +33,8 @@
      · across the actor → pane-card cut, the pose is continuous within
        ~2px (the two-cards-trading-places grammar, suite-enforced)
   T4 RELEASE · let-it-fade from a scrolled pour
-     · the window GLIDES home smoothly inside the whole-screen sink
-       (no instant jumps — a teleport blanks the compositor tree)
-     · the window is home the moment the approach re-mounts
+     · the pour's panes scroll in their own layer over the stage —
+       THE DOCUMENT NEVER MOVES through the release, from any depth
 
   Machine-readable copy of the report: window.__choreoReport
 -->
@@ -319,33 +318,22 @@
   if (closeBtn) { tap(closeBtn); await sleep(1600); }
 
   // ---------- T4 · RELEASE from a scrolled pour ----------
+  // Ed's construction: the pour's panes scroll in their own layer over
+  // the stage — the DOCUMENT must hold still through the release, from
+  // any pane scroll depth.
   say("T4 release — running…");
-  W().scrollTo(0, 600);
-  await sleep(500);
-  const s4 = Math.round(W().scrollY);
-  if (s4 < 100) {
-    report.skip.push({ name: "T4 release", why: "pour too short to scroll here" });
-    say("T4 release — SKIP (pour too short to scroll: " + s4 + "px)");
-  } else {
+  const vsc = D().querySelector(".rv-vscroll");
+  if (vsc) vsc.scrollTop = 600;
+  await sleep(400);
+  const v4 = vsc ? Math.round(vsc.scrollTop) : 0;
+  {
     W().__vaDrive.release();
     const t4 = await sample(1100, () => ({ s: W().scrollY }));
     const fails = [];
-    // the release GLIDES home inside the whole-screen sink: smooth (no
-    // instant jumps — teleports blank the compositor tree), monotonic
-    // toward home, and done by the swap beat. Judge VELOCITY, not px per
-    // sample: a dropped frame doubles the px of a legitimate glide step
-    // (peak ≈ 3.3px/ms), while a teleport is hundreds of px in one frame.
-    let maxV = 0, rose = 0;
-    for (let i = 1; i < t4.length; i++) {
-      const dt = Math.max(1, t4[i].t - t4[i - 1].t);
-      maxV = Math.max(maxV, Math.abs(t4[i].s - t4[i - 1].s) / dt);
-      if (t4[i].s > t4[i - 1].s + 1) rose++;
-    }
-    if (maxV > 6) fails.push("window moved " + maxV.toFixed(1) + "px/ms (glide, never teleport)");
-    if (rose) fails.push("scroll moved AWAY from home " + rose + " times");
-    const tail = t4[t4.length - 1];
-    if (Math.round(tail.s) !== 0) fails.push("scroll not home after the swap (at " + Math.round(tail.s) + ")");
-    book("T4 release", verdict("T4 release (from scroll " + s4 + ")", fails), fails);
+    const sMax = Math.max(...t4.map(r => Math.abs(r.s)));
+    if (sMax > 2) fails.push("the DOCUMENT moved " + Math.round(sMax) + "px during the release (law: pane scroll never touches the document)");
+    if (v4 < 50) fails.push("pane only scrolled " + v4 + "px — scrolled-release premise weak");
+    book("T4 release", verdict("T4 release (pane at " + v4 + ", document still)", fails), fails);
     await waitPhase("approach", 40);
   }
 

@@ -10,7 +10,8 @@ Run before shipping ANYTHING that touches pinned/sticky/viewport-sized
 construction:
   1. Boot a sim (iPhone 17, iOS 26) + `safaridriver -p 4444`.
   2. python3 scraps/backdrop-probe.py http://localhost:8123
-Drives the REAL page and measures the band where the band carries
+Drives the REAL page (deck mid-scroll, the reading, the pour) and
+measures the band where it carries
 large-scale texture — the only places the tell is valid: the DECK at
 MID-scroll (raw tiles run behind the chrome; clean ≈ sd 36-44) and the
 READING (veil art; clean ≈ 3.5). The APPROACH and the deck's BOTTOM are
@@ -92,7 +93,16 @@ def main():
         while time.time() - t0 < 30 and ex(sid, "return window.__vaDrive.phase()") != "reading": time.sleep(0.5)
         time.sleep(1.5)
         if shot_and_measure("reading") != "clean": fails.append("reading")
-        print("BAND PROBE:", "FAIL — " + ", ".join(fails) if fails else "PASS (deck + reading clean)")
+        # THE POUR (keeps the veil -> same clean signature as the reading);
+        # scroll the active pane's own scroller, never the document
+        ex(sid, "window.__vaDrive.pick(0)")
+        t0 = time.time()
+        while time.time() - t0 < 20 and ex(sid, "return window.__vaDrive.phase()") != "reveal": time.sleep(0.5)
+        time.sleep(1.5)
+        ex(sid, "const v = document.querySelector('.rv-vscroll'); if (v) v.scrollTop = Math.round(v.scrollHeight * 0.4)")
+        time.sleep(1)
+        if shot_and_measure("pour") != "clean": fails.append("pour")
+        print("BAND PROBE:", "FAIL — " + ", ".join(fails) if fails else "PASS (deck + reading + pour clean)")
     finally:
         try: req("DELETE", f"/session/{sid}", timeout=30)
         except Exception as e: print("close:", e)
