@@ -217,3 +217,17 @@ blanking-safe replacement for v6's wall-clock glide. Do not re-propose the
 apex handoff or origin adoption; this trade (persistence over sovereignty at
 this one seam) was made deliberately, with the reconciliation stabilized and
 suite-enforced.
+
+## ADDENDUM · Jul 12, 2026, later (Ed's construction directive)
+
+The frame-walk clause of the Decision above is retired for Deck → Lenses —
+not by re-proposing the apex handoff (still declined; the same-frame tile →
+actor takeover and the one persistent actor to rest stand exactly as
+decided), but because the reconciliation it stabilized no longer exists:
+**the deck's grid is an independent scroller layered above the stage**
+(stage-construction.md §1–§3), the document never moves during a deck ride,
+and the Lenses composes exactly like the Approach. §2's sovereignty judgment
+("an outgoing view's scroll must never become an input to the incoming
+screen's geometry") is finally satisfied by construction rather than by
+reconciliation. The frame-walk remains the lawful mover for the MEMORY
+ride, whose ledger still scrolls the document.

@@ -43,23 +43,43 @@ html.va-doc .va:not(.vw-desk) {
   height: auto; overflow: visible;
   min-height: calc(100lvh + env(safe-area-inset-bottom));
 }
-/* THE FIELD GRADIENT IS VIEWPORT-SIZED, NOT DOCUMENT-SIZED. The .rx
-   gradient scales with its element: on the deck the element grows to
-   ~5500px, the ellipse's bright core stretched across the whole first
-   viewport, and the deck read LIGHTER than the stages — then snapped
-   darker when the deck unmounted and the element collapsed (the
-   "background suddenly gets darker after the bleed"). Paint the gradient
-   at STAGE size (one viewport + overshoot) and continue in the
-   gradient's own end color below — the visible field is identical on
-   every page, at every document height, at every scroll. */
-html.va-doc .va:not(.vw-desk) .rx-dark {
+/* THE FIELD IS VIEWPORT-ANCHORED, NOT DOCUMENT-ANCHORED (Ed's
+   construction directive, Jul 12 2026). The gradient used to paint on
+   the scrolling .rx — viewport-SIZED (the wrap round) but riding the
+   document, so scrolling the deck visibly slid the field, and the walk
+   home slid it back. It now lives on .va-field: a sticky, zero-flow-
+   footprint, one-viewport layer — the veil's own recipe, the proven
+   clean shape (top-referenced, never bottom-anchored). Only the grid
+   moves when the deck scrolls; the field is pixel-identical from Deck
+   to Lenses. The .rx keeps only the gradient's end color, as the seam
+   insurance below the field's reach. */
+.va .va-field { display: none; }
+html.va-doc .va:not(.vw-desk) .va-field {
+  display: block; position: sticky; top: 0; left: 0; right: 0;
+  width: 100%;
+  height: calc(100lvh + env(safe-area-inset-bottom));
+  margin-bottom: calc(-100lvh - env(safe-area-inset-bottom));
+  /* below ALL in-flow content (the deck grid, the pour panes are
+     position:static — a z ≥ 0 positioned field would paint over them);
+     -1 keeps it above only the .rx background color it replaces */
+  z-index: -1; pointer-events: none;
   background-size: 100% calc(100lvh + env(safe-area-inset-bottom) + 100px);
   background-repeat: no-repeat;
+}
+html.va-doc .va:not(.vw-desk) .rx-dark .va-field {
+  background-image: radial-gradient(95% 72% at 32% 8%, #1e1c1a 0%, #181717 52%, #121110 100%);
+  background-color: #121110;
+}
+html.va-doc .va:not(.vw-desk) .rx-light .va-field {
+  background-image: radial-gradient(112% 86% at 35% 6%, #e4e2dd 0%, #dddbd6 56%, #d3d0ca 100%);
+  background-color: #d3d0ca;
+}
+html.va-doc .va:not(.vw-desk) .rx-dark {
+  background-image: none;
   background-color: #121110;
 }
 html.va-doc .va:not(.vw-desk) .rx-light {
-  background-size: 100% calc(100lvh + env(safe-area-inset-bottom) + 100px);
-  background-repeat: no-repeat;
+  background-image: none;
   background-color: #d3d0ca;
 }
 html.va-doc .va:not(.vw-desk) .rx {
@@ -73,12 +93,26 @@ html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx {
   min-height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 
-/* stage layers: viewport-capped, pan-blocking */
+/* stage layers: viewport-capped, pan-blocking. The deck's layer is
+   exempt from the pan-eating regime: it is a SCROLL OWNER — its inner
+   .dk-scroll consumes the pan (touch-action: pan-y, overscroll
+   contained), which is what keeps the document still beneath it. */
 html.va-doc .va:not(.vw-desk) .va-layer,
 html.va-doc .va:not(.vw-desk) .va-smoke-fx,
 html.va-doc .va:not(.vw-desk) .va-ff-catch { height: 100dvh; bottom: auto; }
-html.va-doc:not(.va-flow) .va:not(.vw-desk) .va-layer,
+html.va-doc:not(.va-flow) .va:not(.vw-desk) .va-layer:not(.dk-screen),
 html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx-status { touch-action: none; }
+
+/* DEAD END — never resurrect: THE STAGE PIN (a zero-height sticky pin
+   hosting the Approach/Reading layers). Pinning the stage LAYERS turns
+   each stage into a viewport-sized pinned surface — Safari answered
+   with the opaque toolbar backdrop on EVERY page, the Approach
+   included. Bisect-proven with the chrome-band probe
+   (scraps/backdrop-probe.py): pin ON → band stddev ~2.0 (flat fill);
+   pin OFF → ~3.5 (texture through the chrome). The zero-height pins
+   hosting SMALL content (status bar, card + eyebrow actors) are clean;
+   the veil-recipe field is clean. It is the pinned full-viewport
+   touch-eating layer that trips the heuristic. */
 
 /* bottom-anchored stage text sits close to the chrome, like an app */
 html.va-doc .va:not(.vw-desk) .rx-draw-hint {
@@ -118,11 +152,33 @@ html.va-doc .va:not(.vw-desk) .rx-status {
   padding: max(24px, env(safe-area-inset-top)) 26px 14px;
 }
 
-/* ---- THE DECK, unwrapped whenever mounted ---- */
-html.va-flow-deck .va:not(.vw-desk) .dk-screen { position: static; height: auto; }
-html.va-flow-deck .va:not(.vw-desk) .dk-scroll {
-  position: static; inset: auto; height: auto; overflow: visible;
+/* ---- THE DECK: an independent scroller ON the stage (Ed's
+   construction, Jul 12 2026 — supersedes the unwrap). The grid is a
+   layer ABOVE the shared field/veil in z-space with its own overflow
+   scroll; the DOCUMENT stays stage-shaped and never scrolls. The
+   Lenses therefore composes exactly like the Approach — indifferent
+   to how deep the grid was scrolled — and the entire document-scroll
+   reconciliation genre (walk, gate-drains, parks, reseats) has
+   nothing to reconcile. The grid owns its pans: overscroll never
+   chains to the document's overshoot slack. Once the tapped grid
+   fades, it simply unmounts — the document never changes height. */
+html.va-doc .va:not(.vw-desk) .dk-scroll {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  /* end-of-scroll rest: the layer overshoots the physical bottom by
+     100px, so the padding pays that back PLUS ~100px of clearance —
+     the last row settles above the expanded chrome pill, never
+     obscured (Ed, Jul 12 2026) */
+  padding-bottom: calc(200px + env(safe-area-inset-bottom));
+}
+/* the grid runs EDGE TO EDGE and past it: the layer overshoots the
+   physical screen bottom by 100px (the stage ballast's own trick), so
+   tiles scroll behind the translucent chrome with no fade, no seam, no
+   edge. 100dvh would stop at the bar's top edge and show the bare field
+   beneath it (band-probe-caught). */
+html.va-doc .va:not(.vw-desk) .dk-screen {
+  height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 
 /* ---- MEMORY, unwrapped whenever mounted ----

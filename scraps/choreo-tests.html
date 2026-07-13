@@ -10,14 +10,14 @@
   simulator Safari, or a device) and read the report. Green = the laws
   hold; any FAIL line names the broken law and the measured value.
 
-  T1 DECK EXIT · the ABSOLUTE BOTTOM tile (maximum scroll debt)
+  T1 DECK EXIT · the ABSOLUTE BOTTOM tile (deepest grid scroll)
      · the tile → actor takeover is same-frame and pixel-continuous
-     · NOTHING scrolls while the grid fades (exits fade in place)
-     · then the window WALKS home under the faded page — frame-based on
-       a 350ms budget from any depth (brisk-flick speed; teleports blank)
+     · THE DOCUMENT NEVER MOVES — the grid is an independent scroller
+       over the stage (Ed's construction), so the Lenses composes like
+       the Approach with zero scroll reconciliation
+     · the grid's own scroll holds still while its tiles fade in place
      · no tile ever travels UP (they sink 28px as they fade, in place)
      · the tapped card rides one smooth viewport arc — no flips, no jumps
-     · the window is home by the end of the walk, even from the bottom
   T2 LENS PICK · reading → pour
      · the document holds scroll 0 for the whole transition
      · the .va box never changes width (no horizontal squeeze)
@@ -119,12 +119,15 @@
   W().__vaDrive.deck();
   await waitPhase("deck");
   await sleep(1600);
-  // the ABSOLUTE BOTTOM tile: maximum scroll debt, the walk's worst case
+  // the ABSOLUTE BOTTOM tile — deepest GRID scroll (the deck is an
+  // independent scroller over the stage; the DOCUMENT never moves)
   const tiles = [...D().querySelectorAll(".dk-tile")];
   const moon = tiles[tiles.length - 1];
   if (!moon) return say("FAIL: no tiles");
-  W().scrollTo(0, D().documentElement.scrollHeight);
+  const gridEl = D().querySelector(".dk-scroll");
+  gridEl.scrollTop = gridEl.scrollHeight;
   await sleep(700);
+  const g0 = Math.round(gridEl.scrollTop);
   const s0 = Math.round(W().scrollY);
   // a witness tile a couple of rows above the tapped one
   const witness = tiles[Math.max(0, tiles.indexOf(moon) - 6)];
@@ -146,6 +149,7 @@
     const alive = witness.isConnected;
     return {
       s: W().scrollY,
+      g: gridEl.isConnected ? gridEl.scrollTop : NaN,
       aT: a ? a.getBoundingClientRect().top : NaN,
       aO: a ? +getComputedStyle(a).opacity : NaN,
       wT: alive ? witness.getBoundingClientRect().top : NaN,
@@ -159,29 +163,19 @@
     if (!take) fails.push("no actor one frame after the tap");
     else if (Math.max(take.dx, take.dy, take.dw) > 1.5)
       fails.push("takeover jumped " + Math.max(take.dx, take.dy, take.dw).toFixed(1) + "px off the tile");
-    // law: nothing scrolls while the grid fades
-    const fadeRows = t1.filter(r => r.t < 600);
-    const sMax = Math.max(...fadeRows.map(r => Math.abs(r.s - s0)));
-    if (sMax > 1) fails.push("window moved " + Math.round(sMax) + "px during the fade (law: exits fade in place)");
-    // law: the walk is velocity-capped (a jump blanks the compositor
-    // tree). Velocity is measured over ≥30ms WINDOWS: the sampler and the
-    // walk tick on interleaved rAF frames, so adjacent-sample deltas can
-    // read 2× the true speed. The walk paces the v6 glide budget
-    // (≤8px/ms, device-proven); a teleport reads 15+ over any window.
-    let sV = 0, sEvt = null;
-    for (let i = 0, j = 0; i < t1.length; i++) {
-      while (j < t1.length - 1 && t1[j].t - t1[i].t < 30) j++;
-      if (t1[j].t - t1[i].t < 30) break;
-      const v = Math.abs(t1[j].s - t1[i].s) / (t1[j].t - t1[i].t);
-      if (v > sV) { sV = v; sEvt = { t: t1[i].t, from: Math.round(t1[i].s), to: Math.round(t1[j].s) }; }
+    // law: THE DOCUMENT NEVER MOVES during a deck ride (the grid is an
+    // independent scroller; the Lenses composes like the Approach)
+    const sAll = Math.max(...t1.map(r => Math.abs(r.s - s0)));
+    if (sAll > 2) fails.push("the DOCUMENT moved " + Math.round(sAll) + "px during the ride (law: the deck never scrolls the document)");
+    if (g0 < 800) fails.push("grid only scrolled " + g0 + "px — deep-scroll premise broken");
+    // law: the grid's own scroll holds still while its tiles fade out
+    const gRows = t1.filter(r => !isNaN(r.g));
+    if (gRows.length) {
+      const gMax = Math.max(...gRows.map(r => Math.abs(r.g - g0)));
+      if (gMax > 1) fails.push("the grid's scroll moved " + Math.round(gMax) + "px during the exit");
     }
-    // walk nominal ≤ ~13.5px/ms (350ms budget — brisk-flick speed);
-    // bounded stall catch-up reads higher over a window; a teleport
-    // (thousands of px in one frame) reads 30-100+
-    if (sV > 22) fails.push("scroll moved " + sV.toFixed(1) + "px/ms (teleport-scale) — at t" +
-      sEvt.t + "ms, " + sEvt.from + "→" + sEvt.to);
     // law: tiles sink, never rise
-    const wRows = fadeRows.filter(r => !isNaN(r.wT));
+    const wRows = t1.filter(r => r.t < 600 && !isNaN(r.wT));
     const wUp = Math.min(...wRows.map(r => r.wT - w0));
     if (wUp < -4) fails.push("a tile travelled UP " + Math.round(-wUp) + "px (law: the grid sinks as it fades)");
     // law: the tile is gone before the teleport beat
@@ -209,11 +203,7 @@
     if (aV > 3.2) fails.push("card moved " + aV.toFixed(1) + "px/ms (teleport-scale)");
     if (minY < -60 || maxY > vh + 10) fails.push("card left the viewport [" + Math.round(minY) + ", " + Math.round(maxY) + "]");
     if (Math.min(...ar.map(r => r.aO)) < 0.99) fails.push("card opacity dipped to " + Math.min(...ar.map(r => r.aO)).toFixed(2));
-    // law: the walk lands home by the end of the trace
-    const post = t1.filter(r => r.t >= 750);
-    if (post.length && Math.round(post[post.length - 1].s) > 2)
-      fails.push("scroll not home after the walk (at " + Math.round(post[post.length - 1].s) + ")");
-    book("T1 deck exit", verdict("T1 deck exit (from scroll " + s0 + ")", fails), fails);
+    book("T1 deck exit", verdict("T1 deck exit (grid at " + g0 + ", document still)", fails), fails);
   }
 
   // ---------- T5 · STAGE PAN MEMBERSHIP (the Lenses must not scroll) ----------

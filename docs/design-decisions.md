@@ -1091,3 +1091,163 @@ lenses, original relative rhythm). The Lenses layout structurally CANNOT compose
 scrolled — no gates on individual fades, no timeouts that fire mid-walk.
 Verified: bottom tile (scroll 4770) — sequence resumed only at sy 0; landed sy 0, eyebrow
 17px clear of the menu; suite 6/6.
+
+
+## ★ THE PARK, FOUND — engine parks, the still gate, the keeper, the tile-hide (Jul 12, 2026)
+"Lenses composes high after every scrolled deck pick" (100% on device, sim-clean for two
+days of fixes) was FOUR stacked movers; only the first was ever being addressed:
+1. **The gate passed at the walk's FIRST zero.** `y <= 2` composed instantly, with no
+   stillness — on device, reaching 0 is what TRIGGERS Safari's chrome dance, which
+   re-parks the document 10-40px a beat later, right as clock B composed; and the
+   "accept a stable ≤40px park" clause composed the stage that many px under the menu
+   by design. NOW: home = scrollY AND visualViewport.height both still for 200ms
+   wall-clock (the dance shows in one or the other); a stable park is never accepted —
+   its residue drains through another walk pass (≤4 attempts, then the 6s ceiling).
+   Proven with a 24px park injected at the walk's landing: stillness broke, the drain
+   landed 0, compose waited for 200ms of quiet (preComposeScroll max 0).
+2. **★ THE ENGINE PARKS A SETTLED STAGE ON ITS OWN CLOCK — twice.** Real-page ledger:
+   (a) the rest beat's document collapse (deck unmount, 5484 → 854) parks the window
+   1-2 frames later ([3769ms, sy 0, rest] → [3823ms, sy 4-34, rest]); (b) the chrome
+   dance parks it SECONDS after the ride, whenever the bar decides to settle (caught
+   on film at reading+2s: sy ~33). No scroll of ours anywhere near either; no CSS
+   opt-out exists (`overflow-anchor` unsupported, iOS 26.5 WebKit). **A parked stage
+   SHEARS the composition**: the doc-anchored layout (eyebrow, voice, lenses) rides
+   up while the menu and the PIN-hosted card hold the viewport — the screenshot that
+   cracked it showed the card slicing through the voice line. This fired after every
+   compose-time fix — why two days of gating never held.
+   **The keeper experiment is DEAD** (a standing scrollTo(0,0) that fought each
+   park): on device it left second-and-later rides high (parks larger than its 60px
+   cap — the real chrome delta) and once displaced the Approach. Never resurrect
+   scroll-fighting in any form.
+   **The stage-pin experiment is DEAD TOO** (hanging the Approach/Reading layers
+   from a zero-height sticky pin for park immunity): pinned full-viewport layers
+   summoned the toolbar backdrop on EVERY page, the Approach included — Ed caught
+   it on device AND in the sim footage, which broke the "sim can't show the
+   backdrop" belief and gave us the chrome-band probe. Bisect (band stddev, sim):
+   field+pin 2.03 BACKDROP · pin-only 2.03 BACKDROP · field-only 3.62 clean ·
+   neither 3.45 clean — THE PIN IS THE TRIGGER, THE FIELD IS INNOCENT.
+   **The living answer — coherence + stillness-gated reseats, never a fight:**
+   layers stay doc-anchored; the eyebrow actor moved into the actor pin beside the
+   card (small content on an approved anchor — bisect-clean) and placeEyebrowOnRead
+   pin-converts like the card always has; the READING FOLLOWER (read-only scroll
+   poll — engine parks don't reliably fire scroll events) re-places card + eyebrow
+   on any movement so a parked stage rides AS ONE; the rest beat adds a ONE-SHOT
+   collapse drain (~90ms post-unmount, ≤60px, while voice/lenses are still
+   transparent); and THE RESEAT — a resting reading parked 3-60px drains once via
+   the walk after 250ms of stillness (the dance is over; contiguous with Safari's
+   own motion), two per reading max, then yield to the next gesture's own reset.
+   Measured: a 32px bar-dance park at reading+1s reseated to 0, paths identical.
+3. **THE 40PX STACKING LAW (Ed).** Even at a true scroll 0, the reading sat 10px high
+   of the design: `.rx-read`'s fixed `padding-top: 44px` (flow2 phone-frame era)
+   started the column 9px INSIDE the menu row. The law: the eyebrow container tops
+   out at the MENU ITEM's bottom edge — status pad-top + the 13px mono line + the
+   links' 16px hit padding — so its own 24px pad renders the card name letters 40px
+   below the menu letters (16 + 24). flow6-safearea.css now derives it:
+   `calc(max(24px, env(safe-area-inset-top)) + 13px + 16px)`. Mobile + phone frame
+   only; the desktop orbit keeps its tuned geometry. Side effect to taste-check: the
+   flex column gives the 9px back from the card slot (card renders ~9px shorter).
+4. **The stale tile-hide (the empty deck slot).** The takeover's `pickedId` — which
+   hides the tapped tile (`visibility: hidden`) for the same-frame swap — was never
+   cleared, so every later deck mount rendered that card's slot empty. Cleared at
+   every deck entry (toDeck) and at the rest beat's unmount.
+5. **★ THE FIELD IS VIEWPORT-ANCHORED (Ed's construction directive).** The field
+   gradient painted on the scrolling .rx, so scrolling the deck visibly slid the
+   field and the walk slid it back ("the background scrolls" — Ed, on device). It
+   now lives on `.va-field`: sticky, zero flow footprint, one viewport tall — the
+   VEIL'S OWN RECIPE (top-referenced, the proven-clean shape; never bottom-anchored,
+   no blend mode — the sticky-grain poison was its blend + its era's fixed frames).
+   z-index -1: below all in-flow content (deck grid, pour panes are static).
+   Only the grid moves when the deck scrolls; the field is pixel-identical from
+   Deck to Lenses. The grain stays document-anchored (RAFT law — pinning it is
+   poison), which reads as static anyway: uniform noise has no visible motion.
+   Measured: field top 0 through an 800px user scroll and rock-still across all
+   442 frames of a full ride, walk included.
+Also: `whenScrollHome` (the superseded per-fade gate, no callers) removed.
+6. **★ THE CHROME-BAND PROBE (scraps/backdrop-probe.py)** — the backdrop is
+   SIM-DETECTABLE after all (Ed's catch). Texture through the chrome ≈ stddev
+   3.5-45; the backdrop's flat fill ≈ 2.0 with a hard top edge. Valid only where
+   the band carries large-scale texture: the READING (veil art) and the DECK at
+   MID-scroll (tiles). The Approach and the deck's bottom are flat-on-flat by
+   design (A/B-verified pixel-identical across constructions) — device-only
+   there. MANDATORY before shipping anything that touches pinned/sticky/
+   viewport-sized construction — it caught the stage pin red-handed and
+   exonerated the field.
+Verified, sim Safari on the REAL page (final build): band probe PASS (deck-mid
+42.5, reading 3.62); suite 6/6; draw and deck paths measure PIXEL-IDENTICAL at
+y 0 with the container stack exact (eyebrow container top == menu item bottom ==
+53; letters 40px by container math); a 32px late park reseated; the field
+pixel-identical to the old construction at the approach and deck-bottom, static
+through scroll and ride; deck re-entry 78/78 tiles whole; desktop/wrapped loop
+clean, zero console errors. Ed's device pass remains the final gate — the
+Approach's chrome especially, where the sim cannot discriminate.
+
+
+## ★★ THE DECK LEAVES THE DOCUMENT — Ed's architecture (Jul 12, 2026, supersedes the walk)
+Ed's construction directive, verbatim intent: the Lenses must be built like the
+Approach — indifferent to the deck — because the only shared elements are the
+background layers, and the grid is "a grid of cards that sits ON TOP of those shared
+layers in z-space (NOT WITHIN THEM) and scrolls independently... as soon as the grid
+layer finishes fading out we should just be able to kill it."
+THE BUILD: the deck grid is an independent scroller over the stage in every mode —
+`html.va-flow-deck` is gone; the wrapped `.dk-scroll` (absolute, overflow-y: auto,
+its own mask) now runs on phones too, with doc-mode adjustments: top clearance
+max(24px, safe-top)+52px, `touch-action: pan-y`, `overscroll-behavior: contain` (the
+grid owns its pans; overscroll never chains into the stage's overshoot slack), and
+the layer at `100lvh + safe-bottom` so tiles run EDGE TO EDGE behind the translucent
+chrome (100dvh stopped at the bar's top edge and bared the field — band-probe-caught).
+THE DOCUMENT NEVER MOVES: stage-shaped at all times around the deck; grid scrolled
+4770 internally while the document read 854 tall, window 0, through the entire ride
+to the reading. The Lenses composes exactly like the Approach.
+RETIRED WITH IT (deck path only): the frame-walk (the Jul 12 "permanent" decision is
+superseded by this construction — there is no scroll to reconcile), the apex gate's
+scroll/stillness conditions (pure 300ms hold remains), the collapse drain, the
+reseat (its stillness window coincided with the hint's arm delay — Ed's "jumps up
+when the hint starts"), and the whole park genre on the deck path. The MEMORY ride
+keeps the walk (the ledger still scrolls the document by design). The follower stays
+as a read-only belt. One race fixed in the hold: a stalled frame can collapse clock A
+into one tick, and its end callback then reads the PRE-COMMIT phase — the abandon
+check must tolerate "deck" for that frame or the ride freezes at the apex.
+Suite T1 REWRITTEN to the new law: the document must not move a pixel during a deck
+ride; the grid's own scroll must hold still while its tiles fade; premise = deep GRID
+scroll. Verified: suite 6/6; band probe PASS (deck-mid 36.3 — tiles through the
+chrome, edge to edge; reading 3.62); draw and deck paths PIXEL-IDENTICAL (gap 39/40
+container-exact); hint window frozen across +0.3/+1.5/+3.5s; pour entry seated at 0;
+deck re-entry 78/78; desktop loop clean, zero console errors. Ed's device pass is the
+final gate: Approach + Lenses chrome, consecutive deep picks, grid-only scrolling.
+
+
+## POLISH ROUND — grid edges, chrome grey, the deeper's exit (Jul 12, 2026)
+· THE GRID HAS NO EDGE FADES (Ed): the .dk-scroll mask (top 52px + bottom 26px
+  dissolves) is gone in every mode; in doc mode the grid layer overshoots the
+  physical bottom by 100px (the stage ballast's own trick) so tiles run clean off
+  the screen and behind the translucent chrome with no seam and no dissolve.
+  CONSEQUENCE FLAGGED for Ed's eye: scrolled tiles now pass under the raw menu
+  text (the old top fade was the deck's version of the pour's top fade-on-scroll;
+  no status scrim exists anywhere in the app — adding one is a known backdrop
+  risk, "opaque scrims on floating bars" is on the dead-ends list).
+· THE CHROME FILL MATCHES THE STATUS GREY (Ed): theme-color + html/body background
+  are now the field colors the menu sits on — day #dddbd6 / night #181717 —
+  replacing the darker screenshot-sampled composite (#d2cfc9 / #201e1c), which
+  read as a visibly darker band wherever Safari paints an opaque fill (most
+  obvious against The Pour's pre-existing bottom-chrome backdrop, still unfixed
+  and next on Ed's list).
+· THE DEEPER'S TEXT, both directions (Ed): entrance fade lengthened 480 → 760ms
+  (the 18px rise stays 700ms); on close the text REVERSES the entrance — drops and
+  fades (440ms fade / 520ms drop, accelerating curve) LEADING the flip-back by
+  140ms. Started together, the swift flip curve passes 90° almost instantly and
+  backface-visibility guillotines a concurrent exit — it read as a vanish, which
+  is why the reverse "didn't exist" despite the CSS returning to base.
+Verified: suite 6/6; band probe PASS (deck-mid 42.8, reading 3.57); the close on
+film — text visibly dropping and fading before the card turns, Lenses seated
+beneath; the grid's bottom edge crisp behind the chrome pills.
+
+· ADDENDUM, same round: the grid's END-OF-SCROLL REST — doc-mode padding-bottom
+  calc(200px + safe): pays back the 100px layer overshoot and leaves ~100px of
+  clearance, so the last row settles fully above the expanded chrome (measured:
+  last row bottom 654 of 714). And PARAGRAPHS FILL THEIR MEASURE app-wide —
+  text-wrap: pretty removed from all body text (gp-para, gp-kwline,
+  gp-close-line at source; .rv-body via the flow6 override, desktop included;
+  round13 untouched). Ed: lines were breaking early "even when there is clearly
+  enough room for the next word" — the rag/widow control isn't worth short
+  lines. Display text keeps its deliberate wrap control (rv-headline pretty,
+  rv-wine balance, the voice line). Suite 6/6.

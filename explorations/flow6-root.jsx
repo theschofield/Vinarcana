@@ -326,7 +326,11 @@ function App() {
   };
   const placeEyebrowOnRead = (instant) => {
     const r = slotRect("eyeb-read"); if (!r) return;
-    setEyeb((e) => e && ({ ...e, left: r.left, top: r.top, mode: "read", instant: !!instant }));
+    // the eyebrow hangs from the actor pin (viewport space) while the
+    // slot lives in the document — convert like the card does, or a
+    // parked stage re-places the title low by the park amount
+    const d = pinDelta();
+    setEyeb((e) => e && ({ ...e, left: r.left - d.dx, top: r.top - d.dy, mode: "read", instant: !!instant }));
   };
 
   React.useLayoutEffect(() => {
@@ -351,7 +355,13 @@ function App() {
   // + veil + grain (sampled from device screenshots) — not the raw base
   // token; the old #0c0b0b read as a black letterbox band around the app.
   React.useEffect(() => {
-    const bg = light ? "#d2cfc9" : "#201e1c";
+    // the chrome fill matches THE STATUS BAR'S GREY — the field color the
+    // menu sits on (day greige #dddbd6 / night charcoal #181717) — not
+    // the old darker screenshot-sampled composite (#d2cfc9 / #201e1c),
+    // which read as a visibly darker band wherever Safari paints its
+    // opaque backdrop (Ed, Jul 12 2026: "the same one the status bar is
+    // using").
+    const bg = light ? "#dddbd6" : "#181717";
     let meta = document.querySelector('meta[name="theme-color"]');
     if (!meta) { meta = document.createElement("meta"); meta.name = "theme-color"; document.head.appendChild(meta); }
     meta.content = bg;
@@ -399,23 +409,28 @@ function App() {
     return () => ro.disconnect();
   }, []);
 
-  // Safari parks a stage a few px into its overshoot slack after a chrome
-  // dance (a scrollTo(0,0) does not stick) — the doc content rides along
-  // coherently, but the PIN-hosted actor is viewport-anchored and would
-  // drift off its slot. Track document scroll on the reading and re-place
-  // through pinDelta so the card stays glued whatever the browser does.
+  // THE READING FOLLOWER (belt only). With the deck's grid scrolling
+  // independently of the document, the document sits at 0 through the
+  // whole ride and the Lenses composes like the Approach — nothing to
+  // reconcile, nothing to reseat. Safari may still park a resting stage
+  // a few px into the overshoot slack on a chrome settle (the same
+  // exposure the Approach has always had): if the document ever moves,
+  // the pin-hosted card and eyebrow re-place through pinDelta so the
+  // stage rides AS ONE — internal shear is impossible. POLLED, not
+  // scroll-event-driven (engine parks don't reliably fire events).
+  // Never write scroll here — fighting parks summoned the backdrop.
   React.useEffect(() => {
     if (!docMode || phase !== "reading") return;
-    let raf = null;
-    const sync = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => { raf = null;
-        if (!clock.running() && phaseRef.current === "reading") { placeOnReadSlot(true); }
-      });
+    let raf = null, lastY = window.scrollY;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      const y = window.scrollY;
+      if (y === lastY) return;
+      lastY = y;
+      if (!clock.running() && phaseRef.current === "reading") { placeOnReadSlot(true); placeEyebrowOnRead(true); }
     };
-    window.addEventListener("scroll", sync, { passive: true });
-    sync();
-    return () => { window.removeEventListener("scroll", sync); if (raf) cancelAnimationFrame(raf); };
+    raf = requestAnimationFrame(tick);
+    return () => { if (raf) cancelAnimationFrame(raf); };
   }, [docMode, phase]);
 
   // live tracking: the read-card slot is flex-sized on mobile — when text
@@ -487,11 +502,16 @@ function App() {
   React.useEffect(() => {
     const H = document.documentElement;
     H.classList.toggle("va-doc", docMode);
-    H.classList.toggle("va-flow-deck", docMode && mounts.deck);
-    H.classList.toggle("va-flow-mem", docMode && mounts.memory && !mounts.deck);
-    H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.deck && !mounts.memory);
-    H.classList.toggle("va-flow", docMode && (mounts.deck || mounts.memory || pourMounted));
-  }, [docMode, mounts.deck, mounts.memory, pourMounted]);
+    // THE DECK IS NOT A FLOW VIEW (Ed's construction, Jul 12 2026): its
+    // grid is an independent scroller layered over the stage, so the
+    // document keeps the stage shape while the deck is up — the Lenses
+    // then composes exactly like the Approach, indifferent to the grid's
+    // scroll depth. Only the ledger and the pour unwrap into the document.
+    H.classList.remove("va-flow-deck");
+    H.classList.toggle("va-flow-mem", docMode && mounts.memory);
+    H.classList.toggle("va-flow-pour", docMode && pourMounted && !mounts.memory);
+    H.classList.toggle("va-flow", docMode && (mounts.memory || pourMounted));
+  }, [docMode, mounts.memory, pourMounted]);
   // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
   // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
   // the compositor on iOS and made every overlay jitter.
@@ -566,23 +586,6 @@ function App() {
     };
     requestAnimationFrame(step);
   };
-  // gate for beats that compose visible doc-anchored layout: run once the
-  // scroll is HOME AND STABLE (user verdict: "gets to 0 and stays at 0")
-  // — at 0, or parked-stable within Safari's overshoot slack. The old
-  // fixed timeout fired mid-walk and painted the Lenses high.
-  const whenScrollHome = (fn) => {
-    const t0 = performance.now();
-    let lastY = null, stable = 0;
-    const w = () => {
-      const y = window.scrollY;
-      stable = (lastY != null && Math.abs(y - lastY) <= 1) ? stable + 1 : 0;
-      lastY = y;
-      if (y <= 2 || (stable >= 8 && y <= 40) || performance.now() - t0 > 3500) fn();
-      else requestAnimationFrame(w);
-    };
-    w();
-  };
-
   // ---- THE RIDE (deck/memory tile → center, on a scrolled page) ----
   // A flying card and a gliding window CANNOT be animated against each other
   // on iOS: the compositor applies scroll on its own clock while a CSS
@@ -946,6 +949,10 @@ function App() {
     // shipped return glide — hides inside the whole-screen release sink
     glideScrollTop();
     clock.cancel();
+    // the takeover's tile-hide must not survive into the next deck visit:
+    // a stale pickedId renders that tile visibility-hidden forever (the
+    // "picked card's slot comes back empty" bug)
+    setPickedId(null);
     if (p === "approach" || p === "reform" || p === "pull") {
       // from the approach: UI + deck fade on the UI-exit curve, grid rises
       setReleasing(false);
@@ -994,13 +1001,13 @@ function App() {
   // flying from the tile's own rect instead of pulling from the deck
   const runDeckDraw = (id, r) => {
     if (phaseRef.current !== "deck") return;
-    // THE RIDE: nothing scrolls while the grid is visible — the tiles
-    // fade down IN PLACE and the pinned card flies. Then the window walks
-    // home SLOWLY and LINEARLY under the faded page (bleed beat): slow
-    // enough that WebKit rasterizes ahead (~1400px/s — half the speed the
-    // probe's stepped scrolling proved clean), invisible because the only
-    // moving pixels are the field gradient and grain. Teleports and fast
-    // glides are DEAD — both blank the whole compositor tree on device.
+    // THE RIDE (Ed's construction): the grid is an independent scroller
+    // layered over the stage — the DOCUMENT is at 0 the whole time, so
+    // there is nothing to reconcile. The tiles fade down in place inside
+    // their own scroller, the pinned card flies in viewport space, the
+    // faded grid unmounts at the rest beat (no document height change),
+    // and the Lenses composes exactly like the Approach: indifferent to
+    // how deep the grid was scrolled.
     setCard(id);
     setReleasing(false);
     setDeeper(null); hintDoneRef.current = false;
@@ -1051,13 +1058,10 @@ function App() {
       const pr = el && el.decode ? Promise.race([el.decode().catch(() => {}), new Promise((r) => setTimeout(r, 250))]) : Promise.resolve();
       pr.then(launch);
     } });
-    // the walk starts the moment the tiles finish fading (dUiExit)
-    evA.push({ t: T.dUiExit, run: () => walkScrollHome() });
-
-    // ---- THE APEX HOLD (user law): the card rests at its apex for at
-    // least 300ms, and LONGER until the scroll is home AND stable — a
-    // Safari rubber-band bounce at 0 must fully settle before the rest of
-    // the sequence is allowed to compose the Lenses. Hard ceiling 6s.
+    // ---- THE APEX HOLD (user law): the card rests at its apex for
+    // 300ms before the sequence resumes. (The old scroll conditions are
+    // gone with the document-scrolled deck — there is no debt to wait
+    // out.)
     const resumeAt = TL.lift.d + dv(300);
     const evB = [];
     const base = sh(TL.bleed.s);  // the first post-apex beat
@@ -1088,8 +1092,11 @@ function App() {
       const d = pinDelta();
       if (rr) setActor((a) => a && ({ ...a, left: rr.left - d.dx, top: rr.top - d.dy, width: rr.width, ar: rr.height / rr.width,
         dur: dv(TL.rest.d), ease: E("easeRest"), instant: false }));
-      // release the faded grid (scroll is settled — no clamp-jump)
+      // release the faded grid (scroll is settled — no clamp-jump), and the
+      // tile-hide with it — the grid unmounts in the same commit, so the
+      // tile never paints, and the next deck mount renders it whole
       setMounts((m) => (m.deck ? { ...m, deck: false } : m));
+      setPickedId(null);
     } });
     evB.push({ t: sh(TL.voice.s) - base, run: () => { setPhase("voice"); setVoiceOn(true); } });
     evB.push({ t: sh(TL.lenses.s) - base, run: () => { setPhase("lenses"); setLensesOn(true); } });
@@ -1098,16 +1105,14 @@ function App() {
       sh(TL.voice.s) + TL.voice.d, sh(TL.lenses.s) + TL.lenses.d + T.lensStep * 5) - base;
 
     clock.run(evA, Math.max(TL.lift.d + 40, T.dUiExit + 30), ffRef, () => {
-      let lastY = null, stable = 0;
       const hold = () => {
-        if (phaseRef.current !== "deckfly") return;  // ride abandoned
-        const y = window.scrollY;
-        stable = (lastY != null && Math.abs(y - lastY) <= 1) ? stable + 1 : 0;
-        lastY = y;
-        const heldLongEnough = performance.now() - rideT0 >= resumeAt;
-        const settled = y <= 2 || (stable >= 10 && y <= 40);
-        const ceiling = performance.now() - rideT0 > 6000;
-        if ((heldLongEnough && settled) || ceiling) {
+        // abandoned = any phase outside the ride. "deck" is tolerated:
+        // when a stalled frame collapses clock A into one tick, this
+        // callback runs before React commits the deckfly phase, and
+        // phaseRef still reads the pre-tap value for that one frame.
+        const p = phaseRef.current;
+        if (p !== "deckfly" && p !== "deck") return;
+        if (performance.now() - rideT0 >= resumeAt) {
           clock.run(evB, endB, ffRef, () => { setPhase("reading"); ffRef.current = 1; setFF(false); });
         } else requestAnimationFrame(hold);
       };
@@ -1395,6 +1400,13 @@ function App() {
       </svg>
       <div className={vaCls} style={phoneFrame ? { ...vars, width: "393px", height: "852px", flex: "none", transform: "scale(" + shellScale + ")" } : vars} ref={vaRef}>
         <div className={"rx " + (light ? "rx-light" : "rx-dark")}>
+          {/* THE FIELD (doc mode): the gradient lives on a sticky, zero-
+              footprint, one-viewport layer — the veil's own recipe — so the
+              field never moves with the document. Only the grid scrolls on
+              the deck; the field is pixel-identical from Deck to Lenses
+              (Ed's construction directive, Jul 12 2026). Outside doc mode
+              it is display:none and .rx paints the gradient as always. */}
+          <div className="va-field"></div>
           {c ? (
             <div className={"va-veilwrap" + (F.veilIn && bgReady ? " in" : "")}><div className="rx-veil"><img src={faceBg} alt="" decoding="async" /></div></div>
           ) : null}
@@ -1413,8 +1425,20 @@ function App() {
               (the vanishing-card flash on device). */}
           <div className="va-actor-pin" ref={actorPinRef}>
             <CardActor a={actor} face={actorFace} rPct={t.cardRadius} poster={c ? "assets/cards/thumbs/" + c.file + ".webp" : null}></CardActor>
+            {/* the eyebrow shares the actor's viewport anchor: its coords
+                are always measured at scroll ≈ 0, and pin-hosting means a
+                late park can never strand the title against the pinned
+                menu/card (it is only ever visible on stages and the pour
+                entry, where the document sits home) */}
+            {c ? <EyebrowActor e={eyeb} num={c.num} name={c.name} lens={lens ? lens.name : ""}></EyebrowActor> : null}
           </div>
 
+          {/* The stage layers stay DOC-ANCHORED. Pinning them (the
+              va-stage-pin experiment) made every stage a viewport-sized
+              pinned surface and summoned the toolbar backdrop on every
+              page — bisect-proven via the chrome-band probe. Parks are
+              handled the lawful way instead: the rest beat's one-shot
+              drain + the reading follower keep everything coherent. */}
           {mounts.approach ? (
             <Approach light={light} invite={invite} whisper={whisper} setWhisper={setWhisper}
               onDraw={() => runDraw()} onDeckHover={onDeckHover} F={F} spd={spd}></Approach>
@@ -1446,7 +1470,6 @@ function App() {
               onClosed={() => setDeeper(null)}></DeeperReading>
           ) : null}
 
-          {c ? <EyebrowActor e={eyeb} num={c.num} name={c.name} lens={lens ? lens.name : ""}></EyebrowActor> : null}
           <SmokeFX light={light}></SmokeFX>
 
           {toast ? <div className={"va-toast" + (light ? " light" : "")}>{toast}</div> : null}

@@ -18,11 +18,20 @@ constructions, bottom-anchored elements, viewport-sized pinned layers all
 summon it). That background puts a hard synthetic edge under the design and
 makes the app feel claustrophobic. Two goals, both absolute:
 
-- **Scrolling views (Deck, Pour, Memory) scroll off the bottom edge of the
-  device, behind translucent chrome, edge to edge.** Seeing the blocking
-  background there is a primary FAIL.
+- **Scrolling content (the Deck's grid, the Pour, the Memory ledger)
+  scrolls off the bottom edge of the device, behind translucent chrome,
+  edge to edge.** Seeing the blocking background there is a primary FAIL.
 - **Stages (Approach, Lenses) read as viewport-sized designs** — no
   scrolling, nothing moves — *without* triggering that same background.
+
+How each scrolls (Ed's architecture, Jul 12 2026): the POUR and the
+MEMORY ledger scroll the DOCUMENT (doc-flow, `va-flow-*` classes). THE
+DECK DOES NOT: its grid is an independent scroller (`.dk-scroll`,
+overflow-y auto, `overscroll-behavior: contain`, layer sized
+100lvh + safe-bottom for the edge-to-edge run) layered ABOVE the shared
+field in z-space. The document stays stage-shaped while the deck is up,
+so the Lenses composes exactly like the Approach — indifferent to grid
+depth — and no scroll reconciliation exists on that path at all.
 
 Chrome state itself (collapsed vs expanded) is **inconsequential by
 design**: stages have no hard bottom edge (the field fades into vignette),
@@ -50,20 +59,30 @@ scroll it on a stage. Best of both worlds.
 
 The z-stack, bottom to top:
 
-1. **The scroll ballast (document flow).** The field itself — background
-   gradient, etched veil art (sticky, zero flow footprint), paper grain
-   (absolute, covers the document) — rendered as in-flow content with
-   `min-height: 100lvh + safe-area + 100px overshoot` on stages. The
-   overshoot guarantees Safari always believes there is somewhere to
-   scroll: no seam ever shows behind the chrome, and the backdrop heuristic
-   never fires. (Side effect to respect: stages have ~100px of *real*
-   scroll slack. The pan rules below are what keep it unreachable.)
-2. **The approved viewport anchors.** Exactly four sticky constructions,
-   all hand-tuned during the chrome war: the **veil** (100lvh, negative
-   margin, zero footprint), the **status pin** (zero-height), the **actor
-   pin** (zero-height — the flying card's home), and the Pour's **foot
-   pin** (the one `position: fixed`, top-referenced, VisualViewport-tracked
-   construction). **This set is closed.**
+1. **The scroll ballast (document flow).** The document itself — sized by
+   in-flow content with `min-height: 100lvh + safe-area + 100px overshoot`
+   on stages. The overshoot guarantees Safari always believes there is
+   somewhere to scroll: no seam ever shows behind the chrome, and the
+   backdrop heuristic never fires. (Side effect to respect: stages have
+   ~100px of *real* scroll slack. The pan rules below keep it unreachable
+   by the user — but the ENGINE parks into it freely; see law 4.) The
+   paper grain rides the document (absolute — pinning it is poison, see
+   the RAFT verdict; uniform noise shows no motion anyway).
+2. **The approved viewport anchors.** Five sticky constructions — four
+   hand-tuned during the chrome war, one added by Ed's directive
+   (Jul 12, 2026): the **field** (`.va-field` — the gradient on the
+   veil's recipe, z-index −1 so all in-flow content paints above it;
+   only content moves when a view scrolls, and the field is
+   pixel-identical from Deck to Lenses; band-probe-verified clean), the
+   **veil** (100lvh, negative margin, zero footprint), the **status
+   pin** (zero-height), the **actor pin** (zero-height — the flying
+   card's AND the eyebrow actor's home), and the Pour's **foot pin**
+   (the one `position: fixed`, top-referenced, VisualViewport-tracked
+   construction). **This set is closed.** The dividing line, bisected
+   Jul 12 2026: zero-height pins hosting SMALL content and
+   zero-footprint background imagery are clean; a pinned FULL-VIEWPORT
+   layer — especially an interactive, pan-eating one — summons the
+   backdrop (the stage-pin dead end, below).
 3. **The stage UI layer.** A `.va-layer`: absolutely positioned, capped at
    `100dvh`, and — the crux — `touch-action: none`. It **eats the pan**.
    Every drag that lands on the stage dies here; the ballast below never
@@ -71,15 +90,19 @@ The z-stack, bottom to top:
 
 ## 3 · The laws
 
-1. **THE POISON RULE (absolute, no exceptions, no new members).** Nothing
-   in this app is ever `position: fixed`, viewport-sized-and-pinned, or
-   bottom-anchored beyond the four approved anchors in §2. Not "scoped to
-   one view", not "only during a transition", not as a paint hint. A
-   sticky viewport-sized grain — even restricted to the flow views —
-   summoned the backdrop on the deck and blanked the ride. Dead ends,
-   never resurrect: fixed anything, scroll-proxy spacers, `--va-sy` scroll
-   variables, viewport-locked textures, bottom-anchored bars, extra veil
-   wrapper transitions.
+1. **THE POISON RULE (absolute; new members only by Ed's decision, and
+   only band-probe-verified).** Nothing in this app is ever
+   `position: fixed`, viewport-sized-and-pinned, or bottom-anchored
+   beyond the approved anchors in §2. Not "scoped to one view", not
+   "only during a transition", not as a paint hint. A sticky
+   viewport-sized grain summoned the backdrop on the deck and blanked
+   the ride; PINNING THE STAGE LAYERS (the va-stage-pin experiment)
+   summoned it on every page including the Approach — bisect-proven
+   with scraps/backdrop-probe.py. Dead ends, never resurrect: fixed
+   anything, scroll-proxy spacers, `--va-sy` scroll variables, the
+   pinned GRAIN, pinned stage LAYERS, bottom-anchored bars, extra veil
+   wrapper transitions, and standing scroll-writers that fight the
+   engine's parking (the dead keeper — see law 4).
 2. **THE MEMBERSHIP RULE.** Every element that renders on a stage must
    live inside a pan-eating layer or carry `touch-action: none` itself.
    *Cautionary tale:* the Deeper affordance's invisible hit surface
@@ -88,45 +111,66 @@ The z-stack, bottom to top:
    slack. Any interactive element added to a stage must be audited against
    this rule, and the suite's stage pan-block test (to be added) makes the
    audit executable.
-3. **THE SCROLL LAWS (doc-flow).** The document scroll belongs to the
-   scrolling views alone. Stages park it and block pans. Mid-choreography
-   scroll motion is forbidden in every form — instant teleports blank the
-   entire compositor tree (~110ms, measured on the real page at 60fps;
-   even sticky layers vanish); wall-clock-eased glides catch-up-jump after
-   frame stalls and blank identically; first-time transform promotions
-   rasterize from scratch and blank. Scroll may only change: (a) under a
-   user's finger, (b) as a frame-based capped walk beneath fully faded
-   content — 350ms budget from any depth (≈ brisk-flick speed, which
-   native momentum runs without blanking; steady speed was never the
-   blank trigger — catch-up SPIKES were, so the walk bounds stall
-   catch-up at 40ms-worth per painted frame), or
-   (c) never visibly — the swap-grammar origin adoption proposed in
-   choreography-grammar.md §6.
-4. **SAFARI PARKS STAGES.** After the chrome settles, Safari may leave a
-   stage a few px into the overshoot slack; `scrollTo(0,0)` does not
-   stick. Doc-anchored content rides coherently. Anything viewport-anchored
-   (the actor on its pin) must convert through `pinDelta()` — never assume
-   a stage sits at exactly 0.
+3. **THE SCROLL LAWS (doc-flow — the Pour and the Memory ledger; the
+   deck's grid is NOT the document).** The document scroll belongs to
+   the doc-flow views alone. Stages park it and block pans; the deck's
+   grid scrolls itself and contains its overscroll. Mid-choreography
+   DOCUMENT scroll motion is forbidden in every form — instant teleports
+   blank the entire compositor tree (~110ms, measured on the real page
+   at 60fps; even sticky layers vanish); wall-clock-eased glides
+   catch-up-jump after frame stalls and blank identically; first-time
+   transform promotions rasterize from scratch and blank. Document
+   scroll may only change: (a) under a user's finger, (b) as a
+   frame-based capped walk beneath fully faded content (the MEMORY ride
+   — the deck ride has no document debt to pay, by construction), or
+   (c) never visibly. The deck ride's law is stricter and simpler:
+   **the document must not move a pixel** (suite T1).
+4. **SAFARI PARKS STAGES — on its own clock; never fight it, never
+   shear.** The engine can move a settled stage's scroll a few px into
+   the overshoot slack on a chrome settle (no CSS opt-out;
+   `overflow-anchor` unsupported in iOS 26 WebKit). Fighting parks is
+   poison (the dead keeper summoned the toolbar backdrop); pinning the
+   layers to dodge them is poison (the dead stage pin summoned it
+   everywhere). With the deck out of the document, nothing in the app
+   collapses the document or dances the chrome mid-flow anymore — the
+   exposure is the Approach's own, which shipped clean for months. The
+   remaining belt: the READING FOLLOWER (a read-only scroll poll —
+   engine parks do not reliably fire scroll events) re-places the
+   pin-hosted card and eyebrow through `pinDelta()` on any document
+   movement, so a parked stage rides AS ONE and internal shear (the
+   card slicing the voice) is impossible. Never write scroll at a
+   resting stage, and never assume a stage sits at exactly 0.
 
 ## 4 · Verification duties
 
 - **`scraps/choreo-tests.html`** runs before shipping any transition
-  change: deck exit (fade-in-place, walk velocity cap, tile sink, card
-  arc, home-by-end), lens pick (scroll 0, width stability, actor
-  continuity), the flip (decode gate, no hole, −180°), release (glide
-  smoothness, home at swap). **To add:** stage pan-block (synthetic drag
-  on the Lenses card — `scrollY` must not move), handoff continuity
-  (rect/rotation/shadow continuous within ~1px across the swap frame),
-  and a backdrop probe if we find a way to detect Safari's blocking
-  background programmatically.
+  change: deck exit (same-frame takeover, THE DOCUMENT NEVER MOVES, the
+  grid's own scroll holds still, tile sink, card arc), lens pick
+  (scroll 0, width stability, actor continuity), the flip (decode gate,
+  no hole, −180°), stage pan membership, handoff continuity, release
+  (glide smoothness, home at swap).
 - **Recorded video or it didn't happen.** Anything touching scroll,
   compositing, or the pinned set gets a safaridriver run on the REAL page
   (no iframe — the iframe hides document-scroll rasterization behavior),
   recorded via `simctl recordVideo`, frames extracted and eyeballed, with
   a luma trace for blank detection. Suite PASS is necessary, never
   sufficient.
+- **`scraps/backdrop-probe.py`** runs before shipping anything that
+  touches pinned/sticky/viewport-sized construction. The toolbar
+  backdrop IS detectable in the simulator (Ed spotted it in sim footage
+  — the old "bar region reads black" belief was wrong for the tell that
+  matters): the app's texture visible through/around the floating
+  chrome reads band stddev ≈ 3.5-45; the backdrop's flat fill reads
+  ≈ 2.0 with a hard top edge. Valid ONLY where the band carries
+  large-scale texture — the Reading (veil art) and the Deck at
+  MID-scroll (tiles); the Approach and the deck's bottom are
+  flat-on-flat there by design (A/B-verified pixel-identical across
+  constructions) and stay device-only evidence. Calibrated on the
+  stage-pin incident.
 - **The device pass is the final gate.** The simulator does not reproduce
-  real chrome gestures or real rasterization pressure.
+  real chrome gestures or real rasterization pressure — and its chrome
+  translucency differs in degree (the band probe sees the backdrop, not
+  the true device tint).
 
 ---
 

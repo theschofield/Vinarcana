@@ -250,6 +250,7 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
   const face = "assets/cards/" + c.file + ".webp";
   const [inCls, setInCls] = React.useState(false);
   const [shown, setShown] = React.useState(false);
+  const [closing, setClosing] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const [atEnd, setAtEnd] = React.useState(false);
   const flipRef = React.useRef(null);
@@ -345,13 +346,20 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
     // holding the raise until unmount left the background briefly brighter
     // than rest, then dimming after the card settled
     const va = vaRoot(); if (va) va.classList.remove("dr-veil-up");
-    setInCls(false); setShown(false);
-    if (flip && flipper && o) {
-      apply(flip, o.r, o.radius, o.rot);
-      if (shdw) shdw.style.boxShadow = o.shadow;
-      flipper.style.transform = "rotateY(0deg)";
-      setTimeout(onClosed, flipDur + 60);
-    } else { onClosed(); }
+    setInCls(false); setShown(false); setClosing(true);
+    // the text LEADS the card: it drops + fades (the entrance reversed)
+    // for a beat before the flip-back begins — started together, the
+    // swift curve turns the back face past 90° almost instantly and
+    // backface-visibility cuts the exit off mid-fade
+    const flyBack = () => {
+      if (flip && flipper && o) {
+        apply(flip, o.r, o.radius, o.rot);
+        if (shdw) shdw.style.boxShadow = o.shadow;
+        flipper.style.transform = "rotateY(0deg)";
+        setTimeout(onClosed, flipDur + 60);
+      } else { onClosed(); }
+    };
+    setTimeout(flyBack, 140);
   };
 
   const onScroll = (e) => {
@@ -365,7 +373,7 @@ function DeeperReading({ card, src, light, flipDur, flipEase, rPct, onClosed }) 
   return (
     <div className={"va-layer dr-layer" + (inCls ? " in" : "")} data-screen-label="Flow — Deeper Reading">
       <div className="gp-scrim" onClick={close}></div>
-      <div ref={flipRef} className={"dr-flip" + (shown ? " shown" : "")}>
+      <div ref={flipRef} className={"dr-flip" + (shown ? " shown" : "") + (closing ? " closing" : "")}>
         <div ref={flipperRef} className="dr-flipper">
           <div ref={shdwRef} className="shdw"></div>
           <div className="dr-face"><img src={face} alt="" draggable={false} decoding="sync" /></div>

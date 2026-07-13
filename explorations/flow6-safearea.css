@@ -26,6 +26,17 @@
   margin-bottom: calc(30px + env(safe-area-inset-bottom));
 }
 
+/* The Lenses: the reading column tops out at the MENU ROW's bottom edge —
+   status pad-top + the menu's 13px mono line + the links' 16px hit-target
+   padding — so the eyebrow container's own 24px top pad renders the card
+   name exactly 40px below the menu letters (the stacking law: 16 + 24,
+   Ed, Jul 12 2026). The old fixed 44px (flow2 phone-frame era) started
+   the column 9px INSIDE the menu row — every reading, both paths, sat
+   10px high of the design. Desktop (orbit) keeps its own tuned geometry. */
+.va:not(.vw-desk) .rx-read {
+  padding-top: calc(max(24px, env(safe-area-inset-top)) + 13px + 16px);
+}
+
 /* The Lenses: "turn toward the one that knows you" foot line */
 .va .rx-read-foot {
   padding-bottom: calc(22px + env(safe-area-inset-bottom)) !important;

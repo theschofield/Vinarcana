@@ -86,8 +86,14 @@
 .va .dr-panelfix { position: absolute; left: 50%; top: 50%; z-index: 2;
   width: var(--drPW, 340px); height: var(--drPH, 583px);
   opacity: 0; transform: translate(-50%, calc(-50% + 18px));
-  transition: opacity 480ms ease, transform 700ms cubic-bezier(0.16, 0.72, 0.18, 1); }
+  transition: opacity 760ms ease, transform 700ms cubic-bezier(0.16, 0.72, 0.18, 1); }
 .va .dr-flip.shown .dr-panelfix { opacity: 1; transform: translate(-50%, -50%); }
+/* the close reverses the entrance — the text drops and fades out, LEADING
+   the flip-back by a beat (close() delays the card's turn 140ms): the
+   swift flip curve passes 90° almost immediately, and backface-visibility
+   would guillotine a fade that merely ran concurrently (Ed, Jul 12 2026) */
+.va .dr-flip.closing .dr-panelfix {
+  transition: opacity 440ms ease, transform 520ms cubic-bezier(0.5, 0.05, 0.72, 0.46); }
 .va .dr-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none;
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 .va .dr-scroll::-webkit-scrollbar { display: none; }
@@ -103,14 +109,14 @@
 .rx-light .dr-layer .gp-title { color: rgba(21,34,49,0.94); }
 
 /* keywords: the serif procession — bigger, grounded, never broken mid-symbol */
-.dr-layer .gp-kwline { margin-top: 14px; text-align: left; font-family: "DM Serif Display", serif; font-style: italic; font-size: 16px; line-height: 1.5; color: rgba(239,236,228,0.72); text-wrap: pretty; }
+.dr-layer .gp-kwline { margin-top: 14px; text-align: left; font-family: "DM Serif Display", serif; font-style: italic; font-size: 16px; line-height: 1.5; color: rgba(239,236,228,0.72); }
 .rx-light .dr-layer .gp-kwline { color: rgba(21,34,49,0.72); }
 .dr-layer .gp-kwline .kwu { white-space: nowrap; }
 .dr-layer .gp-kwline .sep { display: inline-block; width: 3.5px; height: 3.5px; transform: rotate(45deg); background: rgba(245,170,93,0.55); margin: 0 10px; vertical-align: middle; }
 .rx-light .dr-layer .gp-kwline .sep { background: rgba(198,127,65,0.65); }
 
 .dr-layer .gp-body { padding: 0 20px 26px; position: relative; }
-.dr-layer .gp-para { font-family: "Instrument Sans", sans-serif; font-size: 13.5px; line-height: 1.62; color: rgba(239,236,228,0.66); margin: 12px 0 0; text-wrap: pretty; }
+.dr-layer .gp-para { font-family: "Instrument Sans", sans-serif; font-size: 13.5px; line-height: 1.62; color: rgba(239,236,228,0.66); margin: 12px 0 0; }
 .rx-light .dr-layer .gp-para { color: rgba(21,34,49,0.7); }
 
 .dr-layer .gp-label { display: flex; align-items: center; gap: 10px; margin: 28px 0 4px; }
@@ -121,7 +127,7 @@
 
 .dr-layer .gp-closing { margin-top: 34px; padding-top: 26px; border-top: 1px solid rgba(239,236,228,0.1); text-align: center; }
 .rx-light .dr-layer .gp-closing { border-top-color: rgba(21,34,49,0.13); }
-.dr-layer .gp-close-line { font-family: "DM Serif Display", serif; font-style: italic; font-size: 19px; line-height: 1.32; color: rgba(239,236,228,0.9); text-wrap: pretty; padding: 0 8px; }
+.dr-layer .gp-close-line { font-family: "DM Serif Display", serif; font-style: italic; font-size: 19px; line-height: 1.32; color: rgba(239,236,228,0.9); padding: 0 8px; }
 .rx-light .dr-layer .gp-close-line { color: rgba(21,34,49,0.9); }
 .dr-layer .gp-close-btn { display: inline-block; margin-top: 20px; padding: 13px 24px; border: 1px solid rgba(245,170,93,0.35); border-radius: 999px; font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--apri); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .rx-light .dr-layer .gp-close-btn { border-color: rgba(198,127,65,0.5); color: var(--amber); }

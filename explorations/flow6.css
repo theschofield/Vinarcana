@@ -25,11 +25,12 @@
 
 .va .dk-screen { z-index: 4; }
 
+/* no edge fades on the grid (Ed, Jul 12 2026): tiles run clean off the
+   screen edges — in doc mode the layer overshoots the physical bottom
+   like the stage ballast does, so there is never a seam or a dissolve */
 .va .dk-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none;
   -webkit-overflow-scrolling: touch; box-sizing: border-box;
-  padding: 56px 18px 36px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 52px, #000 calc(100% - 26px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0px, #000 52px, #000 calc(100% - 26px), transparent 100%); }
+  padding: 56px 18px 36px; }
 .va .dk-scroll::-webkit-scrollbar { display: none; }
 .va.vw-desk .dk-scroll { padding: 60px 40px 44px; }
 
@@ -97,9 +98,13 @@
    Desktop (.vw-desk) keeps its own tuned geometry. */
 .va:not(.vw-desk) .rv-namewrap { top: 12px; transform: none; }
 
-/* the blurb fills its measure — text-wrap: pretty left a deep ragged edge
-   (read as "the column is narrower than the attributes below it") */
-.va:not(.vw-desk) .rv-body { text-wrap: normal; }
+/* PARAGRAPHS FILL THEIR MEASURE — no pretty-wrap anywhere on body text
+   (Ed, Jul 12 2026: lines were breaking early "even when there is
+   clearly enough room for the next word"; the rag/widow control isn't
+   worth the short lines). Display text keeps its deliberate wrap
+   control: rv-headline (pretty, widow law), rv-wine (balance), the
+   voice line. round13 stays untouched — this override is the canon. */
+.va .rv-body { text-wrap: normal; }
 
 /* ---- header: DECK link active state ---- */
 .rx-dark .rx-status .dk-link.on { color: var(--apri); }
