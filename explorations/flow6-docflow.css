@@ -217,23 +217,27 @@ html.va-doc .va:not(.vw-desk) .rv-screen {
 html.va-doc .va:not(.vw-desk) .rv-vscroll {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(200px + env(safe-area-inset-bottom));
+  /* end-of-scroll rest: snug above the buttons (Ed trimmed 99px off
+     the first cut, then sat the bar 20px lower) */
+  padding-bottom: calc(101px + env(safe-area-inset-bottom));
 }
 html.va-doc .va:not(.vw-desk) .rv-pours {
   overscroll-behavior-x: contain;
 }
-/* the foot bar keeps the LOCKED top-referenced geometry
-   (top: foot-vh − 88px — the clean floor above the expanded chrome)
-   but drops position:fixed: it is absolute INSIDE the pan-eating
-   layer now. The fixed bottom-hugging bar was the prime remaining
-   backdrop suspect — the doc-scroll pour read band stddev 2.03 (flat
-   fill) against the reading's 3.57 with identical veil/field/grain.
-   With the document never scrolling, --foot-vh is constant and the
-   bar simply sits. */
+/* the foot bar keeps the top-referenced geometry but drops
+   position:fixed: it is absolute INSIDE the pan-eating layer now. The
+   fixed bottom-hugging bar was the prime remaining backdrop suspect —
+   the doc-scroll pour read band stddev 2.03 (flat fill) against the
+   reading's 3.57 with identical veil/field/grain. With the document
+   never scrolling, --foot-vh is constant and the bar simply sits.
+   68px: Ed sat the bar 20px lower than the fixed era's 88px "clean
+   floor" once the conviction landed — the fixed-era caution about
+   going lower no longer binds (the bar is not fixed; the band probe
+   gates any regression). */
 html.va-doc .va:not(.vw-desk) .va-foot-pin {
   display: flex; flex-direction: column; justify-content: flex-end;
   position: absolute; left: 0; right: 0;
-  top: calc(var(--foot-vh, 100svh) - 88px); bottom: auto;
+  top: calc(var(--foot-vh, 100svh) - 68px); bottom: auto;
   height: auto; margin: 0; pointer-events: none; z-index: 35; overflow: visible;
 }
 html.va-doc .va:not(.vw-desk) .va-foot-pin > .rv-dotswrap {
