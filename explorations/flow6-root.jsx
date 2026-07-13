@@ -234,9 +234,14 @@ function App() {
   const ffRef = React.useRef(1);
   const [vaH, setVaH] = React.useState(800);
   const [vaW, setVaW] = React.useState(400);
-  // in document-flow the .va grows with scroll content; every consumer of
-  // vaH means "the screen", so clamp to the visual viewport
-  const clampVaH = (el) => document.documentElement.classList.contains("va-flow")
+  // every consumer of vaH means "the screen" — clamp to the visual
+  // viewport in ALL of doc mode, not just the flow views: STAGES carry
+  // the ballast too (100lvh + safe + 100px overshoot), and the old
+  // va-flow gate let that taller box define the screen on the Approach
+  // and the Lenses — the deck lift's "center" sat ~20px low on Safari
+  // (Ed's diagnosis, Jul 12 2026). The screen is the same box the
+  // deeper reading centers within: the visible viewport.
+  const clampVaH = (el) => document.documentElement.classList.contains("va-doc")
     ? Math.min(el.offsetHeight, window.innerHeight) : el.offsetHeight;
   const [shellScale, setShellScale] = React.useState(1);
   const [fontsTick, setFontsTick] = React.useState(0);

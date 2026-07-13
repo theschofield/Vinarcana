@@ -1251,3 +1251,18 @@ beneath; the grid's bottom edge crisp behind the chrome pills.
   enough room for the next word" — the rag/widow control isn't worth short
   lines. Display text keeps its deliberate wrap control (rv-headline pretty,
   rv-wine balance, the voice line). Suite 6/6.
+
+
+## THE SCREEN IS WHAT YOU CAN SEE — vaH clamps in all of doc mode (Jul 12, 2026)
+Ed's diagnosis, exact: the deck lift's "center" was the center of the BALLAST.
+`clampVaH`/`vaSize()` clamped .va's height to the window only under `va-flow`
+(pour/memory) — but the STAGES carry the ballast too (100lvh + safe + 100px), so on
+Safari the Approach hero's margin resolved against 854px instead of the visible 714:
+the deck sat ~21px low (his "always felt weirdly low on Safari"), and the flight's
+Optical centre rode ~8% low of the tuned token. The gate is now `va-doc`: the screen
+is the same box the deeper reading centers within — the visible viewport (Ed's
+definition). Measured after: --vaH 714 against offsetHeight 854; hero margin
+128 → 107; the settle's card center at exactly 44% of the viewport (314px). The
+reading's rest layout is slot-based and unmoved (fingerprints identical); vh-tall
+consumers are desktop-only; the studio phone frame never had ballast, so tuned
+values there are unchanged — the device now matches them. Suite 6/6.

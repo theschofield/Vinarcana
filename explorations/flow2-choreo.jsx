@@ -23,9 +23,14 @@ function slotRect(name) {
 function vaSize() {
   const va = vaRoot(); if (!va) return { w: 390, h: 800 };
   let h = va.offsetHeight;
-  // document-flow mode: the .va grows with the scroll content — stage
-  // choreography wants the VISUAL viewport, not the document height
-  if (document.documentElement.classList.contains("va-flow")) h = Math.min(h, window.innerHeight);
+  // doc mode: the .va is ALWAYS taller than the screen — flow views grow
+  // with scroll content, and the stages carry the ballast (100lvh + safe
+  // + 100px overshoot). Choreography wants the VISUAL viewport — the
+  // same box the deeper reading centers within. The old va-flow gate
+  // skipped the clamp on stages, so the optical centre (and the deck
+  // lift's midpoint) rode the ballast's center, ~8% low on Safari
+  // (Ed's diagnosis, Jul 12 2026).
+  if (document.documentElement.classList.contains("va-doc")) h = Math.min(h, window.innerHeight);
   return { w: va.offsetWidth, h };
 }
 
