@@ -11,7 +11,9 @@ Case-sensitive paths: a wrong-case asset name 404s on Vercel but works locally.
   handoff contracts, the apex, device laws). Canvas-reviewed. Read before ANY
   transition work.
 - **docs/stage-construction.md** — the scroll decoy that keeps Safari's
-  chrome translucent (poison rule, membership rule, scroll laws). Read before
+  chrome translucent (poison rule, membership rule, scroll laws), and §5
+  THE SCREEN RECIPE — every screen is a STAGE or a SCROLL OWNER; follow
+  it verbatim when building ANY new screen (Cellar included). Read before
   touching layout, positioning, or anything viewport-related.
 - **docs/design-decisions.md** — the append-only verdict log (user taste +
   hard-won laws). Append new verdicts there; never rewrite history.

@@ -68,13 +68,15 @@ scroll it on a stage. Best of both worlds.
 
 The z-stack, bottom to top:
 
-1. **The scroll ballast (document flow).** The document itself — sized by
-   in-flow content with `min-height: 100lvh + safe-area + 100px overshoot`
-   on stages. The overshoot guarantees Safari always believes there is
-   somewhere to scroll: no seam ever shows behind the chrome, and the
-   backdrop heuristic never fires. (Side effect to respect: stages have
-   ~100px of *real* scroll slack. The pan rules below keep it unreachable
-   by the user — but the ENGINE parks into it freely; see law 4.) The
+1. **The scroll ballast (document flow).** The document itself — sized
+   `min-height: 100lvh + safe-area + 100px overshoot` on EVERY screen
+   (unconditional since Jul 14 2026 — no view scrolls the document, so
+   nothing ever reshapes it). The overshoot guarantees Safari always
+   believes there is somewhere to scroll: no seam ever shows behind the
+   chrome, and the backdrop heuristic never fires. (Side effect to
+   respect: every screen has ~100px of *real* document scroll slack.
+   The pan rules below keep it unreachable by the user — but the ENGINE
+   parks into it freely; see law 4.) The
    paper grain rides the document (absolute — pinning it is poison, see
    the RAFT verdict; uniform noise shows no motion anyway).
 2. **The approved viewport anchors.** Five sticky constructions — four
@@ -120,8 +122,14 @@ The z-stack, bottom to top:
    (`.dr-hit`) was rendered as a sibling of the layers — outside the
    pan-eating regime — so dragging the Lenses card scrolled the decoy's
    slack. Any interactive element added to a stage must be audited against
-   this rule, and the suite's stage pan-block test (to be added) makes the
-   audit executable.
+   this rule, and the suite's stage pan-block test (T5) makes the
+   audit executable. The ONE lawful exemption is the SCROLL-OWNER
+   layer (`.dk-screen`, `.rv-screen`, `.mf-screen`): it does not eat
+   the pan — its inner scroller consumes it, with `overscroll-behavior:
+   contain` (and, where content can be short, the ≥1px ballast) keeping
+   every pan out of the document. A new scroll owner must be added to
+   the `:not(...)` list on the pan-block selector in flow6-docflow.css,
+   or the layer's own `touch-action: none` will kill its scroll.
 3. **THE SCROLL LAWS (closed form, Jul 14 2026 — no view is the
    document).** NOTHING SCROLLS THE DOCUMENT: stages park it and block
    pans; the deck, the pour, and the memory ledger scroll themselves
@@ -190,6 +198,67 @@ The z-stack, bottom to top:
   real chrome gestures or real rasterization pressure — and its chrome
   translucency differs in degree (the band probe sees the backdrop, not
   the true device tint).
+
+## 5 · BUILDING A NEW SCREEN — the recipe (Jul 14, 2026)
+
+Distilled from the three conversions (deck → pour → memory) so the next
+screen composes in harmony BY CONSTRUCTION instead of by another round
+of convictions. Every screen in this app is exactly one of two kinds —
+decide which first, then follow the recipe verbatim.
+
+**A STAGE** (the Approach, the Lenses): nothing scrolls, nothing moves.
+- One `.va-layer` over the shared field/veil/status — it composes like
+  the Approach and inherits everything: docflow caps it at 100dvh and
+  makes it eat the pan (law 2; suite T5 audits every touchable point).
+- No hard bottom edge — content dissolves into the field's vignette;
+  bottom-anchored TEXT pads out by safe-area (the rx-draw-hint pattern).
+- The §2 anchor set is CLOSED: no new sticky/fixed/pinned construction
+  without Ed's decision and a band-probe verdict.
+
+**A SCROLL OWNER** (the Deck, the Pour, the Memory ledger): content
+scrolls in its own layer; THE DOCUMENT NEVER MOVES.
+- The layer: a `.va-layer` sized `100lvh + env(safe-area-inset-bottom)`
+  so content runs edge-to-edge behind the translucent chrome (add the
+  deck's +100px overshoot only for a mask-free bottom edge). Add the
+  layer's class to the `:not(...)` exemption list on the docflow
+  pan-block selector, or its inherited `touch-action: none` kills the
+  scroll.
+- The scroller inside: absolute inset 0 · `overflow-y: auto` ·
+  `touch-action: pan-y` · `overscroll-behavior: contain` ·
+  `-webkit-overflow-scrolling: touch` · scrollbars hidden. (The pour's
+  snap-x panes are the exception that proves it: NO touch-action there,
+  because the horizontal pan must chain up to the snap container —
+  containment alone keeps pans out of the document.)
+- THE BALLAST: if content can ever be shorter than the scrollport,
+  guarantee ≥1px of scroll (`min-height: calc(100% + 1px)` on the
+  scroller's one child) — overscroll containment only binds on a box
+  that can actually scroll, and a pan that skips an unscrollable
+  scroller lands in the document's slack.
+- End-of-scroll rest: padding-bottom sits the last row clear of the
+  expanded chrome (memory 100px + safe; deck 200 — repaying its
+  overshoot; pour 101 — tuned to its bar. Ed tunes these on device).
+- The top fade: scroll-armed `--vaTopFade` (registered in flow2.css;
+  `.scrolled` past 4px, 280ms ease). Viewport-top scrollers span the
+  menu band — `calc(max(24px, env(safe-area-inset-top)) + 72px)`;
+  scrollers under a fixed header use the Pour's 38px. NO bottom fade on
+  an edge-to-edge scroller.
+- Row gestures follow the memory pattern: `touch-action: pan-y` on the
+  row, pointer events own the horizontal axis, and anything revealed is
+  a CLIP that tracks the drag — never a visibility flip.
+
+**BOTH KINDS:**
+- Mounting or unmounting NEVER reshapes the document — it is stage
+  ballast, unconditionally, on every screen.
+- Cards travel only as THE actor from its pin (never remounted, decode-
+  gated); takeovers on a scrolled layer convert through `pinDelta()`;
+  exits fade IN PLACE on the house curves (choreography-grammar §3).
+- Wire the screen into `window.__vaDrive` so the suite and the probe
+  can drive it headlessly.
+- Duties before shipping: grow the suite (a new scroll owner gets its
+  own THE-DOCUMENT-NEVER-MOVES test), add a band-probe step where the
+  screen puts texture in the chrome band, drive the full loop in the
+  sim, then Ed's device pass. Any test that seeds state must RESTORE
+  it — the suite runs against the live site.
 
 ---
 

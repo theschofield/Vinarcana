@@ -1374,5 +1374,20 @@ snap inset(0), close snap inset 118, inline always handed back to CSS); suite
 7/7; band probe PASS all four, values unchanged (deck-mid 42.34 · reading 3.57
 · pour 3.73 · memory-mid 4.27) — the fades never touch the bottom band;
 desktop wrapped loop: swipe-open/close on mouse, 38px list fade, zero console
-errors. Ed's device pass pending — the swipe FEEL under a real finger and the
-two fade lengths are his to judge.
+errors. Ed's device pass PASSED same day — shipped.
+
+
+## THE SCREEN RECIPE IS CANON — the closed architecture, written forward (Jul 14, 2026)
+With the last doc-scrolled view converted, the canon audit closed the era in
+the docs: the document is stage-shaped UNCONDITIONALLY (stage-construction §2.1
+no longer says "on stages" — every screen carries the ballast and its ~100px
+parking slack); the membership rule (§3 law 2) now NAMES its one lawful
+exemption — the scroll-owner layer — and the maintenance duty that comes with
+it (new owners join the `:not()` list on the pan-block selector, or their own
+touch-action kills their scroll). And the three conversions are distilled into
+**stage-construction §5, BUILDING A NEW SCREEN**: every screen is a STAGE or a
+SCROLL OWNER, each with a verbatim recipe (layer sizing, scroller settings,
+the 1px ballast, end-of-scroll rests, the two top-fade lengths, row-gesture
+pattern, __vaDrive wiring, and the grow-the-suite/probe duties). Future
+features — the Cellar first among them — are built from the recipe, not from
+re-derivation. CLAUDE.md points at §5 for any new screen.
