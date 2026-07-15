@@ -35,6 +35,12 @@
   T4 RELEASE · let-it-fade from a scrolled pour
      · the pour's panes scroll in their own layer over the stage —
        THE DOCUMENT NEVER MOVES through the release, from any depth
+  T7 MEMORY RIDE · row → Pour from a scrolled ledger
+     · the ledger scrolls in its own layer over the stage (Ed's
+       construction, Jul 14 2026) — THE DOCUMENT NEVER MOVES through
+       the ride, the ledger's own scroll holds still while its rows
+       fade, and the row's mini card → actor takeover is same-frame
+     · seeds a throwaway ledger and RESTORES the real va-memory after
 
   Machine-readable copy of the report: window.__choreoReport
 -->
@@ -335,6 +341,81 @@
     if (v4 < 50) fails.push("pane only scrolled " + v4 + "px — scrolled-release premise weak");
     book("T4 release", verdict("T4 release (pane at " + v4 + ", document still)", fails), fails);
     await waitPhase("approach", 40);
+  }
+
+  // ---------- T7 · MEMORY RIDE (row → Pour from a scrolled ledger) ----------
+  // Ed's construction (Jul 14 2026): the ledger scrolls in its own layer
+  // over the stage — the DOCUMENT never moves through the ride, from any
+  // ledger depth, and the frame-walk is retired.
+  say("T7 memory ride — running…");
+  const memBackup = W().localStorage.getItem("va-memory");
+  try {
+    // seed a full throwaway ledger from the app's own pour data, so the
+    // scrolled-ride premise holds and every row can re-enter The Pour
+    const P = W().POURS || {};
+    const cards = Object.keys(P).filter(id => W().ARCANA && W().ARCANA[id]);
+    const seeds = [];
+    for (let i = 0; i < 18 && cards.length; i++) {
+      const cid = cards[i % cards.length];
+      const byLens = P[cid] || {};
+      const ln = Object.keys(byLens).find(k => (byLens[k] || []).length);
+      if (!ln) continue;
+      const p = byLens[ln][0];
+      seeds.push({ id: "t7-" + i, ts: Date.now() - i * 9 * 86400000, card: cid, lens: ln,
+        wine: p.wine, sub: p.sub || ["", ""], bottle: p.bottle || "assets/bottle-red.png",
+        jot: "suite row " + i, hearted: i % 3 === 0 });
+    }
+    W().localStorage.setItem("va-memory", JSON.stringify(seeds));
+    W().__vaDrive.memory();
+    if (!(await waitPhase("memory"))) throw new Error("never reached memory");
+    await sleep(1400);
+    const led = D().querySelector(".mf-scroll");
+    if (!led) throw new Error("no .mf-scroll — the ledger's layer scroller is missing");
+    led.scrollTop = led.scrollHeight;
+    await sleep(200);
+    led.scrollTop = Math.round(led.scrollTop * 0.6);
+    await sleep(600);
+    const m0 = Math.round(led.scrollTop);
+    const ms0 = Math.round(W().scrollY);
+    // tap a row that sits mid-screen at this depth
+    const vh7 = W().innerHeight;
+    const rows = [...D().querySelectorAll(".mf-row")];
+    const row = rows.find(r => { const b = r.getBoundingClientRect(); return b.top > vh7 * 0.25 && b.bottom < vh7 * 0.8; }) || rows[0];
+    const mini = row.querySelector(".mf-pair .card");
+    const mini0 = mini.getBoundingClientRect();
+    tap(row);
+    // same-frame takeover on the row's mini card (the handoff contract:
+    // Memory → Pour enters from the ledger row's real rendition)
+    const take7 = await new Promise(res => requestAnimationFrame(() => {
+      const a = D().querySelector(".va-card-actor");
+      if (!a) return res(null);
+      const r = a.getBoundingClientRect();
+      res({ dx: Math.abs(r.left - mini0.left), dy: Math.abs(r.top - mini0.top), dw: Math.abs(r.width - mini0.width) });
+    }));
+    const t7 = await sample(2600, () => ({
+      s: W().scrollY,
+      m: led.isConnected ? led.scrollTop : NaN,
+    }));
+    const fails = [];
+    if (m0 < 400) fails.push("ledger only scrolled " + m0 + "px — scrolled-ride premise weak");
+    if (!take7) fails.push("no actor one frame after the row tap");
+    else if (Math.max(take7.dx, take7.dy, take7.dw) > 1.5)
+      fails.push("takeover jumped " + Math.max(take7.dx, take7.dy, take7.dw).toFixed(1) + "px off the row's mini card");
+    const sMax7 = Math.max(...t7.map(r => Math.abs(r.s - ms0)));
+    if (sMax7 > 2) fails.push("the DOCUMENT moved " + Math.round(sMax7) + "px during the ride (law: the ledger never scrolls the document)");
+    const mRows = t7.filter(r => !isNaN(r.m));
+    if (mRows.length) {
+      const mMax = Math.max(...mRows.map(r => Math.abs(r.m - m0)));
+      if (mMax > 1) fails.push("the ledger's own scroll moved " + Math.round(mMax) + "px during the exit");
+    }
+    if (!(await waitPhase("reveal"))) fails.push("the ride never reached the reveal");
+    book("T7 memory ride", verdict("T7 memory ride (ledger at " + m0 + ", document still)", fails), fails);
+  } catch (e) {
+    const msg = [String((e && e.message) || e)];
+    book("T7 memory ride", verdict("T7 memory ride", msg), msg);
+  } finally {
+    if (memBackup == null) W().localStorage.removeItem("va-memory");
+    else W().localStorage.setItem("va-memory", memBackup);
   }
 
   say("— suite done · " + report.pass.length + " pass · " + report.fail.length + " fail" +

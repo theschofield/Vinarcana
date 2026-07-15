@@ -494,45 +494,37 @@ function App() {
 
   const onDeckHover = (h) => { if (phaseRef.current === "approach") placeOnDeck(false, h); };
 
-  // ---- iOS 26 immersion: constant three-layer construction ----
-  // (flow6-docflow.css) The field scrolls in the document; the veil + glow
-  // pin to the viewport; UI floats. Deck / Pour unwrap into the document
-  // WHENEVER MOUNTED — driven by the mounts, not the phase, so layouts
-  // never re-wrap mid-choreography (that re-wrap was the "wild background
-  // jump"). Leaving a scrolled view never glides: the content fades in
-  // place and the window TELEPORTS home at the mounts-swap beat, when
-  // everything still visible is pinned/sticky (zero visual delta).
+  // ---- iOS 26 immersion: the stage-shaped document ----
+  // (flow6-docflow.css) The field/veil pin to the viewport as sticky
+  // zero-footprint layers; UI floats; the document is stage ballast on
+  // every screen. Nothing unwraps anymore: the deck's grid, the pour's
+  // panes, and the memory ledger all scroll in their own layers over
+  // the stage, so no mount or unmount ever reshapes the document.
   const docMode = isRealMobile && !phoneFrame && !desktop && !isStandalone;
   React.useEffect(() => {
     const H = document.documentElement;
     H.classList.toggle("va-doc", docMode);
-    // THE DECK AND THE POUR ARE NOT FLOW VIEWS (Ed's construction,
-    // Jul 12 2026): their content scrolls in its own layer over the
-    // stage, so the document keeps the stage shape whenever they are
-    // up — every screen composes like the Approach, and the document
-    // never moves under a transition. Only the MEMORY ledger still
-    // scrolls the document.
-    H.classList.remove("va-flow-deck");
-    H.classList.remove("va-flow-pour");
-    H.classList.toggle("va-flow-mem", docMode && mounts.memory);
-    H.classList.toggle("va-flow", docMode && mounts.memory);
-  }, [docMode, mounts.memory]);
+    // NO VIEW SCROLLS THE DOCUMENT (Ed's architecture, completed
+    // Jul 14 2026 when the memory ledger left it): the va-flow class
+    // family is dead. Clear the legacy classes defensively.
+    ["va-flow", "va-flow-deck", "va-flow-pour", "va-flow-mem"].forEach((cl) => H.classList.remove(cl));
+  }, [docMode]);
   // overlay pinning is pure CSS (fixed) — see flow6-docflow.css. The
   // --va-sy scroll-var experiment is dead: rAF-throttled scroll vars trail
   // the compositor on iOS and made every overlay jitter.
   // THE SCROLL LAW (final form — three failed editions taught it):
-  // · Mid-choreography scroll motion is FORBIDDEN in every form. A
-  //   teleport blanks the whole compositor tree (~110ms, even sticky
-  //   layers); a fast glide outruns rasterization and blanks the same
-  //   way; pinning page textures to hide a glide is viewport-sizing —
-  //   POISON (summons the toolbar backdrop).
-  // · The RIDES (deck/memory tile taps) pay the debt AT TAP in one
-  //   COMPENSATED commit: window home + the still-painted view translated
-  //   up by the same amount (one composited layer, raster survives,
-  //   nothing visibly moves). The choreography then runs at scroll 0.
-  // · The RETURNS (release/toDeck/toMemory) keep the shipped tap-time
-  //   glide: the whole screen is sinking at once there, and that path
-  //   has years of device time behind it.
+  // · Mid-choreography DOCUMENT scroll motion is FORBIDDEN in every
+  //   form. A teleport blanks the whole compositor tree (~110ms, even
+  //   sticky layers); a fast glide outruns rasterization and blanks the
+  //   same way; pinning page textures to hide a glide is
+  //   viewport-sizing — POISON (summons the toolbar backdrop).
+  // · NOTHING SCROLLS THE DOCUMENT ANYMORE: the deck, the pour, and the
+  //   memory ledger own their scroll in layers over the stage, so no
+  //   ride or return has document debt to pay. glideScrollTop survives
+  //   as belt-and-braces only — stray/parked px at a transition's first
+  //   beat glide home invisibly (y < 2 is a no-op). The frame-walk
+  //   (walkScrollHome) retired with the doc-scrolled ledger,
+  //   Jul 14 2026 — it was the memory ride's mover and nothing else's.
   // · openDeeper keeps its in-place glide (approved on device).
   // onDone (optional) fires when the window is home — immediately if it
   // already is.
@@ -556,41 +548,8 @@ function App() {
     };
     requestAnimationFrame(step);
   };
-  // the quiet walk home — used ONLY under fully faded content (deck and
-  // memory rides). Frame-stepped (a stall can never catch-up-jump — jumps
-  // blank the compositor tree) but paced on the v6 GLIDE BUDGET: the whole
-  // walk finishes in ≤ ~680ms from ANY depth, the duration the shipped v6
-  // glide proved clean on device for months. That keeps iOS's scroll
-  // indicator to the same blink it always was and lands the window long
-  // before the rest beat, even from the deck's bottom row.
-  const walkScrollHome = (onDone) => {
-    if (!docMode || window.scrollY < 2) { if (onDone) onDone(); return; }
-    // 520ms budget from ANY depth (user verdict — the v6 glide's own
-    // ceiling, ~9px/ms from the bottom row; 350ms/13.5px/ms flickered the
-    // UI on device). TRUE wall-clock dt; stall catch-up bounded at
-    // 40ms-worth per painted frame — proportional, never a teleport.
-    const v = Math.max(2, window.scrollY / 520);  // px per ms
-    let last = null, fired = false;
-    const step = (now) => {
-      const dt = last == null ? 16.7 : Math.min(40, now - last);
-      last = now;
-      const px = Math.max(6, dt * v);
-      const y = window.scrollY;
-      if (y <= px) {
-        window.scrollTo(0, 0);
-        // a live touch can swallow the zero — re-arm for REAL residue;
-        // a few parked px are Safari's own and are accepted (parking law)
-        requestAnimationFrame(() => {
-          if (window.scrollY > 40) { last = null; requestAnimationFrame(step); }
-          else if (!fired) { fired = true; if (onDone) onDone(); }
-        });
-        return;
-      }
-      window.scrollTo(0, y - px);
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  };
+  // (walkScrollHome, the frame-stepped quiet walk, lived here — retired
+  // Jul 14 2026 with the doc-scrolled ledger; see the scroll law above.)
   // ---- THE RIDE (deck/memory tile → center, on a scrolled page) ----
   // A flying card and a gliding window CANNOT be animated against each other
   // on iOS: the compositor applies scroll on its own clock while a CSS
@@ -1191,9 +1150,11 @@ function App() {
       lensObj = (c.lenses || []).find((l) => l.n === k);
     }
     if (!c || !lensObj) { showToast("THIS PAGE HAS FADED"); return; }
-    // THE RIDE, ledger edition: the ledger sinks in place, the pinned
-    // actor rises, then the window WALKS home quietly under the faded
-    // page (see the scroll law at glideScrollTop)
+    // THE RIDE, ledger edition (Ed's construction, Jul 14 2026): the
+    // ledger scrolls in its own layer over the stage, so the DOCUMENT
+    // is at 0 the whole time — the rows sink in place inside their
+    // scroller, the pinned actor rises, and there is no scroll debt to
+    // walk home (the frame-walk retired with va-flow-mem)
     clock.cancel();
     setCard(entry.card);
     setLens(lensObj); setPicked(lensObj.n);
@@ -1232,22 +1193,17 @@ function App() {
         setActor((a) => a && ({ ...a, left: S.w / 2 - w / 2, top: cy - (w * ar) / 2, width: w, ar, rot: 0,
           dur: dv(TLd.lift.d), ease: E("easeLift"), shadow: "sh-air", instant: false }))));
     } });
-    // the ledger's fade completes at dUiExit — the quiet walk runs under
-    // the faded page (typical ledger depths are home before the slide;
-    // the slide beat carries small-residue insurance)
-    ev.push({ t: T.dUiExit, run: () => walkScrollHome() });
-    // the reveal mounts here but the FADED LEDGER STAYS: unmounting it
-    // mid-walk would collapse the document and clamp-jump the scroll
-    // (blank). It leaves for good on the slide beat, once the walk is
-    // home for every realistic ledger depth.
+    // the reveal mounts here; the FADED LEDGER STAYS until the slide
+    // beat, so its exit fade fully paints before it leaves (its unmount
+    // has no document consequences — the layer owns its own scroll)
     ev.push({ t: base, run: () => { setPhase("choose");
       setMounts((m) => ({ ...m, reveal: true }));
       setMemPicked(null);
       setVeilOn(true);
     } });
     ev.push({ t: base + TLc.slide.s, run: () => { setPhase("slide");
-      // walk insurance before the slot measurements below (scroll law),
-      // then the faded ledger can finally leave — scroll is home, no clamp
+      // insurance before the slot measurements below — parked px only,
+      // never a real depth (the ledger's scroll dies with its layer)
       if (window.scrollY > 1) window.scrollTo(0, 0);
       setMounts((m) => ({ ...m, memory: false }));
       const hs = (vaRoot() || document).querySelector(".rv-hero .hero-scale");

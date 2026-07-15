@@ -28,8 +28,10 @@
 
    Stage screens (Approach / Lenses) are viewport-capped layers that eat
    the pan (touch-action: none) — those pages must not scroll at all.
-   The field overshoots by 100px on stages so no seam ever shows behind
-   the chrome; scrolling views (deck/pour) size to their content.
+   The field overshoots by 100px so no seam ever shows behind the
+   chrome; the deck's grid, the pour's panes, and the memory ledger
+   scroll in their OWN layers over the stage and never touch the
+   document (Ed's architecture, completed Jul 14 2026).
    ============================================================ */
 
 html.va-doc, html.va-doc body { height: auto; min-height: 100%; }
@@ -86,23 +88,24 @@ html.va-doc .va:not(.vw-desk) .rx {
   position: relative; inset: auto; height: auto; overflow: visible;
   min-height: calc(100lvh + env(safe-area-inset-bottom));
 }
-/* stages don't scroll — overshoot the field so no seam can peek out
-   behind the chrome (scrolling views instead size to their content) */
-html.va-doc:not(.va-flow) .va:not(.vw-desk),
-html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx {
+/* the document is stage-shaped EVERYWHERE (no view scrolls it anymore —
+   the va-flow class family is dead): overshoot the field so no seam can
+   peek out behind the chrome */
+html.va-doc .va:not(.vw-desk),
+html.va-doc .va:not(.vw-desk) .rx {
   min-height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 
-/* stage layers: viewport-capped, pan-blocking. The deck's and the
-   pour's layers are exempt from the pan-eating regime: they are
-   SCROLL OWNERS — their inner scrollers (.dk-scroll / .rv-pours +
-   .rv-vscroll) consume the pans, with overscroll containment keeping
-   every pan out of the document beneath. */
+/* stage layers: viewport-capped, pan-blocking. The deck's, the pour's,
+   and the memory ledger's layers are exempt from the pan-eating regime:
+   they are SCROLL OWNERS — their inner scrollers (.dk-scroll /
+   .rv-pours + .rv-vscroll / .mf-scroll) consume the pans, with
+   overscroll containment keeping every pan out of the document beneath. */
 html.va-doc .va:not(.vw-desk) .va-layer,
 html.va-doc .va:not(.vw-desk) .va-smoke-fx,
 html.va-doc .va:not(.vw-desk) .va-ff-catch { height: 100dvh; bottom: auto; }
-html.va-doc:not(.va-flow) .va:not(.vw-desk) .va-layer:not(.dk-screen):not(.rv-screen),
-html.va-doc:not(.va-flow) .va:not(.vw-desk) .rx-status { touch-action: none; }
+html.va-doc .va:not(.vw-desk) .va-layer:not(.dk-screen):not(.rv-screen):not(.mf-screen),
+html.va-doc .va:not(.vw-desk) .rx-status { touch-action: none; }
 
 /* DEAD END — never resurrect: THE STAGE PIN (a zero-height sticky pin
    hosting the Approach/Reading layers). Pinning the stage LAYERS turns
@@ -182,20 +185,51 @@ html.va-doc .va:not(.vw-desk) .dk-screen {
   height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 
-/* ---- MEMORY, unwrapped whenever mounted ----
-   The ledger is a scrolling view like the deck: the DOCUMENT scrolls,
-   the inner list gives up its own scroll + mask. */
-html.va-flow-mem .va:not(.vw-desk) .mf-screen { position: static; height: auto; min-height: 100svh; }
-html.va-flow-mem .va:not(.vw-desk) .mf-head {
+/* ---- MEMORY: the ledger scrolls in its own layer ON the stage (Ed's
+   construction, Jul 14 2026 — the deck's/pour's playbook; the LAST
+   doc-scrolled view leaves the document, and va-flow / va-flow-mem die
+   with it). The whole page — head + months + rows — scrolls inside
+   .mf-scroll while the DOCUMENT stays stage-shaped and never moves, so
+   the row → Pour ride has no scroll debt and the frame-walk is retired.
+   The layer reaches 100lvh + safe (the pour's proven recipe) so rows
+   run edge-to-edge behind the translucent chrome. The rows' horizontal
+   swipe (EDIT/DELETE) stays JS-owned: pan-y on the scroller AND on the
+   rows means no native horizontal pan exists to fight the wells, and
+   vertical pans belong to the scroller alone. */
+html.va-doc .va:not(.vw-desk) .mf-screen {
+  height: calc(100lvh + env(safe-area-inset-bottom));
+}
+html.va-doc .va:not(.vw-desk) .mf-scroll {
+  display: block; position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+html.va-doc .va:not(.vw-desk) .mf-scroll::-webkit-scrollbar { display: none; }
+/* the scroller is ALWAYS real: overscroll containment only binds on a
+   box that can actually scroll, and a short ledger (one row, the empty
+   state) must never chain a pan into the document's overshoot slack —
+   so the flow keeps ≥1px of scroll from any content height (the
+   ballast trick, layer edition) */
+html.va-doc .va:not(.vw-desk) .mf-flow {
+  display: block; box-sizing: border-box;
+  min-height: calc(100% + 1px);
+  /* end-of-scroll rest: the last row settles clear of the expanded
+     chrome (the deck's own ~100px clearance) */
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+html.va-doc .va:not(.vw-desk) .mf-head {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);
 }
-html.va-flow-mem .va:not(.vw-desk) .mf-list {
-  position: static; flex: none; height: auto; overflow: visible;
+/* rows run edge-to-edge behind the chrome: the list gives up its own
+   scroll + mask to the layer's scroller */
+html.va-doc .va:not(.vw-desk) .mf-list {
+  flex: none; height: auto; min-height: 0; overflow: visible;
   -webkit-mask-image: none; mask-image: none;
-  padding-bottom: calc(36px + env(safe-area-inset-bottom));
 }
 /* empty state still centers in the (visual) viewport */
-html.va-flow-mem .va:not(.vw-desk) .mf-empty {
+html.va-doc .va:not(.vw-desk) .mf-empty {
   flex: none; min-height: calc(100svh - max(24px, env(safe-area-inset-top)) - 160px);
 }
 

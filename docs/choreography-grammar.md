@@ -234,3 +234,16 @@ ride, whose ledger still scrolls the document. (Same day, later: THE POUR
 left the document the same way — its panes scroll in their own layer, so
 the Lenses → Pour slide and the release also run over a motionless
 document. Memory is now the only doc-scrolled view.)
+
+## ADDENDUM · Jul 14, 2026 (the grammar closes)
+
+THE MEMORY LEDGER left the document on the same construction
+(design-decisions, "THE MEMORY LEDGER LEAVES THE DOCUMENT"): the ledger
+scrolls inside its own layer (`.mf-scroll`), the row → Pour ride runs
+over a motionless document, and the frame-walk — §6's inherited
+reconciliation, already retired for Deck → Lenses — is retired from the
+code entirely (`walkScrollHome` deleted; its last user was this ride).
+§2 is now satisfied by construction at EVERY seam. Nothing else in the
+grammar changes: the Memory → Pour handoff contract (§3's table) stands
+exactly as specified — same-frame takeover of the row's mini card at
+−4°, the hero-slot handoff on arrival — and is now suite-enforced (T7).

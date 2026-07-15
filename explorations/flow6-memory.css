@@ -33,6 +33,12 @@
 .mf-pill.on svg path { fill: currentColor; }
 
 /* ---------- list shell ---------- */
+/* the doc-flow scroller shell (see flow6-docflow.css): on phones the
+   whole page — head + months + rows — scrolls inside .mf-scroll, the
+   ledger's OWN layer over the stage. Everywhere else the pair is
+   display:contents, so the wrapped construction (fixed head, .mf-list
+   scrolling under its mask) is untouched. */
+.mf-scroll, .mf-flow { display: contents; }
 .mf-list { flex: 1; min-height: 0; margin-top: 14px; position: relative; overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 44px), transparent 100%);

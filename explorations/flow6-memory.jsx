@@ -194,6 +194,13 @@ function MemoryScreen({ light, leaving, pickedId, onOpen, onDraw }) {
   let flat = -1;
   return (
     <div className={"va-layer mf-screen" + (leaving ? " leaving" : "")} data-screen-label="Flow — Memory">
+      {/* doc mode: .mf-scroll is the ledger's OWN scroller — a layer over
+          the stage, the deck's playbook — and .mf-flow is its ballast
+          (always ≥1px of real scroll, so overscroll containment owns
+          every pan). Everywhere else both are display:contents and the
+          wrapped construction below is untouched. */}
+      <div className="mf-scroll">
+      <div className="mf-flow">
       <div className="mf-head">
         <div className="mf-head-row">
           <div>
@@ -244,6 +251,8 @@ function MemoryScreen({ light, leaving, pickedId, onOpen, onDraw }) {
           })}
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }

@@ -1307,3 +1307,38 @@ behind the chrome pills (the color break is gone); memory → pour re-entry land
 reveal at y 0 with the layer edge-to-edge; desktop/wrapped loop untouched, zero
 console errors. Ed's device pass is the final gate — the pour's chrome is the
 thing to look at.
+
+
+## ★★ THE MEMORY LEDGER LEAVES THE DOCUMENT — nothing scrolls it now (Jul 14, 2026)
+The last doc-scrolled view converts on the deck's/pour's playbook, and the whole
+document-scroll era closes: `va-flow` / `va-flow-mem` are dead, the document is
+stage-shaped (100lvh + safe + 100px) on EVERY screen, and the frame-walk
+(`walkScrollHome`) is RETIRED — the memory ride was its only remaining user, and
+the ride now has no scroll debt by construction.
+THE BUILD: `.mf-screen` stays a va-layer at 100lvh + safe (the pour's proven
+recipe — rows run edge-to-edge behind the translucent chrome); inside it a new
+`.mf-scroll` (absolute, inset 0, `touch-action: pan-y`, `overscroll-behavior:
+contain`) carries the WHOLE page — head + months + rows — so the title scrolls
+away under the menu exactly as the doc-scrolled ledger did. Outside doc mode
+both wrappers are `display: contents`: the wrapped construction (fixed head,
+masked .mf-list) is untouched on desktop/frame/standalone.
+THE BALLAST TRICK, LAYER EDITION: `.mf-flow` (the scroller's one child) keeps
+`min-height: calc(100% + 1px)` — overscroll containment only binds on a box that
+can actually scroll, and a short ledger must never chain a pan into the stage's
+overshoot slack. Measured: a ONE-row ledger owns its pan with exactly 1px of
+scroll extent; the empty state stays contained too.
+THE SWIPE WELLS keep their care: pan-y on the scroller AND the rows means no
+native horizontal pan exists — the EDIT/DELETE swipe stays JS-owned (pointer
+events), vertical pans belong to the scroller alone. Swipe-open verified in the
+layer: row at −118, wells visible, no scroll moved anywhere.
+Verified (sim, real page): suite 7/7 with NEW T7 (memory ride from ledger
+scrolled 1079 internally — THE DOCUMENT NEVER MOVES: maxY 0 over 300 polled
+frames; same-frame takeover on the row's mini card); band probe PASS all FOUR —
+the probe gained a memory step (deck-mid 42.34 · reading 3.57 · pour 3.73 ·
+memory-mid 4.27, a seeded row's art parked in the band; the real ledger is
+restored after); ride filmed at 30fps — no flat frames, no luma jumps, ledger
+sink → Hermit apex → pour cascade all clean; re-entry lands the reveal seated
+at 0 with the layer edge-to-edge and the right wine's pane; a fresh memory
+mount seats at top; desktop column untouched (620px, mask alive, wrappers
+display:contents), zero console errors. Ed's device pass is the final gate —
+the ledger's chrome and the swipe feel are the things to look at.

@@ -24,18 +24,23 @@ makes the app feel claustrophobic. Two goals, both absolute:
 - **Stages (Approach, Lenses) read as viewport-sized designs** — no
   scrolling, nothing moves — *without* triggering that same background.
 
-How each scrolls (Ed's architecture, Jul 12 2026): only the MEMORY
-ledger still scrolls the DOCUMENT (doc-flow, `va-flow-mem`). THE DECK
-AND THE POUR DO NOT: their content scrolls in its own layer ABOVE the
-shared field in z-space — the deck's grid (`.dk-scroll`, layer sized
-100lvh + safe + 100px overshoot) and the pour's panes (`.rv-pours`
-snap-x with per-pane `.rv-vscroll`, layer sized 100lvh + safe), both
+How each scrolls (Ed's architecture, Jul 12 2026; completed Jul 14
+2026 when the MEMORY ledger left the document too): NOTHING SCROLLS
+THE DOCUMENT. Every scrolling view's content scrolls in its own layer
+ABOVE the shared field in z-space — the deck's grid (`.dk-scroll`,
+layer sized 100lvh + safe + 100px overshoot), the pour's panes
+(`.rv-pours` snap-x with per-pane `.rv-vscroll`, layer sized 100lvh +
+safe), and the memory ledger (`.mf-scroll` inside the `.mf-screen`
+layer at 100lvh + safe, carrying head + months + rows; its `.mf-flow`
+child keeps `min-height: 100% + 1px` so even a one-row or empty
+ledger is a REAL scroller whose overscroll containment binds) — all
 with overscroll containment so no pan ever reaches the document. The
-document stays stage-shaped while they are up, every screen composes
-exactly like the Approach, and the pour's foot bar keeps its locked
-top-referenced geometry as an ABSOLUTE child of the pan-eating layer —
-dropping `position: fixed` there is what finally cleared the pour's
-toolbar backdrop (band 2.03 → 3.57, the reading's own clean value).
+document stays stage-shaped on every screen (`va-flow` is dead),
+every screen composes exactly like the Approach, and the pour's foot
+bar keeps its locked top-referenced geometry as an ABSOLUTE child of
+the pan-eating layer — dropping `position: fixed` there is what
+finally cleared the pour's toolbar backdrop (band 2.03 → 3.57, the
+reading's own clean value).
 
 Chrome state itself (collapsed vs expanded) is **inconsequential by
 design**: stages have no hard bottom edge (the field fades into vignette),
@@ -117,22 +122,23 @@ The z-stack, bottom to top:
    slack. Any interactive element added to a stage must be audited against
    this rule, and the suite's stage pan-block test (to be added) makes the
    audit executable.
-3. **THE SCROLL LAWS (doc-flow — the Memory ledger alone; the deck's
-   grid and the pour's panes are NOT the document).** The document
-   scroll belongs to the ledger alone. Stages park it and block pans;
-   the deck and the pour scroll themselves and contain their
-   overscroll. Mid-choreography
+3. **THE SCROLL LAWS (closed form, Jul 14 2026 — no view is the
+   document).** NOTHING SCROLLS THE DOCUMENT: stages park it and block
+   pans; the deck, the pour, and the memory ledger scroll themselves
+   and contain their overscroll. Mid-choreography
    DOCUMENT scroll motion is forbidden in every form — instant teleports
    blank the entire compositor tree (~110ms, measured on the real page
    at 60fps; even sticky layers vanish); wall-clock-eased glides
    catch-up-jump after frame stalls and blank identically; first-time
-   transform promotions rasterize from scratch and blank. Document
-   scroll may only change: (a) under a user's finger, (b) as a
-   frame-based capped walk beneath fully faded content (the MEMORY ride
-   — the deck and pour paths have no document debt to pay, by
-   construction), or (c) never visibly. The deck ride's and the pour's
-   law is stricter and simpler: **the document must not move a pixel**
-   (suite T1, T2, T4).
+   transform promotions rasterize from scratch and blank. The one law
+   every ride, return, and release now obeys: **the document must not
+   move a pixel** (suite T1, T2, T4, T7). The lawful-pattern ladder of
+   the doc-scroll era — (a) under a user's finger, (b) the frame-based
+   capped walk beneath fully faded content, (c) never visibly — stays
+   on the books as history, but (b)'s last user (the MEMORY ride) is
+   gone and `walkScrollHome` is retired; only belt-and-braces
+   insurance against Safari's own parked px remains (glideScrollTop's
+   y < 2 no-op, and the beat-time `scrollTo(0,0)` guards).
 4. **SAFARI PARKS STAGES — on its own clock; never fight it, never
    shear.** The engine can move a settled stage's scroll a few px into
    the overshoot slack on a chrome settle (no CSS opt-out;
@@ -156,7 +162,11 @@ The z-stack, bottom to top:
   grid's own scroll holds still, tile sink, card arc), lens pick
   (scroll 0, width stability, actor continuity), the flip (decode gate,
   no hole, −180°), stage pan membership, handoff continuity, release
-  (from a scrolled PANE — the document never moves).
+  (from a scrolled PANE — the document never moves), memory ride (from
+  a scrolled LEDGER — the document never moves, the ledger's own
+  scroll holds still, same-frame takeover on the row's mini card;
+  seeds a throwaway ledger and restores the real va-memory). Seven
+  tests, must be 7/7.
 - **Recorded video or it didn't happen.** Anything touching scroll,
   compositing, or the pinned set gets a safaridriver run on the REAL page
   (no iframe — the iframe hides document-scroll rasterization behavior),
@@ -170,11 +180,12 @@ The z-stack, bottom to top:
   matters): the app's texture visible through/around the floating
   chrome reads band stddev ≈ 3.5-45; the backdrop's flat fill reads
   ≈ 2.0 with a hard top edge. Valid ONLY where the band carries
-  large-scale texture — the Reading (veil art) and the Deck at
-  MID-scroll (tiles); the Approach and the deck's bottom are
-  flat-on-flat there by design (A/B-verified pixel-identical across
-  constructions) and stay device-only evidence. Calibrated on the
-  stage-pin incident.
+  large-scale texture — the Reading (veil art), the Deck at MID-scroll
+  (tiles), and the Memory ledger at MID-scroll (the probe seeds a
+  ledger and parks a row's card/bottle art in the band; clean ≈ 4.3);
+  the Approach and the deck's bottom are flat-on-flat there by design
+  (A/B-verified pixel-identical across constructions) and stay
+  device-only evidence. Calibrated on the stage-pin incident.
 - **The device pass is the final gate.** The simulator does not reproduce
   real chrome gestures or real rasterization pressure — and its chrome
   translucency differs in degree (the band probe sees the backdrop, not
@@ -196,3 +207,12 @@ Scroll law 3(b)'s frame-walk is **permanent**, not interim: Ed chose the
 canvas's persistent-actor construction for Deck → Lenses over the
 origin-adoption proposal (choreography-grammar.md, Decision). 3(c) remains
 on the books as a lawful pattern but has no current application.
+
+## ADDENDUM · Jul 14, 2026 (the ledger leaves the document)
+
+The MEMORY ledger converted to the deck's/pour's layer construction
+(design-decisions, "THE MEMORY LEDGER LEAVES THE DOCUMENT"), so 3(b)'s
+frame-walk lost its last user and `walkScrollHome` is retired from the
+code. Like 3(c), the walk stays on the books as a lawful pattern with no
+current application. Nothing scrolls the document anymore — law 3 above
+is rewritten to its closed form.

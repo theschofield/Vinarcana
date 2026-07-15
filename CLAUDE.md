@@ -16,11 +16,13 @@ Case-sensitive paths: a wrong-case asset name 404s on Vercel but works locally.
 - **docs/design-decisions.md** — the append-only verdict log (user taste +
   hard-won laws). Append new verdicts there; never rewrite history.
 
-Hard laws in one breath: THE DOCUMENT NEVER SCROLLS except under the Memory
-ledger — the Deck's grid and the Pour's panes scroll in their own layers
-over the stage-shaped document (Ed's architecture, Jul 2026: every screen
-composes like the Approach; overscroll contained; the frame-stepped walk
-survives only for the Memory ride); nothing is ever `position: fixed`,
+Hard laws in one breath: THE DOCUMENT NEVER SCROLLS, full stop — the
+Deck's grid, the Pour's panes, AND the Memory ledger all scroll in their
+own layers over the stage-shaped document (Ed's architecture, completed
+Jul 14 2026: every screen composes like the Approach; overscroll
+contained; the frame-stepped walk is retired — `walkScrollHome` is gone;
+short/empty ledgers keep ≥1px of real scroll so containment always
+binds); nothing is ever `position: fixed`,
 pinned, or viewport-sized beyond the approved anchors in
 stage-construction §2 (poison rule — absolute; additions are Ed's call and
 band-probe-gated); every interactive element on a stage eats the pan
@@ -35,12 +37,12 @@ neutral keyword).
 
 ## Verification duties (non-negotiable for transition/layout changes)
 
-1. `scraps/choreo-tests.html` on the dev server — six tests, must be 6/6.
-2. `scraps/backdrop-probe.py` — the chrome-band probe. The iOS toolbar
-   backdrop IS sim-detectable (texture through the chrome ≈ band stddev
-   3.5+; the backdrop's flat fill ≈ 2.0). MANDATORY for anything touching
-   pinned/sticky/viewport-sized construction; it convicted the stage pin
-   and the pour's fixed bar.
+1. `scraps/choreo-tests.html` on the dev server — seven tests, must be 7/7.
+2. `scraps/backdrop-probe.py` — the chrome-band probe (deck · reading ·
+   pour · memory). The iOS toolbar backdrop IS sim-detectable (texture
+   through the chrome ≈ band stddev 3.5+; the backdrop's flat fill ≈ 2.0).
+   MANDATORY for anything touching pinned/sticky/viewport-sized
+   construction; it convicted the stage pin and the pour's fixed bar.
 3. Anything touching scroll/compositing: safaridriver against the REAL page
    in the iOS simulator (no iframe). Capabilities MUST include
    `"platformName": "iOS"` with `safari:useSimulator` (500s without it);
