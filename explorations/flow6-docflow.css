@@ -76,13 +76,24 @@ html.va-doc .va:not(.vw-desk) .rx-light .va-field {
   background-image: radial-gradient(112% 86% at 35% 6%, #e4e2dd 0%, #dddbd6 56%, #d3d0ca 100%);
   background-color: #d3d0ca;
 }
+/* BELOW THE FIELD'S REACH, THE STATUS GREY (Ed, Jul 14 2026): the
+   ballast band behind the chrome (the ~100px past 100lvh + safe, plus
+   whatever Safari shows beyond the document) reads as the LIGHTER of
+   the two greys — the same #dddbd6/#181717 the html/theme-color carry —
+   so the under-chrome region is ONE continuous band, not a dark step.
+   This is the look the doc-scrolled ledger always had on device (its
+   document ended early and the html grey showed); when the stage shape
+   went unconditional, the rx's old seam-insurance color (the field-END
+   grey #d3d0ca/#121110) started painting there instead and the whole
+   bottom read darker. The darker pair stays ONLY as the field's own
+   gradient end, above 100lvh + safe. */
 html.va-doc .va:not(.vw-desk) .rx-dark {
   background-image: none;
-  background-color: #121110;
+  background-color: #181717;
 }
 html.va-doc .va:not(.vw-desk) .rx-light {
   background-image: none;
-  background-color: #d3d0ca;
+  background-color: #dddbd6;
 }
 html.va-doc .va:not(.vw-desk) .rx {
   position: relative; inset: auto; height: auto; overflow: visible;

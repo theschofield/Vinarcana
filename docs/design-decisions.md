@@ -1422,3 +1422,31 @@ by ≥100px (measured 40px before the fix, 140px after — this class of cutoff
 can never pass silently again). §5's layer-sizing rule rewritten from "add
 the overshoot only for a mask-free edge" to its conviction form: MASK-FREE
 REQUIRES IT; bare 100lvh + safe is lawful only above a bottom fade.
+
+
+## BELOW THE FIELD'S REACH, THE STATUS GREY — the ballast band lightens (Jul 14, 2026)
+Ed, on the live deploy, DARK MODE: "you just darkened the background color
+across the app... the correct color of the two you picked from would have
+been the lighter of the two." Diagnosis (sim A/B against the 4c0bae5
+baseline, then a three-way with the broken live build): the unconditional
+stage shape put the rx's seam-insurance color — the FIELD-END grey (#d3d0ca
+day / #121110 night) — into the 100px ballast band below the field's reach,
+where the doc-scrolled ledger's early-ending document used to let the html
+STATUS grey (#dddbd6 / #181717) show. In DARK the two charcoals are far
+apart through the chrome, and iOS 26 tints the whole translucent bar from
+the under-bar paint — so the shift read as an app-wide darkening. (Light
+mode's pair differs by ~10 RGB points, which is why the light-mode sim A/B
+read "identical" — MODE IS A TEST AXIS; run color work in BOTH appearances.)
+THE VERDICT: the band below the field's reach is the STATUS GREY, same pair
+as html/theme-color, on EVERY screen — rx-light #dddbd6, rx-dark #181717 —
+one continuous band from the field's edge to the glass, no dark step. Note
+what this deliberately changes: the STAGES' band was #d3d0ca/#121110 since
+the chrome war (old == broken in the A/B, 22-25 vs the fix's 28-30 under the
+dark bar) — Ed's symmetry call lightens them too, to the tone the old
+ledger's bottom always had. The darker pair survives only as the field
+gradient's own end, above 100lvh + safe.
+Verified: dark-mode three-way (old / broken-live / fixed) — fixed band
+lighter, rxBg == htmlBg == #181717 (single band); light mode re-sampled
+(#dddbd6 band); probe PASS all four with the reach gate (deck-mid 38.07 ·
+reading 3.73 · pour 3.92 · memory-mid 4.66); suite 7/7. Ed's device pass in
+dark is the gate that matters.
