@@ -191,13 +191,19 @@ html.va-doc .va:not(.vw-desk) .dk-screen {
    with it). The whole page — head + months + rows — scrolls inside
    .mf-scroll while the DOCUMENT stays stage-shaped and never moves, so
    the row → Pour ride has no scroll debt and the frame-walk is retired.
-   The layer reaches 100lvh + safe (the pour's proven recipe) so rows
-   run edge-to-edge behind the translucent chrome. The rows' horizontal
-   swipe (EDIT/DELETE) stays JS-owned: pan-y on the scroller AND on the
-   rows means no native horizontal pan exists to fight the wells, and
-   vertical pans belong to the scroller alone. */
+   THE LAYER IS SIZED LIKE THE DECK'S, NOT THE POUR'S: rows have a
+   MASK-FREE bottom edge, so the layer must overshoot the physical
+   bottom by 100px or its edge shows as a hard cutoff mid-chrome —
+   100lvh + safe alone ended ~halfway behind the bar (Ed's device eye,
+   Jul 14 2026; the band probe read "clean" through it — grain textures
+   the bare field, so reach is gated by rect arithmetic now, never by
+   paint stats). The pour survives at 100lvh + safe only
+   because its vscroll fades content out 40px above the edge. The rows'
+   horizontal swipe (EDIT/DELETE) stays JS-owned: pan-y on the scroller
+   AND on the rows means no native horizontal pan exists to fight the
+   wells, and vertical pans belong to the scroller alone. */
 html.va-doc .va:not(.vw-desk) .mf-screen {
-  height: calc(100lvh + env(safe-area-inset-bottom));
+  height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
 }
 html.va-doc .va:not(.vw-desk) .mf-scroll {
   display: block; position: absolute; inset: 0;
@@ -229,9 +235,11 @@ html.va-doc .va:not(.vw-desk) .mf-scroll::-webkit-scrollbar { display: none; }
 html.va-doc .va:not(.vw-desk) .mf-flow {
   display: block; box-sizing: border-box;
   min-height: calc(100% + 1px);
-  /* end-of-scroll rest: the last row settles clear of the expanded
-     chrome (the deck's own ~100px clearance) */
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  /* end-of-scroll rest: the layer overshoots the physical bottom by
+     100px, so the padding repays that PLUS ~100px of clearance — the
+     deck's exact recipe: the last row settles above the expanded
+     chrome, never obscured */
+  padding-bottom: calc(200px + env(safe-area-inset-bottom));
 }
 html.va-doc .va:not(.vw-desk) .mf-head {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);

@@ -30,8 +30,10 @@ THE DOCUMENT. Every scrolling view's content scrolls in its own layer
 ABOVE the shared field in z-space — the deck's grid (`.dk-scroll`,
 layer sized 100lvh + safe + 100px overshoot), the pour's panes
 (`.rv-pours` snap-x with per-pane `.rv-vscroll`, layer sized 100lvh +
-safe), and the memory ledger (`.mf-scroll` inside the `.mf-screen`
-layer at 100lvh + safe, carrying head + months + rows; its `.mf-flow`
+safe — lawful only because the vscroll's mask fades content out above
+the edge), and the memory ledger (`.mf-scroll` inside the `.mf-screen`
+layer at 100lvh + safe + 100px overshoot — mask-free bottom, the
+deck's sizing, carrying head + months + rows; its `.mf-flow`
 child keeps `min-height: 100% + 1px` so even a one-row or empty
 ledger is a REAL scroller whose overscroll containment binds) — all
 with overscroll containment so no pan ever reaches the document. The
@@ -194,6 +196,12 @@ The z-stack, bottom to top:
   the Approach and the deck's bottom are flat-on-flat there by design
   (A/B-verified pixel-identical across constructions) and stay
   device-only evidence. Calibrated on the stage-pin incident.
+  KNOWN BLINDNESS (the ledger-cutoff lesson, Jul 14 2026): the band
+  stats prove no-BACKDROP, never REACH — the grain textures even a
+  bare field to a "clean" stddev, so a layer ending mid-chrome sails
+  through. Reach/coverage claims are gated by RECT ARITHMETIC (the
+  probe's memory step asserts layer-bottom overshoot ≥ 100px past the
+  layout viewport; give every new mask-free scroller the same gate).
 - **The device pass is the final gate.** The simulator does not reproduce
   real chrome gestures or real rasterization pressure — and its chrome
   translucency differs in degree (the band probe sees the backdrop, not
@@ -217,9 +225,15 @@ decide which first, then follow the recipe verbatim.
 
 **A SCROLL OWNER** (the Deck, the Pour, the Memory ledger): content
 scrolls in its own layer; THE DOCUMENT NEVER MOVES.
-- The layer: a `.va-layer` sized `100lvh + env(safe-area-inset-bottom)`
-  so content runs edge-to-edge behind the translucent chrome (add the
-  deck's +100px overshoot only for a mask-free bottom edge). Add the
+- The layer: a `.va-layer` sized `100lvh + env(safe-area-inset-bottom)
+  + 100px` so content runs edge-to-edge behind the translucent chrome
+  AND past the physical bottom — a MASK-FREE bottom edge REQUIRES the
+  100px overshoot (the deck's law, re-convicted on the ledger Jul 14
+  2026: without it the layer's edge is a hard cutoff halfway behind the
+  chrome on device). The bare `100lvh + safe` sizing is lawful ONLY
+  when a bottom mask dissolves content above the edge (the pour's
+  40px fade — the veil-colored document hides the seam). Pay the
+  overshoot back in the end-of-scroll rest padding. Add the
   layer's class to the `:not(...)` exemption list on the docflow
   pan-block selector, or its inherited `touch-action: none` kills the
   scroll.

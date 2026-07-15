@@ -127,6 +127,18 @@ def main():
         t0 = time.time()
         while time.time() - t0 < 20 and ex(sid, "return window.__vaDrive.phase()") != "memory": time.sleep(0.5)
         time.sleep(2)
+        # THE CUTOFF GATE (Ed's device eye, Jul 14 2026): a mask-free
+        # scroller's layer must overshoot the layout viewport by >=100px
+        # or its bottom edge shows as a hard line mid-chrome. 100lvh+safe
+        # alone left the ledger ~40px past innerHeight and the cutoff sat
+        # halfway behind the bar on device — while the band stddev still
+        # read "clean" (the tell was the EDGE STEP, 22.5 vs the pour's
+        # 7.1, which the verdict didn't gate). Assert geometry directly.
+        over = ex(sid, """
+          const r = document.querySelector('.mf-screen').getBoundingClientRect();
+          return Math.round(r.bottom - window.innerHeight);""")
+        print(f"memory layer overshoot past layout viewport: {over}px", flush=True)
+        if over < 100: fails.append(f"memory-cutoff (overshoot {over}px < 100)")
         ex(sid, """
           const m = document.querySelector('.mf-scroll');
           m.scrollTop = Math.round(m.scrollHeight * 0.5);

@@ -1391,3 +1391,34 @@ the 1px ballast, end-of-scroll rests, the two top-fade lengths, row-gesture
 pattern, __vaDrive wiring, and the grow-the-suite/probe duties). Future
 features — the Cellar first among them — are built from the recipe, not from
 re-derivation. CLAUDE.md points at §5 for any new screen.
+
+
+## THE LEDGER'S BOTTOM CUTOFF — the deck's law, re-convicted (Jul 14, 2026)
+Ed's device eye, on the live deploy: with enough wines, the ledger showed "a
+hard cutoff about halfway behind the bottom chrome" — the mf-screen layer was
+sized on the POUR's recipe (100lvh + safe) but the rows have a MASK-FREE
+bottom edge, which is the DECK's situation, and the deck's verdict already
+said it: a mask-free bottom needs the +100px overshoot. The pour only
+survives at 100lvh + safe because its vscroll fades content out 40px above
+the layer edge and the veil-colored document continues beneath — no seam to
+see. §5's recipe even carried the distinction; the ledger build didn't apply
+it.
+THE PROBE WAS BLIND TO IT, recorded so it stings: memory-mid read "clean"
+both sides of the fix (stddev 4.27 broken / 4.31 fixed; edge step 22.5
+IDENTICAL — that number is row art in the strip, not the layer edge). The
+bare field carries the film GRAIN, and grain alone textures the band to a
+"clean" stddev — so the band statistics cannot distinguish "rows behind the
+chrome" from "nothing behind the chrome." A reach/coverage claim
+("edge-to-edge") can never be proven by paint statistics; it is RECT
+ARITHMETIC, and the session asserted the band + the rest clearance but never
+the layer's reach. Ed's eye on the live deploy was the first real gate the
+bug met.
+THE FIX: mf-screen → 100lvh + safe + 100px (the deck's exact sizing);
+mf-flow's end-of-scroll rest 100 → 200px + safe (repay the overshoot, keep
+the clearance — the deck's exact numbers; last row settles at 654 of 714,
+the deck's approved measurement to the pixel). The probe's memory step now
+GATES the geometry directly: layer bottom must overshoot the layout viewport
+by ≥100px (measured 40px before the fix, 140px after — this class of cutoff
+can never pass silently again). §5's layer-sizing rule rewritten from "add
+the overshoot only for a mask-free edge" to its conviction form: MASK-FREE
+REQUIRES IT; bare 100lvh + safe is lawful only above a bottom fade.
