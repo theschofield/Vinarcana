@@ -16,26 +16,43 @@ Case-sensitive paths: a wrong-case asset name 404s on Vercel but works locally.
 - **docs/design-decisions.md** — the append-only verdict log (user taste +
   hard-won laws). Append new verdicts there; never rewrite history.
 
-Hard laws in one breath: nothing is ever `position: fixed`, pinned, or
-viewport-sized beyond the four approved anchors (poison rule — absolute);
-every interactive element on a stage eats the pan (`touch-action: none`);
-no mid-choreography scroll motion in any form (teleports and wall-clock
-glides blank the compositor tree — the frame-stepped walk is the only lawful
-mover); every image swap is decode-gated (iOS blanks fresh `<img>`s); the
-card actor is never remounted or reparented; one shadow, one element, one
-clock.
+Hard laws in one breath: THE DOCUMENT NEVER SCROLLS except under the Memory
+ledger — the Deck's grid and the Pour's panes scroll in their own layers
+over the stage-shaped document (Ed's architecture, Jul 2026: every screen
+composes like the Approach; overscroll contained; the frame-stepped walk
+survives only for the Memory ride); nothing is ever `position: fixed`,
+pinned, or viewport-sized beyond the approved anchors in
+stage-construction §2 (poison rule — absolute; additions are Ed's call and
+band-probe-gated); every interactive element on a stage eats the pan
+(`touch-action: none`) EXCEPT the scroll-owner layers (deck grid, pour
+panes); never write scroll to fight Safari's parking (the dead keeper) and
+never pin a full-viewport layer (the dead stage pin) — both summoned the
+chrome backdrop; every image swap is decode-gated (iOS blanks fresh
+`<img>`s); the card actor (and the eyebrow actor, same pin) is never
+remounted or reparented; one shadow, one element, one clock; never write
+`text-wrap: normal` (not a real value — it parses invalid; `wrap` is the
+neutral keyword).
 
 ## Verification duties (non-negotiable for transition/layout changes)
 
 1. `scraps/choreo-tests.html` on the dev server — six tests, must be 6/6.
-2. Anything touching scroll/compositing: safaridriver against the REAL page
-   in the iOS simulator (no iframe), `simctl recordVideo`, extract frames,
-   luma-trace for blanks. Suite PASS is necessary, never sufficient.
-3. The simulator cannot render chrome translucency (bar region reads black)
-   or real gestures — the user's device pass is the final gate.
-4. Hard-timeout every driver/network call (a hung W3C touch action once ate
+2. `scraps/backdrop-probe.py` — the chrome-band probe. The iOS toolbar
+   backdrop IS sim-detectable (texture through the chrome ≈ band stddev
+   3.5+; the backdrop's flat fill ≈ 2.0). MANDATORY for anything touching
+   pinned/sticky/viewport-sized construction; it convicted the stage pin
+   and the pour's fixed bar.
+3. Anything touching scroll/compositing: safaridriver against the REAL page
+   in the iOS simulator (no iframe). Capabilities MUST include
+   `"platformName": "iOS"` with `safari:useSimulator` (500s without it);
+   first session/navigate can 500 on cold Safari — create the session via
+   curl, then drive. Suite PASS is necessary, never sufficient.
+4. The simulator's chrome translucency differs in degree from device (the
+   band probe sees the backdrop, not the true tint) and it has no real
+   gestures — the user's device pass is the final gate.
+5. Hard-timeout every driver/network call (a hung W3C touch action once ate
    40 minutes). W3C touch actions hang against the simulator — use
-   executeScript event dispatch instead.
+   executeScript event dispatch instead. The Browser pane freezes rAF —
+   never judge choreography there; pump screenshots only for smoke tests.
 
 ## Repo map
 

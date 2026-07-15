@@ -17,9 +17,9 @@
      are when chrome is tall).
    · Status bar: a zero-height sticky pin (.va-status-pin, DOM-early)
      that the absolute .rx-status hangs from.
-   · Pour actions + dots: sticky BOTTOM footers at the end of the pour
-     content — they ride env(safe-area-inset-bottom), so they track the
-     chrome as it grows and shrinks, natively.
+   · Pour actions + dots: hang from .va-foot-pin, an ABSOLUTE child of
+     the pour's pan-eating layer, top-referenced at (foot-vh − 68px) —
+     never fixed, never bottom-anchored (both summon the backdrop).
 
    DEAD ENDS — never resurrect: position:fixed anything; scroll-proxy
    spacers; --va-sy scroll-synced absolute overlays (rAF trails the

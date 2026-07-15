@@ -230,4 +230,7 @@ and the Lenses composes exactly like the Approach. §2's sovereignty judgment
 ("an outgoing view's scroll must never become an input to the incoming
 screen's geometry") is finally satisfied by construction rather than by
 reconciliation. The frame-walk remains the lawful mover for the MEMORY
-ride, whose ledger still scrolls the document.
+ride, whose ledger still scrolls the document. (Same day, later: THE POUR
+left the document the same way — its panes scroll in their own layer, so
+the Lenses → Pour slide and the release also run over a motionless
+document. Memory is now the only doc-scrolled view.)

@@ -81,8 +81,10 @@ The z-stack, bottom to top:
    **veil** (100lvh, negative margin, zero footprint), the **status
    pin** (zero-height), the **actor pin** (zero-height — the flying
    card's AND the eyebrow actor's home), and the Pour's **foot pin**
-   (the one `position: fixed`, top-referenced, VisualViewport-tracked
-   construction). **This set is closed.** The dividing line, bisected
+   (top-referenced at `foot-vh − 68px`, VisualViewport-tracked; since
+   the Jul 12 pour conversion an ABSOLUTE child of the pour's layer —
+   dropping its `position: fixed` is what cleared the pour's backdrop).
+   **This set is closed.** The dividing line, bisected
    Jul 12 2026: zero-height pins hosting SMALL content and
    zero-footprint background imagery are clean; a pinned FULL-VIEWPORT
    layer — especially an interactive, pan-eating one — summons the
