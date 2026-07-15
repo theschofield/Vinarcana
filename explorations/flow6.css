@@ -25,12 +25,23 @@
 
 .va .dk-screen { z-index: 4; }
 
-/* no edge fades on the grid (Ed, Jul 12 2026): tiles run clean off the
-   screen edges — in doc mode the layer overshoots the physical bottom
-   like the stage ballast does, so there is never a seam or a dissolve */
+/* the grid's BOTTOM has no fade (Ed, Jul 12 2026): tiles run clean off
+   the screen edge — in doc mode the layer overshoots the physical bottom
+   like the stage ballast does, so there is never a seam or a dissolve.
+   The TOP gained the pour's scroll-armed fade (Ed, Jul 14 2026, every
+   breakpoint): the resting grid is untouched, but once scrolled, tiles
+   dissolve before they reach the menu text — a MASK on the scroller,
+   never a scrim on the bar (opaque scrims are a dead end). The fade
+   spans the menu band because this scroller's top edge is the viewport
+   top (--vaTopFade registered in flow2.css). */
 .va .dk-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none;
   -webkit-overflow-scrolling: touch; box-sizing: border-box;
-  padding: 56px 18px 36px; }
+  padding: 56px 18px 36px;
+  --vaTopFade: 0px;
+  transition: --vaTopFade 280ms ease;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 100%); }
+.va .dk-scroll.scrolled { --vaTopFade: calc(max(24px, env(safe-area-inset-top)) + 72px); }
 .va .dk-scroll::-webkit-scrollbar { display: none; }
 .va.vw-desk .dk-scroll { padding: 60px 40px 44px; }
 

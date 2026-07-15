@@ -16,6 +16,8 @@ const DK_TILT = { rx: 9, ry: 11 };
 function DeckGrid({ F, drawingId, pickedId, onPick }) {
   const ids = window.ARCANA_ORDER || [];
   const fine = React.useMemo(dkFinePointer, []);
+  // the pour's scroll-armed top fade, grid edition (flow6.css)
+  const [scrolled, setScrolled] = React.useState(false);
 
   const move = (e) => {
     if (!fine) return;
@@ -48,7 +50,8 @@ function DeckGrid({ F, drawingId, pickedId, onPick }) {
 
   return (
     <div className={"va-layer dk-screen" + (drawingId ? " leaving" : "")} data-screen-label="Flow — Deck">
-      <div className="dk-scroll">
+      <div className={"dk-scroll" + (scrolled ? " scrolled" : "")}
+        onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 4)}>
         <div className="dk-grid">
           {ids.map((id, i) => {
             const c = ARCANA[id];

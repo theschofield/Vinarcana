@@ -205,6 +205,20 @@ html.va-doc .va:not(.vw-desk) .mf-scroll {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   overscroll-behavior: contain;
+  /* the pour's scroll-armed top fade, viewport edition: this scroller's
+     top edge IS the viewport top, so the fade spans the menu band —
+     scrolled rows dissolve before they reach the menu text (menu
+     accessibility, Ed's verdict Jul 14 2026; a MASK on the scroller,
+     never a scrim on the bar — opaque scrims are a dead end). The
+     resting ledger is untouched (--vaTopFade 0 = no fade). No bottom
+     fade: rows still run clean off the screen behind the chrome. */
+  --vaTopFade: 0px;
+  transition: --vaTopFade 280ms ease;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 100%);
+}
+html.va-doc .va:not(.vw-desk) .mf-scroll.scrolled {
+  --vaTopFade: calc(max(24px, env(safe-area-inset-top)) + 72px);
 }
 html.va-doc .va:not(.vw-desk) .mf-scroll::-webkit-scrollbar { display: none; }
 /* the scroller is ALWAYS real: overscroll containment only binds on a

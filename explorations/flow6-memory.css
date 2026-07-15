@@ -41,8 +41,14 @@
 .mf-scroll, .mf-flow { display: contents; }
 .mf-list { flex: 1; min-height: 0; margin-top: 14px; position: relative; overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 44px), transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 44px), transparent 100%); }
+  /* the pour's scroll-armed top fade (--vaTopFade registered in
+     flow2.css), joining the resting bottom dissolve — rows dim before
+     they slide under the head (Ed, Jul 14 2026) */
+  --vaTopFade: 0px;
+  transition: --vaTopFade 280ms ease;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 calc(100% - 44px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 calc(100% - 44px), transparent 100%); }
+.mf-list.scrolled { --vaTopFade: 38px; }
 .mf-list::-webkit-scrollbar { display: none; }
 
 /* month group header */
@@ -102,12 +108,15 @@
 /* ---------- swipe: EDIT then DELETE (wells mirror the aside construction) ---------- */
 .mf-swipewrap { position: relative; overflow: hidden; }
 .mf-row.swiped { transform: translateX(-118px); }
-/* rows are transparent, so the wells must not exist visually until a swipe
-   uncovers them; the 320ms exit delay keeps them in place while a closing
-   row glides back over */
+/* rows are transparent, so the wells can't simply sit beneath them — they
+   are UNCOVERED: a clip whose left edge IS the row's right edge, tracked
+   inline under the finger and snapped on the row's own curve, so swiping
+   left wipes them in and swiping right slides the row back OVER them
+   (Ed, Jul 14 2026 — replaces the visibility-delay construction) */
 .mf-wells { position: absolute; right: 0; top: 0; bottom: 1px; display: flex;
-  visibility: hidden; transition: visibility 0s linear 320ms; }
-.mf-swipewrap.open .mf-wells, .mf-swipewrap.drag .mf-wells { visibility: visible; transition-delay: 0s; }
+  clip-path: inset(0 0 0 118px);
+  transition: clip-path 300ms cubic-bezier(0.3, 0.7, 0.2, 1); }
+.mf-swipewrap.open .mf-wells { clip-path: inset(0 0 0 0); }
 .mf-well { width: 59px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .mf-well .icobox { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
 .mf-well .icobox svg { width: 15px; height: 15px; display: block; }
@@ -175,5 +184,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .mf-head, .mf-group, .mf-swipewrap, .mf-empty { animation: none; }
-  .mf-row { transition: none; }
+  .mf-row, .mf-wells { transition: none; }
 }

@@ -1342,3 +1342,37 @@ at 0 with the layer edge-to-edge and the right wine's pane; a fresh memory
 mount seats at top; desktop column untouched (620px, mask alive, wrappers
 display:contents), zero console errors. Ed's device pass is the final gate —
 the ledger's chrome and the swipe feel are the things to look at.
+
+
+## LEDGER POLISH — the wells are UNCOVERED, and the fades return on scroll (Jul 14, 2026)
+Two verdicts from Ed after the conversion shipped:
+· THE SWIPE COVERS, NEVER POPS: the old visibility-delay construction (wells
+  flash into existence at drag start, vanish 320ms after close — forced by the
+  rows' transparency) is replaced by a CLIP whose left edge IS the row's right
+  edge: `clip-path: inset(0 0 0 118px)` at rest, written inline under the finger
+  during the drag (exact px, measured: dx −34 → inset 84 · −95 → 23), snapped on
+  the row's own 300ms house short curve. Swiping left wipes the wells in;
+  swiping right slides the row back OVER them. Clip also owns hit-testing, so
+  covered wells are untappable by construction.
+· THE SCROLL-ARMED TOP FADE (the Pour's own mechanism — registered
+  `--vaTopFade`, `.scrolled` past 4px, 280ms ease) joins every remaining
+  scroller: the memory ledger on BOTH breakpoints (desktop `.mf-list` 38px,
+  matching the Pour, over the existing bottom dissolve; phone `.mf-scroll`
+  spans the menu band) and the deck grid on EVERY breakpoint. The viewport-top
+  scrollers (mf-scroll, dk-scroll) fade over `max(24px, safe-top) + 72px`
+  (resolves 96px in-browser — env(safe-area-inset-top) is 0 in Safari
+  browsing; the max() guard is for standalone) so scrolled content dissolves
+  before the menu text — menu accessibility, Ed's call. This partially
+  supersedes "THE GRID HAS NO EDGE FADES" (Jul 12): the BOTTOM stays clean and
+  the RESTING grid still has no fade — only scrolled state arms the top fade,
+  which also closes that verdict's flagged consequence (tiles under the raw
+  menu text). A MASK on the scroller, never a scrim on the bar (opaque scrims
+  stay on the dead-ends list).
+Verified (sim, real page): tweaks battery 9/9 (fade arms/disarms on ledger and
+deck, document still at 0; clip tracks the drag exactly both directions; open
+snap inset(0), close snap inset 118, inline always handed back to CSS); suite
+7/7; band probe PASS all four, values unchanged (deck-mid 42.34 · reading 3.57
+· pour 3.73 · memory-mid 4.27) — the fades never touch the bottom band;
+desktop wrapped loop: swipe-open/close on mouse, 38px list fade, zero console
+errors. Ed's device pass pending — the swipe FEEL under a real finger and the
+two fade lengths are his to judge.

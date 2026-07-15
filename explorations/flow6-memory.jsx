@@ -50,6 +50,7 @@ function MemRow({ e, last, open, editing, picked, closing, onSwipe, onTap, onHea
   const c = window.ARCANA && ARCANA[e.card];
   const rowRef = React.useRef(null);
   const wrapRef = React.useRef(null);
+  const wellsRef = React.useRef(null);
   const drag = React.useRef(null);
   const [jotDraft, setJotDraft] = React.useState(e.jot || "");
   React.useEffect(() => { if (editing) setJotDraft(e.jot || ""); }, [editing]);
@@ -64,8 +65,7 @@ function MemRow({ e, last, open, editing, picked, closing, onSwipe, onTap, onHea
     if (!d.on) {
       if (Math.abs(dx) < 9 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
       d.on = true;
-      ev.currentTarget.setPointerCapture(ev.pointerId);
-      if (wrapRef.current) wrapRef.current.classList.add("drag");
+      try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch (err) {}
     }
     const base = open ? -118 : 0;
     let off = base + dx;
@@ -74,11 +74,20 @@ function MemRow({ e, last, open, editing, picked, closing, onSwipe, onTap, onHea
     d.dx = off - base;
     const el = rowRef.current;
     if (el) { el.style.transition = "none"; el.style.transform = "translateX(" + off + "px)"; }
+    // the wells are UNCOVERED, never popped: their clip edge IS the
+    // row's right edge, tracked exactly under the finger (Ed's verdict —
+    // the row slides back over them on the way home)
+    const w = wellsRef.current;
+    if (w) { w.style.transition = "none"; w.style.clipPath = "inset(0 0 0 " + Math.max(0, 118 + Math.min(0, off)) + "px)"; }
   };
   const up = (ev) => {
     const d = drag.current; drag.current = null;
     const el = rowRef.current;
     if (el) { el.style.transition = ""; el.style.transform = ""; }
+    // hand the clip back to CSS: the snap curve below matches the row's,
+    // so the covering edge rides the row edge home
+    const w = wellsRef.current;
+    if (w) { w.style.transition = ""; w.style.clipPath = ""; }
     if (!d) return;
     // judge by TOTAL travel, not just streamed moves — a fast mouse drag can
     // reach pointerup with barely any pointermove events, and it must never
@@ -87,8 +96,6 @@ function MemRow({ e, last, open, editing, picked, closing, onSwipe, onTap, onHea
     const horizontal = Math.abs(tx) > 20 && Math.abs(tx) > Math.abs(ty);
     if (d.on || horizontal) {
       const off = (open ? -118 : 0) + tx;
-      const wrap = wrapRef.current;
-      if (wrap) setTimeout(() => wrap.classList.remove("drag"), 340);
       onSwipe(off < -59 ? e.id : null);
       return;
     }
@@ -101,7 +108,7 @@ function MemRow({ e, last, open, editing, picked, closing, onSwipe, onTap, onHea
   const jotCommit = () => onJotSave(e.id, jotDraft.trim());
   return (
     <div ref={wrapRef} className={"mf-swipewrap" + (open ? " open" : "") + (closing ? " closing" : "")} style={style}>
-      <div className="mf-wells">
+      <div className="mf-wells" ref={wellsRef}>
         <div className="mf-well edit" onClick={() => onEdit(e.id)}><span className="icobox"><MemPenIcon></MemPenIcon></span><span className="cap">EDIT</span></div>
         <div className="mf-well del" onClick={() => onDelete(e.id)}><span className="icobox"><MemTrashIcon></MemTrashIcon></span><span className="cap">DELETE</span></div>
       </div>
@@ -151,6 +158,12 @@ function MemoryScreen({ light, leaving, pickedId, onOpen, onDraw }) {
   const [openId, setOpenId] = React.useState(null);
   const [editId, setEditId] = React.useState(null);
   const [closingId, setClosingId] = React.useState(null);
+  // the pour's scroll-armed top fade, ledger edition: whichever element
+  // owns the scroll (.mf-scroll on phones, .mf-list wrapped/desktop)
+  // arms the fade past 4px — scroll events don't bubble, so both carry
+  // the handler and only the live scroller ever fires it
+  const [scrolled, setScrolled] = React.useState(false);
+  const onLedgerScroll = (ev) => setScrolled(ev.currentTarget.scrollTop > 4);
   const refresh = () => setEntries(MemoryStore.all());
 
   const rows = filterOn ? entries.filter((e) => e.hearted) : entries;
@@ -199,7 +212,7 @@ function MemoryScreen({ light, leaving, pickedId, onOpen, onDraw }) {
           (always ≥1px of real scroll, so overscroll containment owns
           every pan). Everywhere else both are display:contents and the
           wrapped construction below is untouched. */}
-      <div className="mf-scroll">
+      <div className={"mf-scroll" + (scrolled ? " scrolled" : "")} onScroll={onLedgerScroll}>
       <div className="mf-flow">
       <div className="mf-head">
         <div className="mf-head-row">
@@ -228,7 +241,7 @@ function MemoryScreen({ light, leaving, pickedId, onOpen, onDraw }) {
           <div className="mf-cta" onClick={onDraw}>Draw a card</div>
         </div>
       ) : (
-        <div className="mf-list">
+        <div className={"mf-list" + (scrolled ? " scrolled" : "")} onScroll={onLedgerScroll}>
           {months.map((m) => {
             const inMonth = rows.filter((e) => memMonthLabel(e.ts) === m);
             if (!inMonth.length) return null;
