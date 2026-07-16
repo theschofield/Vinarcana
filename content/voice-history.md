@@ -139,6 +139,9 @@ wink ("Bit stuck, are we?").
 - r5: "Bit stuck, are we? Good. Some things only show themselves from this angle." → good but a bit too long (75)
 - r6: "Bit stuck, are we? Good. Some things can only be seen from here." → almost perfect
 - r7 (user-edited final): "Bit stuck, are we? Good. Some things can only be seen from down here." → APPROVED ("down here" restores the hanging-upside-down image)
+- r8 (2026-07-15): approved line RETURNED TO DRAFT by user — first in-app test: "when I see it in the app it feels clunky." First approval ever reopened by seeing the line render in the built app; on-screen reading is now part of the grade. Session hypotheses: three full stops chop a short line into three pieces on screen, and the standalone "Good." beat doubles The Moon's approved "Good. They rarely are." (deck-level construction reuse the page-by-page reviews never caught).
+- Moon-echo hypothesis CONFIRMED by user: "I didn't like that they both shared the interjection style." Ruling: similarities between cards are not banned outright, but an echo this obvious must always be flagged (flag-then-decide, not zero tolerance).
+- r9 (user-authored): "Ah, perspective. Why do we always meet like this?" → APPROVED 2026-07-15. The wry we-have-to-stop-meeting-like-this greeting aimed at perspective itself; the direct-address license survives, the triple-stop chop and the Moon echo are gone.
 
 ## Death (XIII)
 - approved (user-edited final): "All things must come to an end. The interesting part is what comes next."
@@ -163,6 +166,7 @@ wink ("Bit stuck, are we?").
 - r3 comparison: "Saying no was noble. Saying yes will be memorable." → no comment
 - r4 synthesis: "Everyone has a price. Temptation, to its credit, never guesses wrong." → not graded
 - Final call deferred to the Devil showcase flow (lenses + reveal built together).
+- 2026-07-15 (in-app pass): "Everyone has a price. It appears tonight found yours." → APPROVED ("yeah that's definitely the one"). Showcase-flow deferral resolved early; contenders retired: "Temptation only wins when it knows exactly what to offer. And it knows." / "Finally, a little indulgence. Come on, let's be bad." / "Everyone has a price. Temptation, to its credit, never guesses wrong."
 
 ## The Star (XVII)
 - r3: "Every dark stretch eventually shows a light to steer by. There it is." → REJECTED: "There it is" points at nothing; alt long and rambly. Direction: nod to the dark patch survived, star as respite, knowing smile not straining philosopher
@@ -190,6 +194,8 @@ wink ("Bit stuck, are we?").
 - r6 user options: (A) "Everyone dreads the reckoning, but a second chance doesn't knock twice." (B) "Old chapters don't stay closed forever. Seems a reckoning's afoot." → Claude's assessment: A is better — keeps the approved beat, and the turn (dread becomes an urgent gift) IS the card: the call you must answer. B's "old chapters don't stay closed" tilts ominous (past resurfacing) and loses the absolution.
 - r6: A adopted as primary (72 chars); B retained as alt
 - r7: B promoted to primary "Old chapters don't stay closed forever. Seems a reckoning's afoot." — sexier, more mysterious. User calls it a tossup; FINAL CALL DEFERRED to lens pairing (like the Devil, the voice decision rides with the flow it lives in). A retained as alt.
+- r8 (2026-07-15): session synthesis "Everyone dreads the reckoning. The verdict is kinder than the wait." → REJECTED: the existing alt is more accessible and understandable.
+- r8: A promoted to APPROVED: "Everyone dreads the reckoning, but a second chance doesn't knock twice." (length watch: 72 chars, near the 2-line ceiling; user will verify in app). B demoted to alt with rationale: the dual meaning of "reckoning" is hard to pull apart, so it only comes off as ominous.
 
 ## The World (XXI)
 - r0 draft: "Every last piece, finally in place. This is what the whole road was for." → APPROVED r3
@@ -376,3 +382,584 @@ codified in guidebook-prompt.md. Closings stand at 5/78 (The Moon canon + Death,
 The Fool, The Hermit); the remaining 73 wait on their lens sets reaching approved in lenses.csv.
 Next, per the user: fix the spirit voices and the lenses (in a fresh session), then return for
 the closings.
+
+---
+
+## Voice layer — in-app refinement pass, batch 1 (2026-07-15)
+
+The app is built, so voices are now graded ON SCREEN, card by card, in batches (~5 + carry-ons),
+against the approved guidebook bodies as the shared knowledgebase (voice and guidebook must know
+the same things without sounding like each other). Batch 1: The Hanged Man (returned to draft),
+The Devil, Judgement, Ace/Two/Three of Wands.
+
+**Discovery — the voice/guidebook collision check runs BOTH WAYS now.** Guidebook batches 3–4
+predate the collision discipline (it started batch 5), and the W01–W03 bodies absorbed imagery
+from the 2026-07-07 overnight voice drafts. Since bodies are approved canon, the VOICE yields:
+- Three of Wands: HARD collision — guidebook reading_2 "What you send out over the water comes
+  back with interest" vs draft voice "What went out into the world is coming back with interest."
+  Near-verbatim; the voice needs new bones.
+- Ace of Wands: the operative verb — guidebook meaning_1 "The spark's only job is to catch" vs
+  draft voice tail "It just catches."
+- Two of Wands (alt only): guidebook meaning_1 "the idea has outgrown the room it started in" vs
+  alt "Plans made by a window always end up bigger than the room."
+
+**USER RULING on redundancy (same day):** voice/guidebook sharing is FINE in general — "it's
+likely many users won't even read the guidebook, so the redundance can be fine if it's not
+egregious or lazy." Only the W03 near-verbatim payoff was egregious (convicted and replaced);
+shared imagery and shared knowledge are the point, not a problem.
+
+**Batch 1 verdicts (2026-07-15):** Hanged Man r9 approved (user-authored), Devil approved,
+Judgement approved (alt promoted), Two of Wands approved, Three of Wands approved (alt B),
+Ace of Wands rejected and re-drafted (carries into batch 2). Meta-lessons issued this round,
+all codified in voice-prompt.md:
+1. Two sentences is a choice, never the default — the overnight pass's uniform two-beat shape
+   is where the automated writing "started falling apart"; a single longer sentence can FEEL
+   more succinct than two short beats (Three of Wands, the exemplar).
+2. Construction echoes across cards: flag-then-decide, not zero tolerance. Obvious twins
+   (standalone "Good.") get caught; subtle kinship ("the delicious part" beside Death's
+   "the interesting part") can be waved through.
+3. Domain ambiguity is a rejection: "The first spark" read as either a new idea or a war's
+   first shot. The reader must never have to guess which world the line lives in.
+4. The devilish indulgence twinge ("delicious") is welcome wherever it lands naturally;
+   never force it deck-wide.
+
+### Ace of Wands (W01) — batch 1
+- r1: "The first spark never asks if the timing is right. It just catches." → REJECTED: "it's
+  tripping over itself," not a fortune or a succinct nugget of wisdom; "The first spark" is
+  domain-ambiguous (new idea, or kicking off a war?); the two-sentence shape felt forced.
+  Identified as where the overnight automation pass fell apart. Redirect: make the reader WANT
+  to embrace this spark and light the fire.
+- r2 candidates (pending grade): "An idea just walked in with matches." /
+  "Something this eager won't stay unlit for long." /
+  "Every bonfire was once somebody's tiny, ridiculous urge."
+
+### Two of Wands (W02) — batch 1
+- r1: "The whole map is on the table. Choosing is the delicious part." → APPROVED. The Death
+  echo ("the ___ part") flagged and waved. The indulgence/gluttony twinge praised: "this
+  devilish twinge I like... it's just nice to see it sprinkled in when it makes sense."
+
+### Three of Wands (W03) — batch 1
+- r1: "What went out into the world is coming back with interest." → REJECTED: near-verbatim
+  reuse of the approved guidebook payoff (the one egregious case).
+- r1 alt B: "Ships sent with conviction have a habit of returning heavier." → APPROVED: "Loving
+  the visual symbolism. Love how the single sentence makes it feel succinct even if it's longer
+  than the others."
+- r1 alt A: "Foresight looks like luck to everyone who wasn't watching." → runner-up
+- session C: "What was set in motion kept moving. The first proof just docked." → REJECTED:
+  forcing two sentences.
+
+---
+
+## Voice layer — in-app refinement pass, batch 2 (2026-07-15)
+
+**Course correction to batch-1 lesson 3: domain ambiguity is NOT a rejection rule.** User: "in
+that case it just felt odd. not sure if it was because it was a collision in metaphors between
+the first sentence and second part." The W01 r1 failure is re-diagnosed as the beats pulling
+the image apart; ambiguity alone is at most a flag. Prompt updated.
+
+New lessons this cycle (all codified in voice-prompt.md):
+1. FEEL THE CARD: draft for the person the card reads 100% right; the reaction must be felt
+   ("fuck yeah I did... time to crack open the good shit"), never decoded. A roundabout
+   construction kills a correct sentiment (W07 r1).
+2. Real-user confusion convicts: W04 r1 confused people the user showed the app to. The line
+   gets one cold read.
+3. Mood misfire rejects even when the content is right: celebratory card, ominous feel ("like
+   it's gonna be the red wedding" — W04 session candidate).
+4. Visible cleverness reads as trying too hard (W08 r1's at-once/for-once rhyme).
+5. A felt line creates forward momentum into the flow: W06's winner made the user need to see
+   "what kind of glory waits for me on the other side of the lens immediately."
+
+### Ace of Wands (W01) — resolved
+- r2: "An idea just walked in with matches." → APPROVED ("Holy shit idea A is brilliant...
+  funny, clear, punchy, wise, endearing, makes me wanna start a fire. hell yeah."). Fallback
+  alt retained in case the primary feels weird in app: "Every bonfire was once somebody's tiny,
+  ridiculous urge." Retired: "Something this eager won't stay unlit for long."
+
+### Four of Wands (W04)
+- r1: "The hard part held. Somewhere, a table is already being set." → REJECTED: confused real
+  users on a cold read ("held" what?); trying to do too much, assuming shared context.
+- session candidate: "Some milestones simply refuse to pass quietly." → REJECTED: mood misfire,
+  ominous ("like it's gonna be the red wedding from Game of Thrones").
+- Redirect: the reader just clinched a life milestone and should think "fuck yeah I did. you're
+  right it's time to celebrate what I just pulled off. Time to crack open the good shit."
+- r2 candidates (pending): "Corks have been popped for far less." / "Finish lines this big come
+  with corks." / "Tonight is for basking. The building resumes tomorrow."
+
+### Five of Wands (W05) — resolved
+- r1 primary: "All that noise is just ambition bumping into itself. It sorts itself out." →
+  superseded: second beat is a shrug, not a turn; 74 chars sat at the render ceiling.
+- r1 alt: "Rivals make better whetstones than admirers ever do." → APPROVED ("actually makes me
+  stop and think for a bit. feels sage. nicely done.")
+
+### Six of Wands (W06) — resolved
+- r1: "Recognition runs late as a rule. It still knows the address." → demoted to draft alt
+  ("a nice bit of wisdom," but the winner hypes)
+- session candidate: "Applause has been rehearsing your name." → APPROVED ("would get me all
+  hyped up to pull it. I'd need to see what kind of glory waits for me on the other side of the
+  lens immediately"). Direct-address hype sanctioned when the card's glory earns it.
+
+### Seven of Wands (W07)
+- r1: "The high ground was earned. Anyone who wants it can climb." → REJECTED: the come-and-
+  take-it sentiment is right but the construction is too roundabout to feel ("I wanna feel it").
+- r1 alt: "One person with a reason beats a crowd with an opinion." → confirmed mug-quotable
+  slogan (the Chariot r3 family).
+- Redirect: write for the reader who just took the high ground; defiance with a grin, FELT.
+- r2 candidates (pending): "Let them climb. It's a long way up." / "They can have the high
+  ground the moment they can take it." / "Challengers keep coming. The flag hasn't moved an inch."
+
+### Eight of Wands (W08)
+- r1: "Everything is moving at once, and for once, in the same direction." → REJECTED: "trying
+  too hard to be clever" (the visible at-once/for-once rhyme).
+- r1 alt: "News this fast rarely bothers to knock." → retired (collides with Judgement's
+  approved "doesn't knock twice").
+- r1 alt: "What stalled for months is about to happen in a week." → not right either, but its
+  RUSH quality confirmed as the card's feel: "like you can hear the wind rushing by your ears.
+  I want to feel the card."
+- r2 candidates (pending): "Deep breath. It all happens fast from here." / "The lull, it turns
+  out, was a runway." / "Months of waiting are about to fit inside one week."
+
+---
+
+## Voice layer — in-app refinement pass, batch 3 (2026-07-15)
+
+Eight for eight: the W04/W07/W08 round-2 winners plus W09–W13 all resolved in one cycle ("This
+was a great batch"; "I think we're starting to land on the exact same page here"). Wands stand
+13/14 approved (the King rides in batch 4). Stated goal: keep calibrating toward "the promised
+land of auto-pilot."
+
+Lessons (codified in voice-prompt.md):
+1. Err devilish when the register allows: W04's C was "too reserved, like a teacher letting
+   loose briefly"; the winners "feel like they come with a devilish grin."
+2. Two sentences win when each beat earns its keep (W07 cited by the user as the example).
+3. A line can ENACT the card's tempo: W08's held beat then release — "made my spine tingle a
+   little. The calm before the rush."
+4. Writerly vocabulary convicts on its own: W11 r1 was "long winded and writerly and stuffy but
+   the sentiment was interesting" ("underrated" = listicle language).
+
+### Four of Wands (W04) — resolved
+- r2 B: "Finish lines this big come with corks." → APPROVED (A and B nearly tied, "I feel the
+  first one slightly more, but the second captures the finish line/milestone angle"). A kept as
+  reserve alt: "Corks have been popped for far less." C rejected: too reserved.
+### Seven of Wands (W07) — resolved
+- r2 A: "Let them climb. It's a long way up." → APPROVED ("this is an example of an instance
+  where 2 sentences worked out")
+### Eight of Wands (W08) — resolved
+- r2 A: "Deep breath. It all happens fast from here." → APPROVED ("made my spine tingle a
+  little. The calm before the rush. Fantastic."). B honorable mention: witty, but no wind.
+### Nine of Wands (W09) — resolved
+- r1: "Tired is not the same as finished. Ask anyone still standing." → APPROVED as written
+### Ten of Wands (W10) — resolved
+- r1: "The reward for carrying it all is, somehow, more to carry." → APPROVED as written
+### Page of Wands (W11) — resolved
+- r1: "Wandering off is an underrated way to arrive somewhere wonderful." → REJECTED: "long
+  winded and writerly and stuffy but the sentiment was interesting"
+- r2: "Follow the fun. It knows a shortcut." → APPROVED ("excellent")
+### Knight of Wands (W12) — resolved
+- r1: "Fortune keeps favoring the bold. At some point that stops being luck." → retired: luck
+  is the Wheel's owned territory; 69 chars rode the ceiling
+- r1 alt: "Some doors open politely. Others were made for kicking." → APPROVED ("excellent...
+  absolutely approved")
+### Queen of Wands (W13) — resolved
+- r1: "Some people light the room just by deciding to stay in it." → REJECTED: "deciding to
+  stay" muddles the mechanism (her power is presence, not staying)
+- r2: "Some fires warm the room. This one runs it." → APPROVED ("would absolutely light someone
+  up that matched that card")
+
+---
+
+## Voice layer — in-app refinement pass, batch 4 (2026-07-15)
+
+The Wands complete (14/14). Three approvals, one conditional, two retries ("Not as smooth as
+the last one, but definitely some good learnings"). Lessons (codified in voice-prompt.md):
+1. Relatable idioms are assets: "the feeling is mutual" is "a good relatable saying" — keep it
+   and make the line reveal how rare the familiar thing is.
+2. Coinages must speak: "understood back" rejected as "an odd turn of phrase."
+3. When the card's message is clear, don't re-angle it: the C04 "good taste" flattery was "a
+   bit convoluted when I think the message of the card is clear." Rut cards need the line to
+   spark realization AND hand over the remedy, without scolding.
+4. World-clash imagery (borderline flag): "keeps no schedule" faintly clerical against an
+   overflowing heart; user approved-if-nothing-better.
+
+### King of Wands (W14) — resolved
+- r1: "A vision held long enough starts giving the orders itself." → superseded (decodes, not felt)
+- r1 alt: "Passion ages into authority when it keeps its nerve." → APPROVED (recommendation
+  accepted; "ages" carries the cellar note, separates him from The Emperor)
+
+### Ace of Cups (C01) — conditional
+- r1: "The heart keeps no schedule. When it decides to open, it pours." → conditionally
+  approved; "keeps no schedule" gave pause (scheduling intrudes on an overflowing heart) but
+  stands unless a better first beat exists. Session refinement offered: "The heart gives no
+  warning. When it decides to open, it pours."
+
+### Two of Cups (C02)
+- r1: "Once in a while, the feeling is mutual in the fullest sense of the word." → REJECTED:
+  "in the fullest sense of the word" long-winded; but "the feeling is mutual" praised as a
+  relatable saying.
+- r2: "Attraction is common. Being understood back is rare." → REJECTED: "understood back" is
+  an odd coinage. User sketch (self-declared terrible but directional): "but being understood?
+  Now that's something special." Redirect: "I wanna feel it."
+- r3 candidates (pending): "The feeling is mutual. Do you know how rare that is?" / "It runs
+  both ways this time. All the way down." / "Being wanted is common. Being known is something
+  else entirely."
+
+### Three of Cups (C03) — resolved
+- r1: "Joy has one flaw. It refuses to stay a private matter." → demoted to reserve (solid,
+  precise, out-felt)
+- r2: "Good news never drinks alone." → APPROVED ("I love your alt. That's what I'm talking
+  about."). The deck's shortest line; the drink is literal at the table.
+
+### Four of Cups (C04)
+- r1: "While the eyes are on the empty cups, something keeps offering a full one." → REJECTED
+  as primary, but its CONTENT confirmed right: "their eyes are focused on the drained and
+  boring which is keeping them from seeing the golden opportunity presenting itself."
+- r1 alt: "Discontent has good taste. It only visits people ready for more." → REJECTED:
+  "convoluted when I think the message of the card is clear."
+- r1 alt: "Not every offer comes around twice." → retired (scolds; mood misfire).
+- Redirect: help them REALIZE the rut and take charge of the remedy (second look, change of
+  scenery, eyes open). Never fear-based.
+- r2 candidates (pending): "The offer on the table is golden. The mood just isn't looking." /
+  "Apathy has terrible eyesight. The gold is in the blind spot." / "Look up. The world kept
+  moving while the mood stood still." (flagged: "Look up" brushes the guidebook closing's
+  "Looking up is the entire assignment")
+
+---
+
+## Voice layer — in-app refinement pass, batch 5 (2026-07-15)
+
+Seven approvals, one retry (C07). Lessons (codified in voice-prompt.md):
+1. Draft from the READER's imagery for the situation, not a transposed concept: for dazzling
+   choices the user pictures "a set table... riches... luxurious wines all in a row," never
+   painted doors (C07 redirect).
+2. Discernment is not danger: "Not everything on it is dinner" read as "poisoned and dangerous."
+   Abundance cards must tempt first, then sharpen the choosing.
+3. Odd personification structure convicts: "The mood just isn't looking" was "hard to understand
+   and a bit odd from a structure pov" — clear actor, natural verb.
+4. C09's grade names the perception target exactly: "makes me start running through my mind of
+   'which wish and how did it know about that wish??'" — the line should start a search of the
+   reader's own life.
+
+### Ace of Cups (C01) — resolved
+- r2 refinement: "The heart gives no warning. When it decides to open, it pours." → APPROVED
+  ("Yep, that's better."). Weather-world beats calendar-world.
+### Two of Cups (C02) — resolved
+- r3: "The feeling is mutual. Do you know how rare that is?" → APPROVED ("Inspires reflection
+  and makes one appreciate the thing they've got")
+### Four of Cups (C04) — resolved
+- r2 A: "The offer on the table is golden. The mood just isn't looking." → REJECTED (second
+  beat hard to parse, odd structure)
+- r2 B: "Apathy has terrible eyesight. The gold is in the blind spot." → APPROVED ("excellent")
+### Five of Cups (C05) — resolved
+- r1: "Grief counts what spilled with great care. It never audits what remains." → retired
+  ("audits" = clerical world-clash; 72 chars)
+- r1 alt: "What's lost gets the eulogy. What's left gets the morning." → APPROVED ("Oh damn
+  that rewrite is excellent. feels genuinely profound.")
+### Six of Cups (C06) — resolved
+- r1: "The past keeps a spare key under the mat for nights like this." → APPROVED ("brilliant")
+### Seven of Cups (C07)
+- r1: "Every door tonight is beautifully painted. Only one has a room behind it." (and the
+  session trim "...Only one opens.") → REJECTED: painted doors are the wrong imagery-world for
+  dazzling choices (user pictures a set table, riches, wines in a row).
+- r1 alt: "The imagination sets a lavish table. Not everything on it is dinner." → REJECTED:
+  "lavish table" viscerally right, but the second beat implies poison/danger instead of careful
+  choosing.
+- Redirect: eye-gluttony at a lavish spread; evaluate carefully to choose well, not fear.
+- r2 candidates (pending): "Appetite wants the entire spread. Satisfaction wants just one." /
+  "Every glass on the table is calling. One of them means it." / "A table set with everything
+  is still a table set for one."
+### Eight of Cups (C08) — resolved
+- r1: "Some things can only be found by leaving where they aren't." → retired (a logic puzzle,
+  decoded not felt)
+- r1 alt: "The tide goes out quietly when it's done with the shore." → APPROVED ("Oooooo great
+  rewrite")
+### Nine of Cups (C09) — resolved
+- r1: "Contentment rarely announces itself. Tonight it pulled up a chair." → demoted to reserve
+- r2 trim: "The wish was listening the whole time." → APPROVED ("pushy" in the best way; starts
+  the which-wish search)
+
+---
+
+## Voice layer — in-app refinement pass, batch 6 (2026-07-15)
+
+The court + tens cycle: one approval (C14), five retries — the subtle cards resist first
+passes. New lessons (codified in voice-prompt.md):
+1. Polysemy trap: C10's "unpacks" lost to its more common sense (unpacking something
+   complicated) on the cold read. Check every key word's COMPETING reading; the wrong one wins.
+2. Recruit, never caution, on action-champion cards: C12's "get laughed at" would "scare
+   someone off from letting their heart do the talking."
+3. Vague-referent phrases are coinage-family convictions: "somewhere that knows things" (C11)
+   — right whimsy ("casual spooky whimsy – that's what I'm talkin about"), odd phrase.
+4. Being-seen cards (Queen of Cups family) must SEE the reader, not describe the type; write
+   from the person the card describes to a tee.
+
+### Seven of Cups (C07)
+- r2 A: "Appetite wants the entire spread. Satisfaction wants just one." → mechanic right
+  (satisfaction means picking even when wanting it all), but missing the visceral "lavish
+  spread" feel. REDIRECT: make it felt.
+- r3 candidates (pending): "Drink it all in. Only one makes it to the glass." / "Appetite wants
+  the whole lavish spread. Satisfaction wants just one." / "Feast the eyes on all of it. Fill
+  the glass with one."
+
+### Ten of Cups (C10)
+- r1: "Most joys pass through. This kind unpacks." → REJECTED: polysemy trap ("I thought
+  'Unpacks' was more about having to unpack something dense and complicated") — clever but
+  trips the cold read.
+- r2 candidates (pending): "These are the days the stories will be about." / "The rarest
+  fortune is the one already home by dinner." (flag: P10 draft opens "The best fortunes") /
+  "The good days moved in. They're here for keeps."
+
+### Page of Cups (C11)
+- r2: "Every daydream is a note from somewhere that knows things." → direction APPROVED
+  ("casual spooky whimsy – that's what I'm talkin about"), phrase rejected ("somewhere that
+  knows things" is a bit odd). Fallback per user: the r1 first sentence alone ("The softest
+  messages need the sharpest listening.")
+- r3 candidates (pending): "Every daydream is a note passed by someone who knows." / "Every
+  daydream is a note from someplace that's been paying attention."
+
+### Knight of Cups (C12)
+- r2: "Grand gestures get laughed at until one lands." → REJECTED: cautioning where the card
+  charges. REDIRECT: embrace the charm, the grand emotional gesture; encourage the heart to be
+  reckless for a bit.
+- r3 candidates (pending): "Some feelings deserve a white horse and a bad plan." / "The heart
+  wants the reins tonight. Hand them over." / "The heart wants to do the talking tonight.
+  Let it."
+
+### Queen of Cups (C13)
+- r2 trim ("at the table... felt everything first") → REJECTED except dropping "usually";
+  "Compassion is what wisdom looks like..." alt = "almost feels like a riddle." REDIRECT: fresh
+  look through the lens of the person this card describes to a tee.
+- r3 candidates (pending): "Deep water is why the surface looks so calm." / "The calm ones felt
+  it all first. That's the whole secret." / r1 minus usually.
+
+### King of Cups (C14) — resolved
+- r1: "Anyone can feel deeply. Feeling deeply and steering anyway is the art." → APPROVED
+  ("it reflects the type of person this describes much better"); optional trim offered for the
+  length ("Anyone can feel deeply. Steering anyway is the art."), user's call if resonance
+  survives.
+
+---
+
+## Voice layer — in-app refinement pass, batch 7 (2026-07-15)
+
+Eleven approvals in one cycle — the CUPS COMPLETE (14/14), the Swords open 5/14. User confirms
+the pace ("five at a time with edits from the prior round... our quality is way up") and that
+"last batch" was a misspeak. Lessons (codified in voice-prompt.md):
+1. Chase the user's FEELING, not their phrase: "lavish" inserted verbatim "is just feeling
+   forced" — the user's own trim removed it (C07).
+2. The idiom at its limit: the user authored "The calmest waters run deep." (C13) — sometimes
+   the lightly-freshened saying IS the line.
+3. Imagery harmony is part of the grade: S02's winner is "actually great in conjunction with
+   the card's imagery" (two patient blades), while the wisdom-forward r1 was "dry" with a
+   second beat that "doesn't really make sense."
+4. Queen of Wands declared THE gold standard for all sixteen court cards; C14 approved but
+   watched ("keeping my eye on it in case we come up with something more resonant").
+
+### Seven of Cups (C07) — resolved
+- r3: user-trimmed to "Appetite wants the whole spread. Satisfaction wants just one." → APPROVED
+### Ten of Cups (C10) — resolved
+- r2: "These are the days the stories will be about." → APPROVED ("I feel the recommendation")
+### Page of Cups (C11) — resolved
+- r3: fallback chosen: "The softest messages need the sharpest listening." → APPROVED (clearest;
+  "one that a good listener and empath could resonate with"); daydream note-passing variants retired
+### Knight of Cups (C12) — resolved
+- r3: "Some feelings deserve a white horse and a bad plan." → APPROVED ("kicks ass. This is the
+  perfect reinterpretation.")
+### Queen of Cups (C13) — resolved
+- r3 candidates all superseded by user-authored: "The calmest waters run deep." → APPROVED
+### Ace of Swords (S01) — resolved
+- r1: "Clarity arrives like a blade: all at once, and nothing looks the same." → retired
+  (colon-simile announces its construction; 70 chars)
+- r1 alt: "One clean thought can cut through a year of tangles." → APPROVED ("Love the
+  recommended alt")
+### Two of Swords (S02) — resolved
+- r1: "A decision delayed is still a decision. It just picks its own timing." → REJECTED: "dry
+  and the second part doesn't really make sense"
+- r1 alt: "Both options wait politely. Neither intends to wait forever." → APPROVED ("actually
+  great in conjunction with the card's imagery")
+### Three of Swords (S03) — resolved
+- r1 user-trimmed to the first sentence: "Sharp truths go straight for the heart." → APPROVED;
+  session candidate "Only the truth cuts this deep." not taken
+### Four of Swords (S04) — resolved
+- r1 user-tweaked: "The mind wins more battles at rest than anyone admits." → APPROVED
+  ("asleep" broadened to "at rest": the card is recuperation, not only sleep)
+### Five of Swords (S05) — resolved
+- r1: "The spoils went to one name only. The party, notably, is quiet." → retired ("notably" =
+  writerly adverb)
+- r1 alt: "Being right gets expensive when it's all that's left." → APPROVED (reserve promoted);
+  runner-up: "Winning an argument and winning are different sports."
+
+---
+
+## Voice layer — in-app refinement pass, batch 8 (2026-07-15)
+
+Two approvals (S07, S10 as written), three retries. Lessons (codified in voice-prompt.md):
+1. A generalizing beat must generalize a UNIVERSAL experience: "They usually are" failed on
+   ropes ("how often are you tied in ropes?") where The Moon's "They rarely are." works because
+   everyone has had such nights.
+2. The card's furniture is not a metaphor: ropes/unlocked doors read literal. The meaning must
+   live in the reader's world even while the line harmonizes with the art.
+3. Dark cards owe mercy or agency: "unsupervised" was spooky with nothing to do; "lights off"
+   was too light for real anguish. The mercy must respect the weight (S09 redirect: colorful
+   night-creature language, e.g. "creatures of the night or shadows of the mind").
+4. Plain vocabulary only: "ballast" rejected cold.
+5. S10 kept its length ("I know it's long but I think the current is the best one") — and the
+   session alt was rejected for Tower-similarity the flag predicted: mood-siblings get caught.
+
+### Six of Swords (S06)
+- r1 + session far-shore rework + ballast alt → ALL REJECTED (ballast unknown; none resonating).
+  "The heaviest part of leaving is the shoreline..." flagged "kinda close" — build on that
+  concept, plus one less boat-literal.
+- r2 candidates (pending): "Leaving is heaviest at the doorstep. It lightens from there." /
+  "The heaviest part of leaving is the shoreline. It lightens from there." / "The hard part was
+  deciding. What's left is only distance."
+### Seven of Swords (S07) — resolved
+- r1 retired (negation-family opener, riddly passive)
+- r1 alt: "Every clean getaway leaves exactly one witness." → APPROVED ("great")
+### Eight of Swords (S08)
+- r1 + both alts → REJECTED (ropes literal; non-universal generalizing beat; "checking is the
+  hard part" weird; too witty). Redirect: wake the reader to being the architect of their own
+  cage, or to check who is actually holding the ropes.
+- r2 candidates (pending): "The cage got built from the inside. So did the way out." / "Go
+  ahead, tug. Nobody's holding the other end." / "Untested limits make the sturdiest walls."
+### Nine of Swords (S09)
+- r1 + both alts → REJECTED (long-winded / too light / ominous-no-gift). Intent of r1 right.
+- r2 candidates (pending): "Shadows need the dark to pass for monsters." / "The night grows
+  monsters the morning never finds." / "Midnight tells taller tales than morning ever confirms."
+### Ten of Swords (S10) — resolved
+- r1: "It is over, completely and utterly. Which means the worst is, too." → APPROVED as
+  written; session candidate "The worst has already happened. Feel how quiet it is." rejected
+  as too similar to The Tower.
+
+---
+
+## Voice layer — in-app refinement pass, batch 9 (2026-07-15)
+
+Seven approvals; the SWORDS COMPLETE except the Queen (13/14); Pentacles opened. Lessons
+(codified in voice-prompt.md):
+1. ONE STANCE PER LINE: the Queen of Swords r1 cobbled guidebook angles into a line that was
+   "confusing as hell... I see where all the pieces came from that cobbled together." Courts
+   serve two readers: the embodier must feel understood, the needer must know what to channel.
+2. Trim to the load-bearing beat: S14's second sentence WAS the card; the first was scaffolding.
+3. User tense-smoothing on S08 (got/did → was/was): prefer parallel constructions.
+
+### Six of Swords (S06) — resolved
+- r2 C: "The hard part was deciding. What's left is only distance." → APPROVED
+### Eight of Swords (S08) — resolved
+- r2 A, user-smoothed: "The cage was built from the inside. So was the way out." → APPROVED
+### Nine of Swords (S09) — resolved
+- r2 B: "The night grows monsters the morning never finds." → APPROVED ("solid")
+### Page of Swords (S11) — resolved
+- r1: "A mind this curious never met a secret it could leave alone." → APPROVED as written
+### Knight of Swords (S12) — resolved
+- r1: "An idea in a hurry clears its own road." → APPROVED as written
+### Queen of Swords (S13)
+- r1: "Honesty this clean costs extra. It was paid for years ago." → REJECTED: "confusing as
+  hell. I can't tell if it's mixing metaphors or if it's a metaphor I don't understand."
+  Redirect: take a stance on the card's most important aspect.
+- r2 stance candidates (pending): "Every blade this sharp is guarding something tender."
+  (softness behind the steel) / "The truth, said plainly, is its own kind of kindness."
+  (candor as care) / "Clear eyes are earned. Usually the hard way." (wise through experience)
+### King of Swords (S14) — resolved
+- r1 trimmed to the second sentence: "Feelings get a vote, never the throne." → APPROVED
+  ("excellent. love it")
+### Ace of Pentacles (P01) — resolved
+- r1: "The seed in the palm is small. So was every orchard, once." → APPROVED as written
+
+---
+
+## Voice layer — in-app refinement pass, batch 10 (2026-07-15)
+
+Five approvals (the Swords complete at 14/14), one retry (P03). Lessons (codified):
+1. Borrowed negative connotations convict: "design by committee is colloquially a negative
+   thing" — the phrase's street meaning overrides the intended joke.
+2. The grade questions, verbatim: "What am I supposed to feel here? What is my reading?" — plus
+   the truth-test: "feels like it's not actually something that rings true." Added to the
+   pre-submit test as (d) and (e).
+3. Two more flags waved (P05's blind-spot kinship, P06's "Ask any" twin): the user's echo
+   tolerance is wider than the flagger's; keep flagging, keep deferring.
+
+### Queen of Swords (S13) — resolved
+- r2 A: "Every blade this sharp is guarding something tender." → APPROVED ("excellent")
+### Two of Pentacles (P02) — resolved
+- r1: "Juggling looks like chaos to everyone but the juggler." → APPROVED ("rad. love it. I'd
+  be stoked to pull it.")
+### Three of Pentacles (P03)
+- r1: "Nothing built to last was built alone. Even cathedrals took a committee." → REJECTED:
+  committee's negative colloquial weight.
+- r1 alts both rejected: "Skill draws exactly the crowd it deserves..." unclear; "Good work
+  speaks quietly and gets overheard by the right people." doesn't ring true and isn't the
+  card's instruction. Stance per user: collaboration, respecting other craftsmen, forming part
+  of a greater whole with your expertise, embracing the team's different expertises.
+- r2 candidates (pending): "The work is bigger than any one pair of hands. So is the credit." /
+  "A cathedral is just what happens when experts trust each other." / "Every master on the job
+  knows the others are masters too." (flagged: "master" wanted by P08/P11 drafts)
+### Four of Pentacles (P04) — resolved
+- r1 alt: "Thrift is a virtue until it starts spending you." → APPROVED ("looooove it")
+### Five of Pentacles (P05) — resolved
+- r1: "Hard times narrow the eyes. That's exactly when the lit window gets missed." → APPROVED
+  as written (long but "a good message and doesn't feel too trope-y")
+### Six of Pentacles (P06) — resolved
+- r1: "Giving and receiving were never two things. Ask any open hand." → APPROVED as written
+  (the "Ask any" kinship known and kept)
+
+---
+
+## Voice layer — in-app refinement pass, batch 11 (2026-07-15)
+
+Three approvals, three retries. Self-critique lessons logged (hypotheses, not yet user-ruled):
+hedge words undermine omniscience ("tends to come true" — the spirit doesn't hedge); "in
+history" is filler; abstract equations decode ("Study is ambition being patient"); "appreciates"
+rejected by user as "too fluid of a word" (word-precision matters even when the pun is apt).
+
+### Three of Pentacles (P03) — resolved
+- r2 A: "The work is bigger than any one pair of hands. So is the credit." → APPROVED
+### Seven of Pentacles (P07) — resolved
+- r1 alt: "Patience is just faith with dirt under its nails." → APPROVED ("that alt DOES bang")
+### Eight of Pentacles (P08) — resolved
+- r1: "Mastery is repetition that never got bored." → APPROVED as written
+### Nine of Pentacles (P09)
+- r1 set → REJECTED ("a bit meh"; "appreciates is a bit too fluid of a word")
+- r2 candidates (pending): "Everything here is earned, down to the silence." / "A life built by
+  hand fits like nothing bought ever could." / "Comfort this well-earned needs no audience."
+### Ten of Pentacles (P10)
+- r1: liked but "I wish it was a bit shorter and tighter/punchier"; user sketch: "the best
+  fortunes are made to outlive their makers"
+- r2 candidates (pending): "The best fortunes are made to outlive their makers." (the sketch) /
+  "A real fortune outlives its maker. On purpose." / "Fortunes worth the name outlive their makers."
+### Page of Pentacles (P11)
+- r1 set → REJECTED ("I'm not feeling these")
+- r2 candidates (pending): "Every fortune starts as somebody's page one." (rank pun; flagged:
+  "fortune" also pending in P10) / "Today the student, someday the one they study." / "Small
+  and studied beats big and guessed."
+
+---
+
+## Voice layer — in-app refinement pass, batch 12 (2026-07-15) — THE DECK COMPLETES
+
+**ALL 78 SPIRIT VOICES ARE APPROVED**, refined across twelve batches in one session ("We're good
+to go. incredibly well done."). Final verdicts:
+
+### Nine of Pentacles (P09) — resolved
+- r2 A: "Everything here is earned, down to the silence." → APPROVED
+### Ten of Pentacles (P10) — resolved
+- r2 A (the user's sketch): "The best fortunes are made to outlive their makers." → APPROVED
+### Page of Pentacles (P11) — resolved
+- r2 A: "Every fortune starts as somebody's page one." → APPROVED ("fortune" shared with P10 accepted)
+### Knight of Pentacles (P12) — resolved
+- r1: "Steady never makes headlines. It makes everything else." → APPROVED (the "written
+  incorrectly in the csv" scare was a typo in the session chat; the CSV was verified correct)
+### Queen of Pentacles (P13) — resolved
+- r1: "A well-kept hearth feeds more than the people at the table." → APPROVED (QW fire
+  adjacency accepted: charisma-fire vs hearth-fire)
+### King of Pentacles (P14) — resolved
+- r1: "Wealth this settled stopped counting itself years ago." → APPROVED
+
+**Pipeline note:** `scraps/mirror-voices.js` created (companion to mirror-guidebook.js) — it
+mirrors spirit-voices.csv into the `knowing` fields of explorations/arcana-data.js and verifies
+every approved line round-trips. First run surfaced a CSV quoting bug (an orphan trailing quote
+on the P03 row, introduced by a session edit) that silently truncated parsing at 67/78 rows —
+fixed; the mirror's built-in verify now guards against recurrence. All 78 voices confirmed
+loading in the app (clean console, spot-checked in the page).
+
+**Next per the user: the LENSES pass (fresh session, 2026-07-16)** — audit first (many cards are
+missing a 4th lens), then the same batch cycle. Kickoff prompt: content/lens-kickoff-prompt.md.
+Approved lens sets unlock the 73 pending guidebook closings.

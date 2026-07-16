@@ -673,7 +673,7 @@ window.ARCANA = {
   "name": "The Hanged Man",
   "file": "hanged_man",
   "challenging": true,
-  "knowing": "Bit stuck, are we? Good. Some things can only be seen from down here.",
+  "knowing": "Ah, perspective. Why do we always meet like this?",
   "lenses": [
    {
     "n": "I",
@@ -1105,7 +1105,7 @@ window.ARCANA = {
   "name": "Judgement",
   "file": "judgement",
   "challenging": false,
-  "knowing": "Old chapters don't stay closed forever. Seems a reckoning's afoot.",
+  "knowing": "Everyone dreads the reckoning, but a second chance doesn't knock twice.",
   "lenses": [
    {
     "n": "I",
@@ -1213,7 +1213,7 @@ window.ARCANA = {
   "name": "Ace of Wands",
   "file": "wands_01",
   "challenging": false,
-  "knowing": "The first spark never asks if the timing is right. It just catches.",
+  "knowing": "An idea just walked in with matches.",
   "lenses": [
    {
     "n": "I",
@@ -1321,7 +1321,7 @@ window.ARCANA = {
   "name": "Three of Wands",
   "file": "wands_03",
   "challenging": false,
-  "knowing": "What went out into the world is coming back with interest.",
+  "knowing": "Ships sent with conviction have a habit of returning heavier.",
   "lenses": [
    {
     "n": "I",
@@ -1375,7 +1375,7 @@ window.ARCANA = {
   "name": "Four of Wands",
   "file": "wands_04",
   "challenging": false,
-  "knowing": "The hard part held. Somewhere, a table is already being set.",
+  "knowing": "Finish lines this big come with corks.",
   "lenses": [
    {
     "n": "I",
@@ -1429,7 +1429,7 @@ window.ARCANA = {
   "name": "Five of Wands",
   "file": "wands_05",
   "challenging": true,
-  "knowing": "All that noise is just ambition bumping into itself. It sorts itself out.",
+  "knowing": "Rivals make better whetstones than admirers ever do.",
   "lenses": [
    {
     "n": "I",
@@ -1483,7 +1483,7 @@ window.ARCANA = {
   "name": "Six of Wands",
   "file": "wands_06",
   "challenging": false,
-  "knowing": "Recognition runs late as a rule. It still knows the address.",
+  "knowing": "Applause has been rehearsing your name.",
   "lenses": [
    {
     "n": "I",
@@ -1537,7 +1537,7 @@ window.ARCANA = {
   "name": "Seven of Wands",
   "file": "wands_07",
   "challenging": false,
-  "knowing": "The high ground was earned. Anyone who wants it can climb.",
+  "knowing": "Let them climb. It's a long way up.",
   "lenses": [
    {
     "n": "I",
@@ -1591,7 +1591,7 @@ window.ARCANA = {
   "name": "Eight of Wands",
   "file": "wands_08",
   "challenging": false,
-  "knowing": "Everything is moving at once, and for once, in the same direction.",
+  "knowing": "Deep breath. It all happens fast from here.",
   "lenses": [
    {
     "n": "I",
@@ -1735,7 +1735,7 @@ window.ARCANA = {
   "name": "Page of Wands",
   "file": "wands_11",
   "challenging": false,
-  "knowing": "Wandering off is an underrated way to arrive somewhere wonderful.",
+  "knowing": "Follow the fun. It knows a shortcut.",
   "lenses": [
    {
     "n": "I",
@@ -1789,7 +1789,7 @@ window.ARCANA = {
   "name": "Knight of Wands",
   "file": "wands_12",
   "challenging": false,
-  "knowing": "Fortune keeps favoring the bold. At some point that stops being luck.",
+  "knowing": "Some doors open politely. Others were made for kicking.",
   "lenses": [
    {
     "n": "I",
@@ -1843,7 +1843,7 @@ window.ARCANA = {
   "name": "Queen of Wands",
   "file": "wands_13",
   "challenging": false,
-  "knowing": "Some people light the room just by deciding to stay in it.",
+  "knowing": "Some fires warm the room. This one runs it.",
   "lenses": [
    {
     "n": "I",
@@ -1897,7 +1897,7 @@ window.ARCANA = {
   "name": "King of Wands",
   "file": "wands_14",
   "challenging": false,
-  "knowing": "A vision held long enough starts giving the orders itself.",
+  "knowing": "Passion ages into authority when it keeps its nerve.",
   "lenses": [
    {
     "n": "I",
@@ -1942,7 +1942,7 @@ window.ARCANA = {
   "name": "Ace of Cups",
   "file": "cups_01",
   "challenging": false,
-  "knowing": "The heart keeps no schedule. When it decides to open, it pours.",
+  "knowing": "The heart gives no warning. When it decides to open, it pours.",
   "lenses": [
    {
     "n": "I",
@@ -1996,7 +1996,7 @@ window.ARCANA = {
   "name": "Two of Cups",
   "file": "cups_02",
   "challenging": false,
-  "knowing": "Once in a while, the feeling is mutual in the fullest sense of the word.",
+  "knowing": "The feeling is mutual. Do you know how rare that is?",
   "lenses": [
    {
     "n": "I",
@@ -2050,7 +2050,7 @@ window.ARCANA = {
   "name": "Three of Cups",
   "file": "cups_03",
   "challenging": false,
-  "knowing": "Joy has one flaw. It refuses to stay a private matter.",
+  "knowing": "Good news never drinks alone.",
   "lenses": [
    {
     "n": "I",
@@ -2104,7 +2104,7 @@ window.ARCANA = {
   "name": "Four of Cups",
   "file": "cups_04",
   "challenging": false,
-  "knowing": "While the eyes are on the empty cups, something keeps offering a full one.",
+  "knowing": "Apathy has terrible eyesight. The gold is in the blind spot.",
   "lenses": [
    {
     "n": "I",
@@ -2149,7 +2149,7 @@ window.ARCANA = {
   "name": "Five of Cups",
   "file": "cups_05",
   "challenging": true,
-  "knowing": "Grief counts what spilled with great care. It never audits what remains.",
+  "knowing": "What's lost gets the eulogy. What's left gets the morning.",
   "lenses": [
    {
     "n": "I",
@@ -2257,7 +2257,7 @@ window.ARCANA = {
   "name": "Seven of Cups",
   "file": "cups_07",
   "challenging": false,
-  "knowing": "Every door tonight is beautifully painted. Only one has a room behind it.",
+  "knowing": "Appetite wants the whole spread. Satisfaction wants just one.",
   "lenses": [
    {
     "n": "I",
@@ -2311,7 +2311,7 @@ window.ARCANA = {
   "name": "Eight of Cups",
   "file": "cups_08",
   "challenging": true,
-  "knowing": "Some things can only be found by leaving where they aren't.",
+  "knowing": "The tide goes out quietly when it's done with the shore.",
   "lenses": [
    {
     "n": "I",
@@ -2356,7 +2356,7 @@ window.ARCANA = {
   "name": "Nine of Cups",
   "file": "cups_09",
   "challenging": false,
-  "knowing": "Contentment rarely announces itself. Tonight it pulled up a chair.",
+  "knowing": "The wish was listening the whole time.",
   "lenses": [
    {
     "n": "I",
@@ -2401,7 +2401,7 @@ window.ARCANA = {
   "name": "Ten of Cups",
   "file": "cups_10",
   "challenging": false,
-  "knowing": "Most joys pass through. This kind unpacks.",
+  "knowing": "These are the days the stories will be about.",
   "lenses": [
    {
     "n": "I",
@@ -2446,7 +2446,7 @@ window.ARCANA = {
   "name": "Page of Cups",
   "file": "cups_11",
   "challenging": false,
-  "knowing": "The softest messages need the sharpest listening. One just arrived.",
+  "knowing": "The softest messages need the sharpest listening.",
   "lenses": [
    {
     "n": "I",
@@ -2500,7 +2500,7 @@ window.ARCANA = {
   "name": "Knight of Cups",
   "file": "cups_12",
   "challenging": false,
-  "knowing": "The heart makes a terrible strategist and an unbeatable messenger.",
+  "knowing": "Some feelings deserve a white horse and a bad plan.",
   "lenses": [
    {
     "n": "I",
@@ -2545,7 +2545,7 @@ window.ARCANA = {
   "name": "Queen of Cups",
   "file": "cups_13",
   "challenging": false,
-  "knowing": "The calmest person in the room is usually the one who felt it all first.",
+  "knowing": "The calmest waters run deep.",
   "lenses": [
    {
     "n": "I",
@@ -2644,7 +2644,7 @@ window.ARCANA = {
   "name": "Ace of Swords",
   "file": "swords_01",
   "challenging": false,
-  "knowing": "Clarity arrives like a blade: all at once, and nothing looks the same.",
+  "knowing": "One clean thought can cut through a year of tangles.",
   "lenses": [
    {
     "n": "I",
@@ -2689,7 +2689,7 @@ window.ARCANA = {
   "name": "Two of Swords",
   "file": "swords_02",
   "challenging": false,
-  "knowing": "A decision delayed is still a decision. It just picks its own timing.",
+  "knowing": "Both options wait politely. Neither intends to wait forever.",
   "lenses": [
    {
     "n": "I",
@@ -2734,7 +2734,7 @@ window.ARCANA = {
   "name": "Three of Swords",
   "file": "swords_03",
   "challenging": true,
-  "knowing": "Sharp truths go straight for the heart. That way they're sure to be heard.",
+  "knowing": "Sharp truths go straight for the heart.",
   "lenses": [
    {
     "n": "I",
@@ -2779,7 +2779,7 @@ window.ARCANA = {
   "name": "Four of Swords",
   "file": "swords_04",
   "challenging": false,
-  "knowing": "The mind wins more battles asleep than anyone admits.",
+  "knowing": "The mind wins more battles at rest than anyone admits.",
   "lenses": [
    {
     "n": "I",
@@ -2824,7 +2824,7 @@ window.ARCANA = {
   "name": "Five of Swords",
   "file": "swords_05",
   "challenging": true,
-  "knowing": "The spoils went to one name only. The party, notably, is quiet.",
+  "knowing": "Being right gets expensive when it's all that's left.",
   "lenses": [
    {
     "n": "I",
@@ -2869,7 +2869,7 @@ window.ARCANA = {
   "name": "Six of Swords",
   "file": "swords_06",
   "challenging": false,
-  "knowing": "Calmer water is real, and the boat is already pointed at it.",
+  "knowing": "The hard part was deciding. What's left is only distance.",
   "lenses": [
    {
     "n": "I",
@@ -2923,7 +2923,7 @@ window.ARCANA = {
   "name": "Seven of Swords",
   "file": "swords_07",
   "challenging": true,
-  "knowing": "Not everything missing was lost. Some things were quietly collected.",
+  "knowing": "Every clean getaway leaves exactly one witness.",
   "lenses": [
    {
     "n": "I",
@@ -2977,7 +2977,7 @@ window.ARCANA = {
   "name": "Eight of Swords",
   "file": "swords_08",
   "challenging": true,
-  "knowing": "The ropes are looser than they feel. They usually are.",
+  "knowing": "The cage was built from the inside. So was the way out.",
   "lenses": [
    {
     "n": "I",
@@ -3031,7 +3031,7 @@ window.ARCANA = {
   "name": "Nine of Swords",
   "file": "swords_09",
   "challenging": true,
-  "knowing": "The three a.m. mind tells the worst stories. Daylight rarely confirms them.",
+  "knowing": "The night grows monsters the morning never finds.",
   "lenses": [
    {
     "n": "I",
@@ -3220,7 +3220,7 @@ window.ARCANA = {
   "name": "Queen of Swords",
   "file": "swords_13",
   "challenging": false,
-  "knowing": "Honesty this clean costs extra. It was paid for years ago.",
+  "knowing": "Every blade this sharp is guarding something tender.",
   "lenses": [
    {
     "n": "I",
@@ -3265,7 +3265,7 @@ window.ARCANA = {
   "name": "King of Swords",
   "file": "swords_14",
   "challenging": false,
-  "knowing": "The clearest heads rule longest. Feelings get a vote, never the throne.",
+  "knowing": "Feelings get a vote, never the throne.",
   "lenses": [
    {
     "n": "I",
@@ -3418,7 +3418,7 @@ window.ARCANA = {
   "name": "Three of Pentacles",
   "file": "pents_03",
   "challenging": false,
-  "knowing": "Nothing built to last was built alone. Even cathedrals took a committee.",
+  "knowing": "The work is bigger than any one pair of hands. So is the credit.",
   "lenses": [
    {
     "n": "I",
@@ -3472,7 +3472,7 @@ window.ARCANA = {
   "name": "Four of Pentacles",
   "file": "pents_04",
   "challenging": false,
-  "knowing": "What's held too tightly starts holding back. Coins included.",
+  "knowing": "Thrift is a virtue until it starts spending you.",
   "lenses": [
    {
     "n": "I",
@@ -3616,7 +3616,7 @@ window.ARCANA = {
   "name": "Seven of Pentacles",
   "file": "pents_07",
   "challenging": false,
-  "knowing": "What was planted is doing fine. The hovering is for the planter's nerves.",
+  "knowing": "Patience is just faith with dirt under its nails.",
   "lenses": [
    {
     "n": "I",
@@ -3706,7 +3706,7 @@ window.ARCANA = {
   "name": "Nine of Pentacles",
   "file": "pents_09",
   "challenging": false,
-  "knowing": "A garden this fine took years. It was never meant for a crowd.",
+  "knowing": "Everything here is earned, down to the silence.",
   "lenses": [
    {
     "n": "I",
@@ -3751,7 +3751,7 @@ window.ARCANA = {
   "name": "Ten of Pentacles",
   "file": "pents_10",
   "challenging": false,
-  "knowing": "The best fortunes outlive their makers. That was the point of making them.",
+  "knowing": "The best fortunes are made to outlive their makers.",
   "lenses": [
    {
     "n": "I",
@@ -3796,7 +3796,7 @@ window.ARCANA = {
   "name": "Page of Pentacles",
   "file": "pents_11",
   "challenging": false,
-  "knowing": "Every master in history was once this new and this serious about it.",
+  "knowing": "Every fortune starts as somebody's page one.",
   "lenses": [
    {
     "n": "I",

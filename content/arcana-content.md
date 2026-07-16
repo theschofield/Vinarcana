@@ -30,6 +30,8 @@ across the table, telling your fortune in spoken cadence — sly, composed, neve
   ideas). Every lens maps 1:1 to an idea in here.
 - **`invitation-prompt.md`** — the Approach screen's hero lines (separate, small: the spirit's
   invitations before a draw) + the prompt to generate more.
+- **`lens-kickoff-prompt.md`** — the paste-ready prompt that starts the lens refinement session
+  (written at voice-pass completion, Jul 15 2026; all 78 spirit voices are approved canon).
 
 Status flow everywhere: pending → draft → approved. Approved rows are canon; never edit them.
 

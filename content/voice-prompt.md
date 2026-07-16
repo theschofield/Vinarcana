@@ -35,11 +35,22 @@ breath:
 - One or two SHORT sentences. One is fine. The measure is rendered length: it must not wrap past
   2 lines at 21px in a 330px column. Empirically (round 6): 84 chars rendered as 3 lines, so the
   old ~85 budget was wrong — treat ~75 characters as the ceiling and shorter as better. Never
-  force two sentences to fill space.
+  force two sentences to fill space. **Round-8 calibration: two sentences is a choice, never the
+  default.** The overnight pass wrote nearly the whole deck in the same two-beat shape and the
+  user read it as automation ("it's tripping over itself"). A single longer sentence can FEEL
+  more succinct than two short beats ("Ships sent with conviction have a habit of returning
+  heavier." — Three of Wands, 61 chars, approved as the exemplar). Vary the deck's texture.
+  And when each beat earns its keep, two still win: "Let them climb. It's a long way up."
+  was approved round 9 as exactly that case.
+- The line is graded RENDERED IN THE APP, not on paper. Spoken flow must survive the screen:
+  three full stops in 70 chars chopped The Hanged Man's r7 line into three pieces and reopened
+  the deck's first approval.
 - Written as observation about how life works — NOT about how the reader feels. The reader applies
   it to themselves; that self-application is the profundity. ("Things are not as they seem tonight"
   — no "you feel", yet it's about you.) EXCEPTION: the fortune-teller may occasionally address the
-  table directly when the card invites it ("Bit stuck, are we?" — The Hanged Man). It must be a
+  table directly when the card invites it ("Ah, perspective. Why do we always meet like this?" — The Hanged Man), and direct HYPE is
+  licensed when the card's glory earns it ("Applause has been rehearsing your name." — Six of
+  Wands). It must be a
   wink, never a diagnosis; a raised eyebrow, never a prescription of what the reader feels or does.
 - Let the CARD's personality color the register. Death is serene. The Tower is deadpan about
   catastrophe. The Fool is giddy. One voice, many moods.
@@ -49,7 +60,10 @@ breath:
   all-knowing). Formal grammar can feel rigid, so a relaxed construction is welcome, but the
   wisdom must stay intact. The calibration example that walks the line correctly:
   "The old ways have outlasted every clever new idea. That is no accident." — relaxed enough to
-  feel spoken, composed enough to feel like it has seen centuries.
+  feel spoken, composed enough to feel like it has seen centuries. Round-9 addendum: when a card
+  allows a range of registers, err devilish. "Tonight is for basking. The building resumes
+  tomorrow." was rejected as "too reserved, like a teacher letting loose briefly"; the winning
+  lines "feel like they come with a devilish grin."
 - Prefer the shorter cut. If a trim survives with the sentiment intact, take the trim. Wordiness
   reads as writing; brevity reads as knowing. But never cut words that carry the card's intent
   ("put *exactly* where it *needed* to be" IS the Magician; trimming those killed it).
@@ -72,6 +86,37 @@ like this instead:
    ("The simplest pleasures never needed defending." — approved as-is after the bolted-on second
    sentence was cut).
 3. The smile lives in a word choice or the turn itself, never in an appended flourish.
+4. **Feel the card (round-9 rule; outranks cleverness):** draft for the person the card is
+   reading 100% right — they just clinched the milestone, just took the high ground, are already
+   mid-rush. Their reaction must be a feeling, not a decoding: "fuck yeah, time to crack open
+   the good shit," defiance with a grin, wind past the ears. A correct sentiment in a roundabout
+   construction still fails ("The high ground was earned. Anyone who wants it can climb." —
+   right idea, not felt). Bonus of getting it right: a felt line creates forward momentum into
+   the flow ("Applause has been rehearsing your name." made the user need to see what glory
+   waited past the lens, immediately). The strongest version ENACTS the card's tempo in its own
+   rhythm: "Deep breath. It all happens fast from here." holds a beat, then releases — "the calm
+   before the rush," felt in the spine before it's parsed. And draft from the imagery the READER
+   would conjure for the situation, not a transposed concept: for dazzling choices the user
+   pictures "a set table... riches... luxurious wines all in a row," never painted doors. The
+   picture in the line should match the picture already in their head. The line is also read
+   WITH the card's art on screen — harmony with the imagery is part of the grade ("Both options
+   wait politely. Neither intends to wait forever." won the Two of Swords for being "great in
+   conjunction with the card's imagery": two patient crossed blades). Chase the user's FEELING,
+   never their phrase: inserting "lavish" verbatim into the Seven of Cups felt forced; the
+   user's own trim removed it.
+5. **One stance per line; courts serve two readers.** The Queen of Swords r1 cobbled several
+   guidebook angles (honesty's cost + earned history) into a line that was "confusing as hell."
+   Pick the single most important aspect of the card and commit — especially on court cards,
+   where the line must let the person who IS the card feel understood, and tell the person who
+   needs the card what to channel.
+6. **Common sayings are assets; realization is the goal on rut cards.** The spirit may pick up a
+   relatable idiom ("the feeling is mutual") and reveal how rare the familiar thing actually is —
+   familiarity makes the line land as TRUE before the turn makes it profound. At the limit, the
+   lightly-freshened idiom IS the line: the user authored "The calmest waters run deep." for the
+   Queen of Cups. And on malaise
+   cards (the Four of Cups family), diagnosis alone fails: the line must spark the realization
+   AND hand over the agency ("they need to break out of it... take charge of the remedy") —
+   without ever scolding.
 
 **Hard bans (post-draft checklist — style tells that read as inauthentic AI writing):**
 - **NO EM DASHES. Ever. Anywhere in the file** (voices, alts, lenses, subtitles). It has become
@@ -92,7 +137,21 @@ like this instead:
   quality through what the line describes; never label it.
 - **Don't reuse an approved card's construction.** "Funny how different everything looks" was
   rejected for echoing The Tower's "Strange how light one feels." Each card's line must have its
-  own bones. Check new lines against the approved set before submitting.
+  own bones. Check new lines against the approved set before submitting. Round-8 calibration:
+  this is flag-then-decide, not zero tolerance. Subtle kinship can be waved through (Two of
+  Wands' "the delicious part" lives happily beside Death's "the interesting part"), but an
+  obvious twin (The Hanged Man and The Moon both carrying a standalone "Good." beat) must be
+  caught and flagged — that one shipped because the lines were never read side by side until
+  the app existed. (More waved flags, round 11: the user kept "Ask any open hand" beside "Ask
+  anyone still standing," and the lit-window line beside the gold-blind-spot bones. The
+  tolerance is wider than the flagger assumes; keep flagging, keep deferring.)
+- **Guidebook sharing is fine; guidebook copying is lazy.** The voice and the card's approved
+  guidebook body draw on one knowledgebase, and shared imagery or knowledge is acceptable (many
+  users never open the guidebook; for those who do, the body should make the voice suddenly make
+  sense). Near-verbatim reuse of a body's payoff is not acceptable: the voice's "coming back
+  with interest" against the body's "comes back with interest" convicted the Three of Wands r1.
+  Check both directions — guidebook batches 3–4 absorbed overnight voice-draft imagery before
+  the collision discipline existed.
 
 **Card-specific note — The Devil (XV):** this is the spirit's own card. The spirit voice IS the
 devil on your shoulder, so when The Devil is pulled, the mask and the face match. Don't observe
@@ -119,14 +178,58 @@ perfect voice, lenses, pairing, and reading.
   (user-edited: the spoken-cadence calibration example — compare the rejected written-English
   version "Every piece was put exactly where it needed to be" and feel the difference)
 - The Chariot: "They call the stubborn impossible. Until the victory lap, that is."
-- The Hanged Man: "Bit stuck, are we? Good. Some things can only be seen from down here."
-  (the direct-address wink exception, used right)
+- The Hanged Man: "Ah, perspective. Why do we always meet like this?" (user-authored r9; its r7
+  predecessor was reopened by the first in-app test — the standalone "Good." doubled The Moon's)
 - Temperance: "Restraint, of all things, turns out to be where the finest pleasures hide."
 - The Star: "Even the longest night runs out of dark eventually."
 - The High Priestess: "The truth isn't hiding, it's waiting for someone quiet enough to hear it."
 - Justice: "The scales take their time, but they never lose count."
 - Strength: "Anything can be tamed with a soft enough touch. Even that."
 - The Sun: "Every so often, the world simply says yes."
+- The Devil: "Everyone has a price. It appears tonight found yours." (the spirit's own card;
+  seduction with the direct-address license)
+- Judgement: "Everyone dreads the reckoning, but a second chance doesn't knock twice."
+- Two of Wands: "The whole map is on the table. Choosing is the delicious part." (the indulgent
+  twinge, sprinkled right)
+- Three of Wands: "Ships sent with conviction have a habit of returning heavier." (the
+  single-sentence exemplar)
+- Ace of Wands: "An idea just walked in with matches." ("funny, clear, punchy, wise, endearing,
+  makes me wanna start a fire" — the feel-the-card test passed in full)
+- Five of Wands: "Rivals make better whetstones than admirers ever do." ("feels sage")
+- Six of Wands: "Applause has been rehearsing your name." (direct hype done right)
+- Four of Wands: "Finish lines this big come with corks."
+- Seven of Wands: "Let them climb. It's a long way up." (two beats, each earning its keep)
+- Eight of Wands: "Deep breath. It all happens fast from here." (enacts the tempo)
+- Nine of Wands: "Tired is not the same as finished. Ask anyone still standing."
+- Ten of Wands: "The reward for carrying it all is, somehow, more to carry."
+- Page of Wands: "Follow the fun. It knows a shortcut."
+- Knight of Wands: "Some doors open politely. Others were made for kicking."
+- Queen of Wands: "Some fires warm the room. This one runs it." (the user's declared gold
+  standard for all sixteen court cards: the type observed, then turned onto THIS one)
+- King of Wands: "Passion ages into authority when it keeps its nerve."
+- Three of Cups: "Good news never drinks alone." (the deck's shortest line)
+- Ace of Cups: "The heart gives no warning. When it decides to open, it pours."
+- Two of Cups: "The feeling is mutual. Do you know how rare that is?" (the leaning-in question)
+- Four of Cups: "Apathy has terrible eyesight. The gold is in the blind spot."
+- Five of Cups: "What's lost gets the eulogy. What's left gets the morning." ("genuinely profound")
+- Six of Cups: "The past keeps a spare key under the mat for nights like this."
+- Eight of Cups: "The tide goes out quietly when it's done with the shore."
+- Nine of Cups: "The wish was listening the whole time." (the perception goal fully realized:
+  "which wish and how did it know about that wish??")
+
+(Round 10 on: the full approved corpus lives in spirit-voices.csv — entries land here only when
+they carry a calibration lesson.)
+- Queen of Cups: "The calmest waters run deep." (user-authored; the idiom-at-the-limit case)
+- Knight of Cups: "Some feelings deserve a white horse and a bad plan." ("the perfect
+  reinterpretation" — recruit, never caution)
+- Two of Swords: "Both options wait politely. Neither intends to wait forever." (won on harmony
+  with the card's imagery)
+- King of Swords: "Feelings get a vote, never the throne." (the trim to the load-bearing beat;
+  its deliberate contrast with the King of Cups reads as design, not repetition)
+- Queen of Swords: "Every blade this sharp is guarding something tender." (one stance, serving
+  both the embodier and the needer)
+- Two of Pentacles: "Juggling looks like chaos to everyone but the juggler." ("I'd be stoked to
+  pull it" — pull-joy is the bar)
 
 **Failure modes (all happened; all rejected):**
 - ✗ Narrating the card at the reader: "Everything you believed just cracked." (robot narrator)
@@ -137,10 +240,64 @@ perfect voice, lenses, pairing, and reading.
 - ✗ Words without feeling: "The end of a long road. It looks nothing like the beginning."
   (technically correct, emotionally dead — no bask, no celebration, no smile)
 - ✗ Rigid two-sentence formula. Length follows the thought, not a template.
+- ✗ Beats pulling apart: "The first spark never asks if the timing is right. It just catches."
+  felt odd; the user's best diagnosis is a metaphor collision between the two beats (asking
+  permission vs catching fire). NOTE: domain ambiguity by itself is NOT a rejection (round-9
+  user ruling, retracting the earlier rule) — it's the beats fighting that reads wrong.
+- ✗ Assuming shared context: "The hard part held. Somewhere, a table is already being set."
+  confused real users at first sight (held? held what?). The line gets ONE cold read; it cannot
+  lean on the card's backstory to parse.
+- ✗ Mood misfire: "Some milestones simply refuse to pass quietly." is technically about
+  celebration but FEELS like a threat ("like it's gonna be the red wedding"). The card's mood
+  must land before the words are even parsed.
+- ✗ Wordplay over feeling: "Everything is moving at once, and for once, in the same direction."
+  rejected as trying too hard to be clever. If the construction is visible, the fortune isn't.
+- ✗ Writerly vocabulary: "Wandering off is an underrated way to arrive somewhere wonderful."
+  rejected as "long winded and writerly and stuffy" — "underrated" is listicle language in a
+  fortune-teller's mouth. The approved fix speaks: "Follow the fun. It knows a shortcut."
+  Specialist vocabulary convicts the same way: "ballast" was rejected cold ("Don't know what
+  a ballast is"). Plain-spoken words only.
+- ✗ Generalizing a non-universal experience: "The ropes are looser than they feel. They usually
+  are." — The Moon's "They rarely are." works because everyone has had such nights; nobody has
+  many tied-in-ropes nights. A widening beat must widen something everyone has lived.
+- ✗ The card's furniture as metaphor: ropes and unlocked doors (Eight of Swords r1) read
+  literal — the art's props described instead of the reader's life. Harmonize with the imagery,
+  but the meaning must live in the reader's world (S02's "options waiting politely" is the
+  READER's situation; the ropes were the figure's).
+- ✗ Ominous without a gift: "Fear does its best work unsupervised." — spooky, but the puller
+  doesn't know "what I'm supposed to do with that." Dark cards still owe mercy or agency. The
+  inverse fails too: "Worry is imagination with the lights off." was too light-hearted for real
+  anguish. The mercy must respect the weight.
+- ✗ Convoluted reframe of a clear card: "Discontent has good taste. It only visits people ready
+  for more." — clever, but the Four of Cups' message is plain (apathy is costing real
+  opportunities; wake up, look again). When the card's message is clear, say the clear thing
+  with the grin; a re-angle reads convoluted.
+- ✗ Borrowed negative connotations: "Even cathedrals took a committee." — "design by committee"
+  is colloquially damning, so the joke smuggles contempt into a card that celebrates
+  collaboration. Check every phrase's street meaning, not its intended one.
+- ✗ Coinage that doesn't speak: "Being understood back is rare" — "understood back" is an odd
+  turn of phrase. A compressed coinage must sound like something a person would actually say.
+  Same family: "The mood just isn't looking" (hard to understand, odd structure) —
+  personification needs a clear actor doing a natural verb.
+- ✗ Warning where the card tempts: "The imagination sets a lavish table. Not everything on it
+  is dinner." read as "poisoned and dangerous" when the Seven of Cups needs dazzle plus careful
+  choosing. Discernment is not danger; abundance cards tempt first.
+- ✗ Cautioning where the card charges: "Grand gestures get laughed at until one lands." — naming
+  the mockery "would scare someone off from letting their heart do the talking." On cards that
+  champion an action, the line recruits; it never warns.
+- ✗ Polysemy trap: "Most joys pass through. This kind unpacks." — the cold read went to
+  "unpacking something dense and complicated," not moving in. If a key word has a more common
+  competing sense, the wrong sense wins the first read and the feeling dies mid-trip.
+- ✗ World-clash imagery (flagged, borderline): "The heart keeps no schedule" — calendar language
+  inside an overflowing-heart card. The image's home world should belong to the card's world.
 
 **The test before submitting each line:** cover the card name. Read only the line. Can a stranger
 tell you (a) what the card means, (b) that something in their own life fits it, and (c) that the
-speaker is smiling? If any of the three fails, rewrite.
+speaker is smiling? If any of the three fails, rewrite. Round-11 additions: (d) it must ring TRUE
+on contact — "good work gets overheard by the right people" failed as a thing that doesn't
+actually ring true; and (e) answer in one breath what the reader is supposed to FEEL and what
+their reading IS ("What am I supposed to feel here? What is my reading?") — if either answer is
+fuzzy, rewrite.
 
 ---
 
