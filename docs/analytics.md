@@ -70,14 +70,15 @@ a friend clearing Safari data before first successful flush.
 | event | fired | props |
 |---|---|---|
 | `session_start` | load / return-to-visible / any track after 30 min silence | `day` (since install), `returning` |
-| `reading_viewed` | phase arrives at `reading` (any road) | `origin` (draw·deck), `card` |
+| `reading_viewed` | phase arrives at `reading` (any road) | `origin` (draw·deck), `card`, `whisper` |
 | `pour_viewed` | phase arrives at `reveal` (any road) | `origin` (draw·deck·memory), `card`, `lens` |
-| `ritual_complete` | draw road reaches the pour (once per draw; replays count as new draws) | `card`, `lens` |
+| `ritual_complete` | draw road reaches the pour (once per draw; replays count as new draws) | `card`, `lens`, `whisper` (Idea 2's flagship modality — its adoption reads off this flag) |
 | `memory_saved` | a keep writes the journal (migration/no-op re-keeps excluded) | `card`, `lens`, `wine` |
 | `deck_viewed` / `memory_viewed` | entering those screens | — |
 | `deeper_opened` | Deeper Reading opens | `src` (read·pour), `card` |
 | `affinity_set` | the tag changes | `tag` |
-| `cellar_added` | **not wired yet** — the Cellar sprint MUST call `VAAnalytics.track("cellar_added", { wine })` on capture | `wine` |
+| `cellar_added` | **reserved, not wired** — the Cellar sprint (manual form add AND photo capture) MUST call `VAAnalytics.track("cellar_added", { wine, method })` | `wine`, `method` (form·photo) |
+| `buy_tapped` | **reserved, not wired** — the Idea-4 buy button MUST call `VAAnalytics.track("buy_tapped", { wine, card, lens })`; with `pour_viewed` it completes the wine-conversion funnel the business plan calls THE open question (business-ideas-ledger, Phase 2) | `wine`, `card`, `lens` |
 
 Every event also carries: `install`, `session`, `ts`, `tzm`, `affinity`,
 `standalone` (+ `dev` on localhost). Nothing else — no IP, no UA, no names.
@@ -92,8 +93,10 @@ throwing must cost the ritual nothing.
 ## The affinity tag (wine / tarot / neither)
 
 Behavioral, never asked — there is no onboarding to hang a question on, and
-the core ritual is neutral (everyone draws, everyone sees a pour). Only the
-optional behaviors discriminate:
+the core ritual is neutral (everyone draws, everyone sees a pour). This is
+the "at onboarding or behaviorally" cohort-design note from
+business-ideas-ledger Phase 2, resolved behaviorally. Only the optional
+behaviors discriminate:
 
 - wine signals: `memory_saved`, `cellar_added`, `pour_viewed` with
   `origin: "memory"` (re-opening a kept pour)

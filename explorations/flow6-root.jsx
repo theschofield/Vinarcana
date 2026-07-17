@@ -617,12 +617,14 @@ function App() {
   // covers every road in (draw, deck ride, memory re-entry) without
   // touching any timeline. A ritual = the DRAW road reaching the pour.
   React.useEffect(() => {
-    if (phase === "reading") vaTrack("reading_viewed", { origin: originRef.current, card });
+    if (phase === "reading") vaTrack("reading_viewed", { origin: originRef.current, card, whisper: whispered });
     else if (phase === "reveal") {
       vaTrack("pour_viewed", { origin: originRef.current, card, lens: lens ? lens.n : null });
       if (originRef.current === "draw" && !ritualDoneRef.current) {
         ritualDoneRef.current = true;
-        vaTrack("ritual_complete", { card, lens: lens ? lens.n : null });
+        // whisper is Idea 2's flagship modality — the business plan reads
+        // its adoption off this flag (business-ideas-ledger, Idea 2)
+        vaTrack("ritual_complete", { card, lens: lens ? lens.n : null, whisper: whispered });
       }
     }
   }, [phase]);
