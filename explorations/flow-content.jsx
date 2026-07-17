@@ -100,17 +100,8 @@ const POURS = {
   ],
 };
 
-// Approach invitations — canon set from content/invitation-prompt.md.
-// One per visit, cycling at random, no repeats until exhausted.
-const INVITATIONS = [
-  ["Go on. ", "We don't bite."],
-  ["Fate favors ", "the thirsty."],
-  ["The cards have been ", "talking about you."],
-  ["Curiosity ", "looks good on you."],
-  ["It already knows. ", "Go ahead, ask."],
-  ["Ask nothing. ", "Learn everything."],
-  ["", "Shall we?"],
-  ["The spirits have ", "opinions tonight."],
-];
+// Approach invitations live in flow2-app.jsx (INVITES2), generated from content/invitations.csv
+// by scraps/mirror-invitations.js. The old tail-only INVITATIONS copy here was unused and had
+// drifted from the live italic spans; removed 2026-07-15.
 
-if (typeof window !== "undefined") { window.POURS = POURS; window.INVITATIONS = INVITATIONS; }
+if (typeof window !== "undefined") { window.POURS = POURS; }

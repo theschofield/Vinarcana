@@ -11,16 +11,18 @@ function savePull(p) {
   localStorage.setItem("va-pulls", JSON.stringify(pulls));
 }
 
-// Invitations — italics only where the sly beat earns them; some lines carry none.
+// Invitations — GENERATED from content/invitations.csv by scraps/mirror-invitations.js
+// (approved rows only; *span* markup becomes { i: true } segments). Do not hand-edit.
 const INVITES2 = [
   [{ t: "Go on. " }, { t: "We don't bite.", i: true }],
-  [{ t: "Fate favors " }, { t: "the thirsty.", i: true }],
-  [{ t: "The cards have been " }, { t: "talking", i: true }, { t: " about you." }],
-  [{ t: "Curiosity " }, { t: "looks good", i: true }, { t: " on you." }],
-  [{ t: "It already knows. Go ahead, ask." }],
-  [{ t: "Ask nothing. Learn everything." }],
+  [{ t: "Fate favors the thirsty." }],
+  [{ t: "The cards have been talking about you." }],
+  [{ t: "Curiosity looks " }, { t: "good", i: true }, { t: " on you." }],
   [{ t: "Shall we?" }],
   [{ t: "The spirits have " }, { t: "opinions", i: true }, { t: " tonight." }],
+  [{ t: "Don't worry. It's " }, { t: "mostly", i: true }, { t: " good news." }],
+  [{ t: "Some nights choose you back." }],
+  [{ t: "You look like a good story." }],
 ];
 
 function pickInvitation() {

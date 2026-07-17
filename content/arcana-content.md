@@ -28,8 +28,10 @@ across the table, telling your fortune in spoken cadence — sly, composed, neve
   calibration file: every new writing session reads this FIRST.
 - **`uploads/Tarot & Wine_ The Complete Framework.md`** — the user's pairing map (card → wine
   ideas). Every lens maps 1:1 to an idea in here.
-- **`invitation-prompt.md`** — the Approach screen's hero lines (separate, small: the spirit's
-  invitations before a draw) + the prompt to generate more.
+- **`invitations.csv`** — Part 0 output (the Approach screen's hero lines): one row per
+  invitation with `*italic-span*` markup + status. Mirrored into the app (approved rows only)
+  by `scraps/mirror-invitations.js`. The old standalone `invitation-prompt.md` was folded into
+  voice-prompt.md as PART 0 on Jul 15 2026.
 - **`lens-kickoff-prompt.md`** — the paste-ready prompt that starts the lens refinement session
   (written at voice-pass completion, Jul 15 2026; all 78 spirit voices are approved canon).
 

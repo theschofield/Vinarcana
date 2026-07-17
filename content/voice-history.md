@@ -963,3 +963,49 @@ loading in the app (clean console, spot-checked in the page).
 **Next per the user: the LENSES pass (fresh session, 2026-07-16)** — audit first (many cards are
 missing a 4th lens), then the same batch cycle. Kickoff prompt: content/lens-kickoff-prompt.md.
 Approved lens sets unlock the 73 pending guidebook closings.
+
+---
+
+## Invitation layer — pipeline setup + batch 1 (2026-07-15)
+
+The Approach invitations join the tracked pipeline (same session, after the voice completion).
+Structural decisions:
+- `invitation-prompt.md` FOLDED into voice-prompt.md as **PART 0** and deleted (user's call,
+  session concurrence: the invitation is the same spirit one screen earlier; one master prompt,
+  and the layer inherits Part 1's bans and calibration).
+- NEW `content/invitations.csv` (id, status, invitation, notes) with `*italic-span*` markup —
+  italics may sit mid-line; the live app's INVITES2 (flow2-app.jsx) is the rendering truth.
+  ITALICS ARE USED SPARINGLY: canon runs 4 of 8, single words hit hardest, elegance carries none.
+- NEW `scraps/mirror-invitations.js` mirrors APPROVED rows into INVITES2 with a round-trip
+  verify; first run reproduced the live block byte-for-byte (pipeline proven, app unchanged).
+- The stale tail-only INVITATIONS copy in flow-content.jsx (unused, italic spans drifted from
+  the live set) was REMOVED.
+- The 8 canon lines seeded as APPROVED (invitation-prompt.md titled them "the approved set
+  (canon)"); the user may reopen any on in-app sight, Hanged Man precedent.
+
+### inv r1 candidates (2026-07-15, pending grade)
+- inv-09: "We saved you a seat." (surveillance-hospitality, no italics)
+- inv-10: "Right on time." (delicious surveillance: you were expected; no italics)
+- inv-11: "Don't worry. It's *mostly* good news." (playful menace; single-word italic)
+- inv-12: "Some nights choose you back." (sly prophecy, no italics)
+- inv-13: "Everything after this is *fate*." (prophecy; threshold framing)
+- inv-14: "The pleasure is ours. *So far.*" (elegance with menace in the tail)
+- inv-15: "You look like a good story." (flattery by invitation, no italics)
+- inv-16: "One little question won't hurt." (the dare, no italics)
+
+### inv r1 verdicts + CANON REVISION (2026-07-15)
+The user's first pass over the seeded canon, with three laws issued (codified in Part 0):
+1. **Italics only narrow.** Every canon edit removed or shrank them: "Fate favors the thirsty."
+   and "The cards have been talking about you." stripped bare; "Curiosity looks *good* on you."
+   cut from the two-word span to the single word. Single words beat phrases; when in doubt, none.
+2. **The spirit beckons, never directs.** "It already knows. Go ahead, ask." and "Ask nothing.
+   Learn everything." REMOVED from canon — the imperative-adjacent lines read as directions.
+3. **The drink-hint channel is prized.** "Fate favors the thirsty." is the user's favorite
+   BECAUSE it references the drink: "until the actual wine bottle shows up this is the one
+   chance to hint at it." Keep 1–2 allusion-level lines in the pool; never explicit, never
+   forced everywhere.
+Draft verdicts: inv-11 APPROVED ("I can feel the grin"), inv-12 APPROVED, inv-15 APPROVED;
+inv-09/10/13/14/16 not picked, retired. Pool now 9 approved.
+- inv r2 candidates (pending): "We were beginning to wonder." / "There you are." / "The night
+  pours in your favor." / "Tonight was *always* going to happen." / "Everyone peeks eventually."
+  / "After you." / "Thirst has excellent instincts." / "The cards like you already."

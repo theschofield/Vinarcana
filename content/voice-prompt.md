@@ -1,12 +1,64 @@
 # Vintner's Arcana — The Content Prompt
 
 The reusable prompt for writing ALL card content, one self-contained part per layer:
+- **Part 0 — Invitations (the Approach hero lines)** → writes to `invitations.csv`
 - **Part 1 — Spirit's voice** → writes to `spirit-voices.csv`
 - **Part 2 — Lenses** → writes to `lenses.csv`
 - **Parts 3A/3B/3C — Lens echo, pour blurb, pour data** → write to `reveals.csv`
 
 Each part stands alone: paste it (plus the shared workflow at the bottom) into any session with
 the pairing framework, `voice-history.md`, and that layer's CSV. Nothing else is required.
+
+---
+
+## PART 0 — THE INVITATION (the Approach hero line)
+
+**What it is:** the big DM Serif line under the face-down deck on The Approach — the spirit's
+opening move, spoken TO the visitor before any card is drawn. One appears per visit, cycling at
+random with no repeats until the set is exhausted (the pool = the approved rows of
+`invitations.csv`). A dare disguised as hospitality: the spirit already knows which card you'll
+get and what it will mean; the line is the smile before the trick. It is NOT an instruction (no
+"tap", "draw", "pick"), NOT a description of the app, and NOT fortune-cookie wisdom.
+(Folded in from the retired standalone invitation-prompt.md, Jul 15 2026 — the invitation is the
+same spirit one screen earlier, so Part 1's register, bans, and calibration apply in full.)
+
+**Register:** sly, confident, warm, a little dangerous. The four moods that work (keep the set
+spread across all of them): the playful dare ("Go on. We don't bite."), the sly prophecy ("Fate
+favors the thirsty."), delicious surveillance ("The cards have been talking about you."), and
+pure elegance ("Shall we?"). Flattery only by invitation ("Curiosity looks good on you.").
+
+**The drink-hint channel (round-2 law):** "Fate favors the thirsty." is the user's favorite line
+BECAUSE it alludes to the drink: until the bottle appears at the reveal, the Approach is the one
+chance to hint at what's coming. Keep a line or two of the pool at thirst/pour level (allusion
+only, never the banned words), and never force the reference everywhere.
+
+**Form:** 2–7 words per sentence, max ~40 characters total (it renders large). One or two
+sentences; if two, the second turns or answers the first ("Don't worry. It's mostly good news.").
+Wine may be alluded to (thirst, a pour) but never named directly — no "wine," "bottle," "glass."
+
+**The italics mechanic (unique to this layer):** part of the line may render italic for
+emphasis — `*span*` markup in invitations.csv, any position including mid-line ("The cards have
+been *talking* about you."). This is the one layer where the retired voice-layer italic
+survives. Use it SPARINGLY: the italic marks the one sly beat that earns it, single words hit
+hardest, and some lines must carry none — "Shall we?" carries none because pure elegance needs
+no underline. Round-2 calibration: the user's canon edits only ever REMOVED or NARROWED italics
+(two lines stripped bare; "Curiosity looks *good* on you." cut from a phrase to the single
+word). Single words beat phrases; when in doubt, none. If every line leans on italics, none of
+them land.
+
+**Hard bans:** everything in Part 1's list, plus: anything an app would say ("get started",
+"your reading awaits"); anything spooky-halloween ("if you dare", "enter the darkness"); the
+spirit sounding eager instead of certain; and (round-2 law) imperative-adjacent lines aimed at
+the visitor — "It already knows. Go ahead, ask." and "Ask nothing. Learn everything." were both
+retired from canon because they read as directions. The spirit beckons; it never directs.
+
+**The test:** read it aloud in a low voice with one eyebrow raised. If it doesn't survive that
+delivery, cut it. If it could appear on a landing page for any app, cut it.
+
+**Pipeline:** rows in `content/invitations.csv` (`id,status,invitation,notes`; pending → draft →
+approved; graded drafts logged in voice-history.md tagged `- inv rN:`). After any approval, run
+`node scraps/mirror-invitations.js` — it mirrors APPROVED rows into the INVITES2 block of
+explorations/flow2-app.jsx and verifies the round-trip. Never hand-edit the mirrored block.
 
 ---
 
@@ -320,9 +372,6 @@ without naming wine.
 - ✗ "everyone went left; you're eyeing right" (tells me what I'm doing)
 - ✗ any wine word: grape, glass, vintage, farm, cellar, producer, region. The wine stays hidden
   until the reveal. Always.
-
-**Nudge:** exactly one lens per card carries `nudge: true` — the one the spirits leans toward
-(usually the strongest pairing story). Visually shimmered; content identical in kind to the others.
 
 **Gold standards:** the lens rows marked `approved` in `lenses.csv` (the full sets for The Moon,
 Death, The Tower, The Fool, The Hermit) are canon — study them before writing new ones.
