@@ -35,6 +35,7 @@ Hard product laws (non-negotiable, from the brief; restated so no hand loses the
 | D10 | Jul 15 | C9 + meta: every sprint ships an ED REVIEW SCRIPT (exact steps to trigger what needs his eye); the plan stays meticulous, hands-off-able, and re-questions its own assumptions (§8). |
 | D11 | Jul 15 | OQ4 correction adopted: NOTHING is generated before the user confirms identity. The match sheet shows database-known facts only (or cached enrichment once the shared DB exists). Generation runs post-confirm. |
 | D12 | Jul 15 | Framework evolution is a design requirement: Ed will add/remove/re-sentiment lenses while real users hold live cellars and journals. §3.6 designs for it (stable lens ids, framework versioning, diff-scoped re-maps, fail-safe index, preview-branch testing, lens telemetry); the F-track carries the work. |
+| D13 | Jul 17 | **Analytics substrate adopted** (shipped separately — canon: docs/analytics.md; read it before any telemetry work). ONE-CHANNEL LAW: every measurement in this plan rides `VAAnalytics.track()` → `api/track` → `va_events` — no parallel loggers, ever; events carry install/session/affinity so every metric joins to segments. Sequencing absorbed: the Supabase project exists NOW (analytics go-live, Ed's ~10-min checklist, gate ≈ Jul 23 before the friends cohort) — S6 REUSES that project (`va_events` is its first table) and its old "create Supabase" task shrinks to schema + auth. §5.8 rewired; per-sprint event wiring in §6; laws in §8.12. |
 
 ---
 
@@ -261,7 +262,14 @@ constraint, and the exit path (it's plain Postgres) satisfies the hostage test.
   (matched/manual), manual identity fields when unmatched, `label_photo_path` (Storage).
   Row-level security: owner-only.
 - `profiles` — auth mirror (display name, created).
-- `telemetry` — match scores + outcomes, lint fallbacks (service-role writes; §5.8).
+- `va_events` — ALREADY LIVE (D13, analytics substrate): the one telemetry channel.
+  Cellar events land here from S1 on; there is no separate `telemetry` table. Additive-only
+  schema (analytics.md law). RLS enabled with NO policies — service-key writes via
+  api/track only. That no-policy stance is `va_events`-SPECIFIC: the user tables above
+  (`cellars`, `profiles`) keep owner-only RLS policies; never generalize one to the other.
+- `va_installs` — S6 addition: `install_id` (pk) ↔ `user_id`, `linked_at`, written once at
+  first sign-in, so retention series survive device changes (analysis LEFT JOINs it;
+  additive, never touches va_events rows).
 - Future, same pattern: `memories` (the journal crosses devices — NOT in cellar scope,
   noted so the schema doesn't paint over it).
 
@@ -337,11 +345,15 @@ add one new lens ≈ similar; a full framework overhaul ≈ the original mapping
   deploy. No parallel user-facing A/B in v1 (two live frameworks would double the content
   surface) — logged as a future option in §8.
 - **Lens telemetry — the real-user signal Ed is testing FOR:** per-lens draw→pick rates,
-  keep rates per pour, pip-follow-throughs, cellar-line views — keyed by lens_id so
-  metrics survive renames and cohort cleanly across versions. Local pre-S6, `telemetry`
-  table after; reviewed at the §5.8 checkpoints. This closes the loop: users react →
-  telemetry shows which metaphors land → Ed edits the CSV → branch → preview → merge →
-  diff re-map. The whole cycle is an afternoon, most of it Ed writing.
+  keep rates per pour, pip-follow-throughs, cellar-line views — as VAAnalytics events
+  through the one channel (D13), so the methodology dashboard is a SQL query over
+  `va_events` joined to install + affinity segment. Every lens event carries `lens_id`
+  (metrics survive renames) AND `fv` (framework_version — so pre/post-edit cohorts split
+  cleanly without timestamp archaeology; the D12 contract made queryable). The existing
+  `pour_viewed {card, lens}` / `memory_saved` events already cover part of this; S4 adds
+  only what's missing (§6). Reviewed at the §5.8 checkpoints. This closes the loop: users
+  react → the dashboard shows which metaphors land → Ed edits the CSV → branch → preview →
+  merge → diff re-map. The whole cycle is an afternoon, most of it Ed writing.
 
 **Pipeline hardening that rides along:** the mirror/build scripts VALIDATE before any
 deploy — duplicate or reused lens_ids, a lens with no pours, name over the ~26-char scale
@@ -365,7 +377,7 @@ correction re-run, **$0 per draw** (draws never touch the pipeline — pips are 
 | S3 enrichment | — | — | +~$0.02/confirmed wine |
 | S4 pairing pass | — | — | +~$0.07/confirmed wine (map+blurbs) |
 | S5 hardening | — | — | telemetry-driven retune, cents |
-| S6 accounts+DB | Supabase project (free tier) + Google Cloud OAuth app (free) | $0 dev → **$25/mo Supabase Pro** with real users | negligible (reads); pipeline costs now amortize globally via the cache |
+| S6 accounts+DB | Google Cloud OAuth app (free); Supabase project ALREADY EXISTS (created for analytics, D13) | $0 dev → **$25/mo Supabase Pro** with real users | negligible (reads); pipeline costs now amortize globally via the cache |
 | later, optional | domain ~$12/yr; Apple Developer $99/yr (only if iOS wrapper) | | |
 
 **Steady-state commercial floor: ~$45/mo** (Vercel Pro + Supabase Pro) + LLM usage.
@@ -461,13 +473,23 @@ store and loads with the app. At draw time the Reading asks the phone book once 
 the Pour once per lens. "O(1)" just means: same instant answer whether you own 3 wines or
 300. Opening the Cellar doesn't touch pips at all; only *changing* it does.
 
-### 5.8 Telemetry + tuning cycles (Ed's OQ3: never stuck)
-The confidence threshold is a config value, not a commitment. Every identify logs
-`{extractConfidence, matchScore, route, outcome}` (locally pre-S6, `telemetry` table
-after). Scheduled checkpoints: end of S2 (first ~20 real scans — sanity), S5 (formal tune
-against logged pairs), then monthly glances. The golden set (fixed label photos + expected
+### 5.8 Telemetry + tuning cycles (Ed's OQ3: never stuck) — one channel (D13)
+The confidence threshold is a config value, not a commitment. Every identify emits ONE
+VAAnalytics event — `cellar_identify {conf, match, route, outcome}` (floats + enums only)
+— through the same outbox/sink as everything else, so threshold tuning is a SQL query over
+`va_events` and results join to install/segment for free. PROPS HYGIENE LAW: no free text
+from the extraction pipeline ever enters analytics props — `rawReading`, guessed names on
+misses, and photo-derived fields stay on the local record only (`wine` appears in events
+solely once identity is user-confirmed, via `cellar_added`, matching the shipped
+`memory_saved` precedent). api/track's guards (pattern-validated names, 12-key/120-char
+prop caps) back this up mechanically, but the law is ours.
+Scheduled checkpoints: end of S2 (first ~20 real scans — sanity), S5 (formal tune against
+logged pairs + the COHORT READOUT: the D1/D7/D30-per-affinity query from analytics.md,
+plus an outbox-health check — event volume vs expected, dedupe ratio, `not dev` filter
+discipline), then monthly glances. The golden set (fixed label photos + expected
 identities; framework bottles that MUST map; non-matches that MUST stay silent) re-runs
-whenever a prompt or model changes — a regression harness for judgment.
+whenever a prompt or model changes — a regression harness for judgment; its runs self-mark
+`dev` so they never pollute cohort data.
 
 ---
 
@@ -487,10 +509,16 @@ rack (cl2 tiles: bottle 100px, 4-line stack, count chip; READY silent / RESTING 
 DRINK SOON hollow amber) · count sheet E-A + experiment protocol (§5.6) · filters
 (AND-combine, restated count line, quiet empty-result) · empty state · detail rendering
 sparse records · manual form + combobox (flushSync focus-in-tap; field scrollIntoView) ·
-desktop rack · drink-window heuristic v0 client-side.
+desktop rack · drink-window heuristic v0 client-side · ANALYTICS (D13): wire the reserved
+`cellar_added {wine, method: "form"}` at the manual-add commit (via the vaTrack guard
+pattern — analytics missing must cost the cellar nothing) + `cellar_count {delta, zero,
+sheet}` on stepper confirms, `sheet` stamping which construction served it (E-A/E-B) so if
+the experiment ever runs across the cohort, usage data self-describes its arm.
 Verification: suite T8 (scrolled rack ride — THE DOCUMENT NEVER MOVES; store seeded +
 restored) · probe cellar step (tiles in the band + reach gate ≥100px) · count-sheet
-experiment measurements · sim keyboard pass.
+experiment measurements (band-probe numbers — dev-side evidence, NOT analytics events; the
+two must never be conflated) · sim keyboard pass · a `cellar_added` row visible in
+va_events (dev-marked).
 **Ed review script:** phone, live deploy → CELLAR from Approach (watch the road) → add 3
 wines via form, one a blend (chips) and one with an "other" grape → filter RED + READY NOW
 → tap a count, sit 10s watching the bottom chrome, +1, confirm, watch the slide-under →
@@ -499,17 +527,23 @@ change vintage, confirm → day mode sweep → desktop glance. Also: deliberatel
 rack hard and flick — the document must never move.
 
 ### S2 — Capture + identify
-Build: api/ scaffolding + guardrails + budget env + kill-switch · build-lwin-index.js
+Build: api/ scaffolding + guardrails + budget env + kill-switch — quotas keyed
+PER-INSTALL (the client sends its analytics install id with pipeline calls; IP bucket
+stays as the backstop for id-less abuse). This is deliberate business-plan shaping (§4.1
+free tier: "one taste of each scan type"): today's quota seam IS tomorrow's entitlement
+meter, and per-install cost telemetry joins to segments · build-lwin-index.js
 (download, filter to wines, normalize, SQLite FTS; ATTRIBUTION line ships now) ·
 cellar-extract + cellar-resolve · native photo input (R3: EXIF orientation, canvas
 downscale, JPEG) · identify stage (serif line, three mono stages, hanging dot, cancel =
 abandon+discard) · match sheet SPARSE variant (§5.2) with decision bar per R2 · correction
 screen (manual first, runner-ups, "THE LABEL READ · …") · duplicate prompt → count++ ·
 records land identity-only + shimmer · photo retention law enforced (IndexedDB,
-manual+unmatched only, decode-gated strip).
+manual+unmatched only, decode-gated strip) · ANALYTICS (D13): `cellar_identify` per §5.8
+(one channel — no parallel logger) + `cellar_added {method: "photo"}` at confirm.
 Verification: band probe (match screen + decision bar) · suite membership audit on new
-layers · post-deploy static-404 check on api/ internals · telemetry logging live · golden
-set v0 (Ed photographs ~10 of his actual bottles as the first fixtures).
+layers · post-deploy static-404 check on api/ internals · identify events flowing through
+va_events (dev-marked; §5.8 checkpoint 1 reads them) · golden set v0 (Ed photographs ~10
+of his actual bottles as the first fixtures).
 **Ed review script:** add a bottle by camera; add one from library (A1!); force a miss
 (obscure bottle) → correction screen → manual; add the same wine twice → duplicate prompt;
 airplane-mode an add attempt → the honest line; kill-switch drill (I flip the env var, you
@@ -551,8 +585,14 @@ cellar-settle part 2 (map + blurbs + lint + fallback; pairings born with lens_id
 mapped_against) · pairing index live WITH the §3.6 fail-safe rules (unknown ids dropped,
 changed-and-stale suppressed) · draw-time wiring (pips, "IN YOUR CELLAR" + dot on
 pour_index pane, blurb swap; mock flags retired) · count-0 un-pips · client-side diff
-re-settle (pre-S6 lazy re-map of own wines on version drift) · lens telemetry counters
-(draw→pick, keep, pip-follow — keyed by lens_id).
+re-settle (pre-S6 lazy re-map of own wines on version drift) · ANALYTICS (D13): lens
+telemetry as VAAnalytics events, not counters — add `lens_id` + `fv` props to the existing
+`pour_viewed`/`ritual_complete` calls (additive; the analytics hook already fires at those
+phases) plus new `pip_shown {card, lens_id, fv}` and `pip_followed {card, lens_id, fv}`
+(pip visible on the picked lens) — the §3.6 methodology dashboard becomes SQL over
+va_events · lint fallbacks emit `cellar_lint_fallback {stage: story·blurb}` client-side
+when the settle response reports one (api/track stays the only ingest path — functions
+never write analytics directly).
 Verification: golden-set calibration BEFORE any pip ships (framework bottles hit exact;
 plausible archetypes land; non-matches stay silent; sparsity cap holds) · suite pip
 assertion w/ seeded+restored store · fallback-rate counter live.
@@ -563,25 +603,33 @@ pip that makes you squint gets logged against the threshold.
 
 ### S5 — Hardening
 Build: budget drills end-to-end · photo-retention audit · offline pass · telemetry review +
-threshold tune (checkpoint 2) · day-mode QA sweep · desktop polish · perf glance (settling
-shimmer while scrolling — the C9 note).
+threshold tune (checkpoint 2, now per §5.8: includes the cohort D1/D7/D30-per-affinity
+readout and the outbox-health check) · day-mode QA sweep · desktop polish · perf glance
+(settling shimmer while scrolling — the C9 note).
 **Ed review script:** one week of real use, plus: airplane-mode cellar session; the
 kill-switch flip; a deliberately blurry label photo; your ugliest handwriting-label natural
 wine.
 
 ### S6 — Accounts + database (D9)
-Build: Supabase project + schema + RLS (§3.4) · Google OAuth app + supabase-js (SRI CDN) ·
+Build: cellar schema + RLS in the EXISTING Supabase project (D13 — the project is already
+live carrying va_events; S6 adds tables, never recreates) · Google OAuth app + supabase-js
+(SRI CDN) ·
 sign-in affordance (DESIGN PASS WITH ED FIRST — the status area changes) · local→server
 one-time merge (dedupe by identity) · local-first sync layer inside the store facades ·
 shared wines cache live (settle writes global; adds check cache before pipeline;
-retroactive upload of local enrichments) · photos → Storage w/ lifecycle · telemetry →
-table · rich match sheets from cache · curated pre-warm batch (strategy 2, ~$250–500,
+retroactive upload of local enrichments) · photos → Storage w/ lifecycle · the
+install↔user join: `va_installs` written at first sign-in (D13 — "telemetry → table" is
+already satisfied by va_events; THIS is S6's remaining analytics job, so retention series
+survive device changes; linking anonymous history to an identity is also the moment the
+public-launch privacy-policy task becomes non-optional — flagged, not solved here) · rich
+match sheets from cache · curated pre-warm batch (strategy 2, ~$250–500,
 Ed's go) · the GLOBAL diff re-map job (framework change → one batch pass over unique
-wines; retires the pre-S6 per-client re-settle) · lens telemetry lands in the table (Ed's
-methodology dashboard: which metaphors users actually pick, keep, and follow into their
-cellar) · canon closeout: design-decisions verdicts appended (E-A/E-B outcome, A1, A2,
-D-series), stage-construction addendum if any new law emerged, station cleared, this plan
-stamped as-built.
+wines; retires the pre-S6 per-client re-settle) · the methodology dashboard formalized: a
+saved SQL query set over va_events (lens picks/keeps/pip-follows by lens_id + fv +
+segment — the data has been flowing since S4; S6 just gives Ed the queries) · canon
+closeout: design-decisions verdicts appended (E-A/E-B outcome, A1, A2, D-series),
+stage-construction addendum if any new law emerged, station cleared, this plan stamped
+as-built.
 Verification: RLS probe (user A cannot read user B — scripted) · sync conflict drill (two
 devices, same wine, offline edits) · merge idempotence · full battery (suite, probe, sim,
 device).
@@ -606,7 +654,8 @@ needs a Supabase account (Ed creates, ~10 min, free) + Google Cloud OAuth consen
 | Lint fallback rate high | one retry w/ report; fallback is safe by design; log + batch review | tune prompt, never loosen lint |
 | Open endpoint abuse | origin allowlist + per-IP bucket + daily budget cap | `CELLAR_PIPELINE_DISABLED=1` → manual-only app |
 | Vercel Hobby ToS (commercial) | budget Pro from the moment money is real (§4.1) | $20/mo, not a risk — a line item |
-| Supabase free-tier pause (7d idle) | dev-only concern; Pro before users | $25/mo |
+| ~~Supabase free-tier pause (7d idle)~~ RETIRED by D13 | cohort event traffic keeps the project warm from Jul 23 on; Pro before real scale | $25/mo |
+| Analytics gate slips past ~Jul 23 (env vars unset when the cohort starts) | client outboxes hold up to 600 events and flush retroactively with original timestamps — data survives DAYS of slippage; only Safari-data-clearing loses it | Ed's 10-min go-live checklist (analytics.md) is the whole fix |
 | Sync conflicts corrupt counts | LWW v1 + conflict drill in S6; counts are user-correctable in one tap | worst case a count is off by one and the user fixes it — never data loss of a record |
 | Pairing soft-secrecy (owned wines' pairings readable client-side) | system-wide mapping never leaves the server; per-wine results are the same exposure as today | accepted; revisit only if it ever matters commercially |
 | Model/pricing drift | per-stage model env config; golden set re-run on change | pin previous model; batch re-runs at 50% |
@@ -645,6 +694,25 @@ needs a Supabase account (Ed creates, ~10 min, free) + Google Cloud OAuth consen
     mapping is only unambiguous under the current ordering; F-track is sequenced before S4
     partly for this reason. If a reorder ever jumps the queue, old journals' re-entry
     falls to the wine-match fallback (graceful, but don't let it happen).
+12. **Analytics maintenance laws (D13, inherited from analytics.md — restated so no
+    future hand misses them):** `va_events` schema changes are ADDITIVE-ONLY (early cohort
+    rows stay readable forever); events stay PII-free (plus this plan's §5.8 props-hygiene
+    law: no pipeline free-text in props); every analysis filters `not dev`; any
+    consent/privacy surface is a PUBLIC-LAUNCH task, not a cohort task — and it becomes
+    non-optional at S6's install↔user join; new event names need no api/track change
+    (pattern-validated), but respect its caps (12 props, 120-char strings).
+13. **Scan metering is entitlement-shaped from birth (business-plan §4.1):** the paid tier
+    meters photo scans ("one free taste of each scan type"), so S2's quotas are keyed
+    per-install, not per-IP — the quota seam upgrades into the subscription entitlement
+    check without rework. The extract function (image → structured JSON) is deliberately
+    the reusable seam for Idea-2's list/shelf scans later.
+14. **LWIN is also the buy-button join key (business-plan §4.4):** availability matching
+    (LWIN → retailer SKU) is the flagged [ENG] feasibility question for the Idea-4 sprint —
+    out of cellar scope, but every matched cellar record carrying `matchedId` is quietly
+    building that bridge. `buy_tapped` stays reserved in analytics.md until that sprint.
+15. **Pour tiers may formalize pour_index (business-plan §2):** the planned
+    accessible/aspirational/deep-cut structure per lens would give pour_index stable
+    semantics. Additive when it comes; pairings already store the index.
 
 *Cross-references: claude-code-handoff/cellar-brief.md · stage-construction.md §5 ·
 design-decisions.md (round-13 canon amended by A2 at closeout) · content/voice-prompt.md ·
