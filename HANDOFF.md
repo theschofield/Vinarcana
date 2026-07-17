@@ -7,8 +7,9 @@ Everything lives in `content/`. Read in this order:
 1. `content/voice-history.md` — the calibration (reject/approve trails). READ FIRST.
 2. `content/voice-prompt.md` — the writing prompt (Part 1 voices, Part 2 lenses, Parts 3A/3B/3C
    reveals) + the batch workflow and file map.
-3. `uploads/Tarot & Wine_ The Complete Framework.md` — the pairing map.
-4. The three output CSVs (`spirit-voices.csv`, `lenses.csv`, `reveals.csv`) — current state.
+3. `content/invitation-prompt.md` — the invitation-writing prompt.
+4. `uploads/Tarot & Wine_ The Complete Framework.md` — the pairing map.
+5. The three output CSVs (`spirit-voices.csv`, `lenses.csv`, `reveals.csv`) — current state.
 
 Then write ONE layer at a time, batches of 4–6 cards, stopping for the user's grade after each
 batch. Statuses: pending → draft → approved; never edit approved rows; log every superseded draft
