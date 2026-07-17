@@ -62,6 +62,8 @@ neutral keyword).
 
 - `index.html` + `explorations/` — the live app (nearly every file in
   explorations/ is loaded; check index.html before assuming anything is dead).
+- `api/` — Vercel serverless functions (api/track.js = the analytics sink;
+  events + sink + go-live steps in docs/analytics.md).
 - `assets/` — art. `content/` — the content pipeline (CSV + prompts; the
   content chats work here; `scraps/mirror-guidebook.js` mirrors guidebook.csv
   into `explorations/arcana-guide.js` — never hand-edit the mirror output).

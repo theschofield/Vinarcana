@@ -13,6 +13,11 @@
 //   via a ResizeObserver on the read-card slot — the actor tracks the layout.
 // · Actor→layout handoffs are same-frame swaps (no crossfade doubling).
 
+// analytics seam (docs/analytics.md) — a missing or blocked analytics
+// script must cost the ritual nothing, so every call routes through this
+// guard instead of touching window.VAAnalytics directly
+const vaTrack = (ev, props) => { try { if (window.VAAnalytics) VAAnalytics.track(ev, props); } catch (e) {} };
+
 const FLOW5_DEFAULTS = /*EDITMODE-BEGIN*/{
   "mode": "system", "viewport": "auto", "uiExit": "fade",
   "grainSize": 260, "grainNight": 0.18, "grainDay": 0.22, "veilNight": 0.11, "veilDay": 0.1,
@@ -201,6 +206,11 @@ function App() {
   // wine's pane the Reveal should open on (multi-pour lenses)
   const [memPicked, setMemPicked] = React.useState(null);
   const [pourWine, setPourWine] = React.useState(null);
+  // analytics: which road brought the current card ("draw" | "deck" |
+  // "memory") — pour_viewed reports it, and only the draw road counts as
+  // a ritual (once per draw; ritualDoneRef dedupes)
+  const originRef = React.useRef(null);
+  const ritualDoneRef = React.useRef(true);
   // Deeper Reading: null | "read" | "pour" (which surface the flip came from);
   // the arrival hint fires once per drawn card
   const [deeper, setDeeper] = React.useState(null);
@@ -601,6 +611,22 @@ function App() {
     };
   }, [phase]);
 
+  // ---------- analytics (docs/analytics.md) ----------
+  // Phase arrivals are the one source of truth: "reading" and "reveal"
+  // are only ever reached by a finished sequence, so this single effect
+  // covers every road in (draw, deck ride, memory re-entry) without
+  // touching any timeline. A ritual = the DRAW road reaching the pour.
+  React.useEffect(() => {
+    if (phase === "reading") vaTrack("reading_viewed", { origin: originRef.current, card });
+    else if (phase === "reveal") {
+      vaTrack("pour_viewed", { origin: originRef.current, card, lens: lens ? lens.n : null });
+      if (originRef.current === "draw" && !ritualDoneRef.current) {
+        ritualDoneRef.current = true;
+        vaTrack("ritual_complete", { card, lens: lens ? lens.n : null });
+      }
+    }
+  }, [phase]);
+
   // ---------- sequences ----------
   const smokeUi = () => {
     const va = vaRoot(); if (!va || !VASmoke.burst) return;
@@ -616,6 +642,7 @@ function App() {
     if (phaseRef.current !== "approach") return;
     const id = forcedId || pickCard();
     setCard(id);
+    originRef.current = "draw"; ritualDoneRef.current = false;
     setReleasing(false);
     setDeeper(null); hintDoneRef.current = false;
     setVoiceOn(false); setVeilOn(false); setLensesOn(false);
@@ -853,11 +880,14 @@ function App() {
     // a keep writes the journal: the deck jots the first note itself.
     // Memory re-entry (pourWine set) re-keeping the SAME wine is a no-op —
     // it's already in the book; a different pane's wine is a real new keep.
-    if (kept && pour && pour.wine !== pourWine) MemoryStore.add({
-      ts: Date.now(), card: cardRef.current, lens: lens ? lens.n : null,
-      wine: pour.wine, sub: pour.sub || ["", ""], bottle: pour.bottle || "assets/bottle-red.png",
-      jot: memoryJotFor(pour), hearted: false,
-    });
+    if (kept && pour && pour.wine !== pourWine) {
+      MemoryStore.add({
+        ts: Date.now(), card: cardRef.current, lens: lens ? lens.n : null,
+        wine: pour.wine, sub: pour.sub || ["", ""], bottle: pour.bottle || "assets/bottle-red.png",
+        jot: memoryJotFor(pour), hearted: false,
+      });
+      vaTrack("memory_saved", { card: cardRef.current, lens: lens ? lens.n : null, wine: pour.wine });
+    }
     if (kept && pour) showToast("KEPT · " + pour.wine.toUpperCase());
     const TL = tRef.current.tlReturn;
     const ev = [];
@@ -903,6 +933,7 @@ function App() {
     if (src === "read" && phaseRef.current !== "reading") return;
     if (src === "pour" && phaseRef.current !== "reveal") return;
     glideScrollTop();
+    vaTrack("deeper_opened", { src, card: cardRef.current });
     setDeeper(src);
   };
 
@@ -917,6 +948,7 @@ function App() {
     // a stale pickedId renders that tile visibility-hidden forever (the
     // "picked card's slot comes back empty" bug)
     setPickedId(null);
+    vaTrack("deck_viewed");
     if (p === "approach" || p === "reform" || p === "pull") {
       // from the approach: UI + deck fade on the UI-exit curve, grid rises
       setReleasing(false);
@@ -973,6 +1005,7 @@ function App() {
     // and the Lenses composes exactly like the Approach: indifferent to
     // how deep the grid was scrolled.
     setCard(id);
+    originRef.current = "deck";
     setReleasing(false);
     setDeeper(null); hintDoneRef.current = false;
     setVoiceOn(false); setVeilOn(false); setLensesOn(false);
@@ -1095,6 +1128,7 @@ function App() {
     glideScrollTop();
     clock.cancel();
     migrateMemoryFromPulls();
+    vaTrack("memory_viewed");
     if (p === "approach" || p === "reform" || p === "pull") {
       setReleasing(false);
       const dur = tRef.current.dUiExit;
@@ -1157,6 +1191,7 @@ function App() {
     // walk home (the frame-walk retired with va-flow-mem)
     clock.cancel();
     setCard(entry.card);
+    originRef.current = "memory";
     setLens(lensObj); setPicked(lensObj.n);
     setPourWine(entry.wine);
     setMemPicked(entry.id);
