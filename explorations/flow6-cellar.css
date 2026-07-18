@@ -383,10 +383,14 @@
 
 /* real inputs wear the canvas .ca-field .v dress — at 16px, not the
    canvas's 14.5px: any focused input under 16px makes iOS Safari zoom
-   the whole page and strand it (Ed's device pass, Jul 17 2026). The
-   1.5px deviation lives only while a field is being edited. */
-.ca-field .v input { font-family: "Instrument Sans", sans-serif; font-size: 16px; width: 100%;
+   the whole page and strand it (Ed's device pass, Jul 17 2026). Round 4
+   extends the 16px to the WHOLE value line (committed spans, "Tap to
+   choose") so hint, typed, and committed text are one size and weight —
+   only color/opacity differs; text no longer shrinks on commit. */
+.ca-field .v { font-size: 16px; }
+.ca-field .v input { font-family: "Instrument Sans", sans-serif; font-size: 16px; font-weight: 400; width: 100%;
   background: transparent; border: none; outline: none; padding: 0; margin: 0; border-radius: 0; }
+.ca-field .v input::placeholder { font-size: 16px; font-weight: 400; }
 .rx-dark .ca-field .v input { color: rgba(239,236,228,0.88); caret-color: var(--apri); }
 .rx-light .ca-field .v input { color: rgba(21,34,49,0.88); caret-color: var(--amber); }
 .rx-dark .ca-field .v input::placeholder { color: rgba(239,236,228,0.28); }

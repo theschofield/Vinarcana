@@ -378,8 +378,13 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     setActiveSel(null);
     go({ name: "form", mode, id: id || null });
   };
+  // every field is required except REGION (Ed, round 4) — the sanitized
+  // facets (vintage, type, grape, country) plus producer and wine must
+  // all be filled before the CTA lights
+  const formComplete = !!(form.producer.trim() && form.wine.trim() && form.vintage && form.type
+    && (form.grapes.length + form.otherGrapes.length > 0) && form.country);
   const submitForm = () => {
-    if (!form.wine.trim()) return;
+    if (!formComplete) return;
     const identity = {
       producer: form.producer.trim(), wine: form.wine.trim(),
       vintage: form.vintage || "NV", source: "manual", matchedId: null, confidence: null,
@@ -705,7 +710,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                 </div>
               </div>
               <div className="ca-form-ctas">
-                <div className={"ca-cta fill" + (form.wine.trim() ? "" : " disabled")} onClick={submitForm}>
+                <div className={"ca-cta fill" + (formComplete ? "" : " disabled")} onClick={submitForm}>
                   {editing ? "Set it right" : "Add to the cellar"}
                 </div>
               </div>
