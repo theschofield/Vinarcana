@@ -75,20 +75,16 @@ const celAddedLabel = (ts) => new Date(ts).toLocaleString("en-US", { month: "sho
 // into its overshoot slack and leave it there (the stranded-layout half
 // of the zoom bug); one-shot restores at gesture/transition beats only
 const celScrollHome = () => { if (window.scrollY > 1) window.scrollTo(0, 0); };
-// focus-gesture edition: Safari's keyboard reveal lands on ITS clock (the
-// fixed-delay guard left 16 stray px in the sim) — correct when the visual
-// viewport actually resizes around the keyboard, with bounded fallbacks.
-// One-shot listeners per gesture, never a standing writer.
-const celGuardFocusScroll = () => {
-  const vv = window.visualViewport;
-  if (vv) {
-    const on = () => { vv.removeEventListener("resize", on); setTimeout(celScrollHome, 80); };
-    vv.addEventListener("resize", on);
-    setTimeout(() => vv.removeEventListener("resize", on), 2200);
-  }
-  setTimeout(celScrollHome, 700);
-  setTimeout(celScrollHome, 1500);
-};
+// THE FOCUS CONTRACT (Ed's device verdict, round 2): while a field is
+// focused, Safari's own keyboard reveal OWNS the scroll — it places the
+// input at the optimal point and we never fight it (the round-1 guard
+// snapped the form back down and buried the dropdown behind the chrome).
+// The document comes home only when focus LEAVES the form: blur-out,
+// dropdown close, or a push away from the screen.
+const celRestoreOnLeave = () => setTimeout(() => {
+  const a = document.activeElement;
+  if (!a || a.tagName !== "INPUT") celScrollHome();
+}, 180);
 const celCountLine = (wines, bottles) =>
   wines + (wines === 1 ? " wine · " : " wines · ") + bottles + (bottles === 1 ? " bottle sleeping" : " bottles sleeping");
 
@@ -156,18 +152,11 @@ function CelCombo({ k, label, full, list, value, chips, otherChips, allowOther, 
   const open = (ev) => {
     ev.stopPropagation();
     // flushSync so the input exists inside the tap gesture — mobile
-    // Safari only raises the keyboard for focus() run synchronously;
-    // preventScroll keeps Safari's own focus-reveal off the document
+    // Safari only raises the keyboard for focus() run synchronously.
+    // No scroll assistance and no guards here: the native focus-reveal
+    // owns placement while the field is up (the focus contract above).
     ReactDOM.flushSync(() => onOpen(k));
-    if (inputRef.current) inputRef.current.focus({ preventScroll: true });
-    // the keyboard will cover low fields: bring the field into view
-    // once the viewport has resized around it — inside the layer's own
-    // scroller, then send any stray document px home once the keyboard
-    // has actually settled
-    celGuardFocusScroll();
-    setTimeout(() => {
-      if (fieldRef.current) fieldRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
-    }, 260);
+    if (inputRef.current) inputRef.current.focus();
   };
   // accent-blind narrowing: "sem" must find Sémillon, "gruner" Grüner
   const fold = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -243,19 +232,29 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
   const [entries, setEntries] = React.useState(() => CellarStore.all());
   const [view, setView] = React.useState({ name: "rack" });
   const viewRef = React.useRef(view); viewRef.current = view;
-  // THE PUSH: the outgoing view stays mounted for one fold beat
-  // (.cf-push-leave) while the incoming one plays its entrance; a
-  // return to a still-mounted screen fades it back in (.cf-back)
+  // THE PUSH — exit THEN entrance, never together (the house grammar;
+  // Ed's round-2 verdict killed the crossfade): the outgoing screen
+  // completes its sink (.cf-push-leave, 300ms) BEFORE the incoming one
+  // mounts and plays its entrance; a return to the still-mounted rack
+  // fades it back in whole (.cf-back). One beat at a time.
   const [leavingView, setLeavingView] = React.useState(null);
+  const [backFlag, setBackFlag] = React.useState(false);
   const leaveTimer = React.useRef(null);
   const go = (next) => {
     const cur = viewRef.current;
     if (cur.name === next.name && cur.id === next.id) return;
+    if (leaveTimer.current) return;   // a push is already in flight
     celScrollHome();
-    clearTimeout(leaveTimer.current);
     setLeavingView(cur);
-    setView(next);
-    leaveTimer.current = setTimeout(() => setLeavingView(null), 340);
+    leaveTimer.current = setTimeout(() => {
+      leaveTimer.current = null;
+      setLeavingView(null);
+      setView(next);
+      if (next.name === "rack") {
+        setBackFlag(true);
+        setTimeout(() => setBackFlag(false), 340);
+      }
+    }, 300);
   };
   const [filters, setFilters] = React.useState([]);
   const [sheet, setSheet] = React.useState(null);       // { id, n0, n, cls }
@@ -337,6 +336,9 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
   const blankForm = { producer: "", wine: "", vintage: "", type: "", grapes: [], otherGrapes: [], region: "", country: "" };
   const [form, setForm] = React.useState(blankForm);
   const [activeSel, setActiveSel] = React.useState(null);
+  // dropdown closed (pick, blur, or background tap) → if focus left the
+  // form, the document comes home (the focus contract)
+  React.useEffect(() => { if (activeSel === null) celRestoreOnLeave(); }, [activeSel]);
   const openForm = (mode, id) => {
     if (mode === "edit" && id) {
       const r = CellarStore.get(id); if (!r) return;
@@ -412,17 +414,18 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
 
   const sheetRec = sheet ? CellarStore.get(sheet.id) : null;
 
-  // push-beat visibility: a screen renders while it is the view OR while
-  // it is folding out; the rack alone survives hidden (scroll kept)
+  // push-beat visibility: the view holds the stage until its exit beat
+  // finishes (leavingView === the current view while it folds); the next
+  // screen mounts only at the commit. The rack alone survives hidden
+  // between its turns (scroll kept).
   const rackActive = view.name === "rack";
-  const rackLeaving = !rackActive && leavingView && leavingView.name === "rack";
-  const rackBack = rackActive && leavingView && leavingView.name !== "rack";
-  const rackCls = (!rackActive && !rackLeaving ? " cf-hidden" : "") +
-    (rackLeaving ? " cf-push-leave" : "") + (rackBack ? " cf-back" : "") + (leaving ? " leaving" : "");
-  const detSrc = view.name === "detail" ? view : (leavingView && leavingView.name === "detail" ? leavingView : null);
-  const detLeaving = detSrc && view.name !== "detail";
-  const formSrc = view.name === "form" ? view : (leavingView && leavingView.name === "form" ? leavingView : null);
-  const formLeaving = formSrc && view.name !== "form";
+  const rackLeaving = rackActive && !!leavingView;
+  const rackCls = (!rackActive ? " cf-hidden" : "") +
+    (rackLeaving ? " cf-push-leave" : "") + (rackActive && backFlag ? " cf-back" : "") + (leaving ? " leaving" : "");
+  const detSrc = view.name === "detail" ? view : null;
+  const detLeaving = detSrc && !!leavingView;
+  const formSrc = view.name === "form" ? view : null;
+  const formLeaving = formSrc && !!leavingView;
 
   // ---------- pieces ----------
   const head = (
@@ -643,14 +646,12 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                 <div className="ca-form-grid" onClick={(ev) => ev.stopPropagation()}>
                   <div className="ca-field full"><div className="k">Producer</div>
                     <div className="v"><input value={form.producer} placeholder="Who made it"
-                      onFocus={(e) => { const f = e.target.closest(".ca-field"); celGuardFocusScroll(); setTimeout(() => f.scrollIntoView({ block: "center", behavior: "smooth" }), 260); }}
-                      onBlur={() => setTimeout(celScrollHome, 250)}
+                      onBlur={celRestoreOnLeave}
                       onChange={(e) => setForm((f) => ({ ...f, producer: e.target.value }))} /></div>
                   </div>
                   <div className="ca-field full"><div className="k">Wine</div>
                     <div className="v"><input value={form.wine} placeholder="What the label calls it"
-                      onFocus={(e) => { const f = e.target.closest(".ca-field"); celGuardFocusScroll(); setTimeout(() => f.scrollIntoView({ block: "center", behavior: "smooth" }), 260); }}
-                      onBlur={() => setTimeout(celScrollHome, 250)}
+                      onBlur={celRestoreOnLeave}
                       onChange={(e) => setForm((f) => ({ ...f, wine: e.target.value }))} /></div>
                   </div>
                   <CelCombo k="vintage" label="Vintage" list={vintages} value={form.vintage}
@@ -664,8 +665,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                     onPick={pickSel("grapes")} onUnpick={unpickGrape}></CelCombo>
                   <div className="ca-field"><div className="k">Region</div>
                     <div className="v"><input value={form.region} placeholder="Where it grew"
-                      onFocus={(e) => { const f = e.target.closest(".ca-field"); celGuardFocusScroll(); setTimeout(() => f.scrollIntoView({ block: "center", behavior: "smooth" }), 260); }}
-                      onBlur={() => setTimeout(celScrollHome, 250)}
+                      onBlur={celRestoreOnLeave}
                       onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} /></div>
                   </div>
                   <CelCombo k="country" label="Country" list={L.countries} value={form.country}

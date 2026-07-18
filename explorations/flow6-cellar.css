@@ -434,9 +434,12 @@
    measures (band probe open/close/decay + Ed's device eye). If it
    lingers a backdrop, E-B (top-referenced slab) ships instead. */
 .cl-sheet { position: fixed; bottom: 0; padding-bottom: calc(30px + env(safe-area-inset-bottom)); z-index: 7;
-  transform: translateY(102%); transition: transform 380ms cubic-bezier(0.16, 0.72, 0.18, 1); }
-.cl-sheet.in { transform: translateY(0); }
-.cl-sheet.out { transform: translateY(102%); transition: transform 260ms cubic-bezier(0.4, 0, 0.6, 1); }
+  /* width-capped at 450px in every mode (Ed, round 2: never wider) —
+     phones ride full-width beneath the cap */
+  left: 50%; right: auto; width: 100%; max-width: 450px; box-sizing: border-box;
+  transform: translate(-50%, 102%); transition: transform 380ms cubic-bezier(0.16, 0.72, 0.18, 1); }
+.cl-sheet.in { transform: translate(-50%, 0); }
+.cl-sheet.out { transform: translate(-50%, 102%); transition: transform 260ms cubic-bezier(0.4, 0, 0.6, 1); }
 .cl-scrim { opacity: 0; transition: opacity 240ms ease; }
 .cl-scrim.in { opacity: 1; }
 .cl-scrim.out { opacity: 0; }
@@ -486,19 +489,19 @@
 .ca-formcol::-webkit-scrollbar { display: none; }
 
 /* ---------- desktop: full-width menu, width-capped rack ---------- */
-.va.vw-desk .cf-screen .cld-wrap { padding-top: 28px; }
+/* 62px top clearance — the Memory head's own desktop bump (Ed, round 2:
+   the 28px canvas value assumed the status bar lived inside the board) */
+.va.vw-desk .cf-screen .cld-wrap { padding-top: 62px; }
 .va.vw-desk .cld-row { cursor: pointer; }
+/* desktop bottles at the tile law's 100px, with the softer desk shadow
+   (alpha 0.25 · blur 16px — Ed, round 2) */
+.va.vw-desk .cld-row .bot img { height: 100px; filter: drop-shadow(0 5px 16px rgba(0, 0, 0, 0.25)); }
+.va.vw-desk .rx-light .cld-row .bot img { filter: drop-shadow(0 5px 16px rgba(21, 34, 49, 0.25)); }
 /* the desktop rack arrives like the phone rack does (Ed's device pass:
    it had no entrance) */
 .cld-head { animation: cfIn 560ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; }
 .cld-colhead { animation: cfIn 620ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; animation-delay: 60ms; }
 .cld-row { animation: cfIn 620ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; animation-delay: var(--cfi, 60ms); }
-/* the count sheet keeps the rack's width discipline on desktop — the
-   full-window sheet read absurd (Ed); centered, capped like .cld-wrap */
-.va.vw-desk .cl-sheet { left: 50%; right: auto; width: 100%; max-width: 1010px;
-  border-radius: 20px 20px 0 0; transform: translate(-50%, 102%); }
-.va.vw-desk .cl-sheet.in { transform: translate(-50%, 0); }
-.va.vw-desk .cl-sheet.out { transform: translate(-50%, 102%); }
 /* detail/form keep the phone column, centered on the Pour's rhythm */
 .va.vw-desk .cf-detail .cd-scroll, .va.vw-desk .cf-form .ca-formcol,
 .va.vw-desk .cf-detail .cl2-nav, .va.vw-desk .cf-form .cl2-nav {

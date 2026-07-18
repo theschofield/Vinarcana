@@ -35,7 +35,15 @@ chrome backdrop; every image swap is decode-gated (iOS blanks fresh
 `<img>`s); the card actor (and the eyebrow actor, same pin) is never
 remounted or reparented; one shadow, one element, one clock; never write
 `text-wrap: normal` (not a real value — it parses invalid; `wrap` is the
-neutral keyword).
+neutral keyword); EVERY screen change is EXIT then ENTRANCE, never both
+at once — the outgoing page completes its fade/sink before the incoming
+page begins (the root's roads mount the next screen near the END of the
+exit; in-view pushes like the Cellar's rack ⇄ detail ⇄ form sink the old
+screen ~300ms, then mount the new one; a RETURN to a still-mounted
+screen fades it back in whole — a hard cut or a crossfade is a bug, Ed's
+verdict Jul 17 2026); while a form field is FOCUSED, Safari's keyboard
+reveal owns the scroll — never fight it; restore the document home only
+when focus leaves the form (the Cellar's focus contract).
 
 ## Verification duties (non-negotiable for transition/layout changes)
 
