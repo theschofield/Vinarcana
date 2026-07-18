@@ -35,6 +35,16 @@ a friend clearing Safari data before first successful flush.
 
 ## Go-live checklist (Ed, ~10 min, before Jul 23)
 
+Recommended road: **Vercel dashboard → vinarcana project → Storage tab →
+Create Database → Supabase** (the marketplace integration). It provisions
+the Supabase project AND auto-injects the keys into the app — no manual
+env vars. api/track.js accepts both the hand-set names (`SUPABASE_URL` +
+`SUPABASE_SERVICE_KEY`) and the integration's auto-injected ones
+(`SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_SECRET_KEY`). Creating at
+supabase.com directly also works — then set the two hand-set env vars in
+Vercel yourself. Either way this is the SAME project Sprint 6 will use
+for accounts (cellar-plan §3.4).
+
 1. Create the Supabase project (free tier — cellar-plan already budgets it).
 2. SQL editor → run:
 
@@ -56,9 +66,10 @@ a friend clearing Safari data before first successful flush.
    -- is blocked entirely; the service key (server-side only) bypasses RLS
    ```
 
-3. Vercel → project → Settings → Environment Variables (Production):
-   `SUPABASE_URL` = the project URL, `SUPABASE_SERVICE_KEY` = the
-   service_role key. Redeploy.
+3. Env vars: automatic on the marketplace road (confirm
+   `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` appear under Settings →
+   Environment Variables). Manual road: set `SUPABASE_URL` +
+   `SUPABASE_SERVICE_KEY` there yourself. Then Redeploy.
 4. Sanity: open vinarcana.vercel.app, pull a card, then in Supabase check
    `select event, count(*) from va_events group by 1`.
 5. On Ed's own devices, visit once with `?va-off` (persists; `?va-on`

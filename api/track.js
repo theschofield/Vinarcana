@@ -57,7 +57,11 @@ module.exports = async (req, res) => {
   }
   if (!rows.length) { res.status(400).json({ error: "no valid events" }); return; }
 
-  const url = process.env.SUPABASE_URL, key = process.env.SUPABASE_SERVICE_KEY;
+  // accept both hand-set names and the ones Vercel's Supabase marketplace
+  // integration auto-injects (SERVICE_ROLE legacy JWT or new secret key)
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+    || process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) { res.status(503).json({ stored: false, reason: "sink not configured" }); return; }
 
   try {
