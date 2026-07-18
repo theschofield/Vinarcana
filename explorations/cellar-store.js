@@ -189,6 +189,51 @@ function cellarVintages() {
   return out;
 }
 
+// ---------- demo seed (dev affordance until S2's database lands) ----------
+// Visit once with ?cellar-seed to populate 15 wines from the locked canvas
+// mock (types, blends, an off-list grape, ready/resting/drink-soon spread).
+// ADDITIVE: wines already in the rack (by identity) are never touched, so
+// real records survive a re-seed. Retire them one by one or clear va-cellar.
+const CELLAR_DEMO = [
+  ["Vilmart & Cie", "Grand Cellier", "NV", "Sparkling", ["Pinot Noir", "Chardonnay"], [], "Champagne", "France", 1],
+  ["Turley", "Juvenile Zinfandel", "2022", "Red", ["Zinfandel"], [], "Napa Valley", "USA", 1],
+  ["Tyrrell's", "Vat 1 Sémillon", "2014", "White", ["Sémillon"], [], "Hunter Valley", "Australia", 2],
+  ["Borgogno", "Barolo Riserva", "2016", "Red", ["Nebbiolo"], [], "Piedmont", "Italy", 1],
+  ["Dönnhoff", "Riesling Kabinett", "2022", "White", ["Riesling"], [], "Nahe", "Germany", 4],
+  ["Domaine Tempier", "Bandol Rosé", "2024", "Rosé", ["Mourvèdre"], [], "Provence", "France", 2],
+  ["López de Heredia", "Viña Tondonia Reserva", "2010", "Red", ["Tempranillo"], [], "Rioja", "Spain", 3],
+  ["Gravner", "Ribolla", "2015", "Orange", ["Ribolla Gialla"], [], "Friuli", "Italy", 1],
+  ["Ch. de Beaucastel", "Châteauneuf-du-Pape", "2019", "Red", ["Grenache", "Mourvèdre"], [], "Rhône", "France", 2],
+  ["Las Jaras", "Pét-Nat", "2023", "Sparkling", [], ["Field blend"], "California", "USA", 2],
+  ["Antinori", "Tignanello", "2020", "Red", ["Sangiovese", "Cabernet Sauvignon"], [], "Tuscany", "Italy", 1],
+  ["Álvaro Palacios", "Les Terrasses", "2021", "Red", ["Garnacha", "Cariñena"], [], "Priorat", "Spain", 1],
+  ["Domaine Macle", "Château-Chalon", "2016", "White", ["Savagnin"], [], "Jura", "France", 1],
+  ["Scholium Project", "The Prince in His Caves", "2021", "White", ["Sauvignon Blanc"], [], "California", "USA", 1],
+  ["Château Montrose", "Saint-Estèphe", "2023", "Red", ["Cabernet Sauvignon", "Merlot"], [], "Bordeaux", "France", 1],
+];
+function cellarSeedDemo() {
+  let added = 0;
+  CELLAR_DEMO.forEach(([producer, wine, vintage, color, grapes, otherGrapes, region, country, count], i) => {
+    const identity = { producer, wine, vintage, source: "manual", matchedId: null, confidence: null };
+    if (CellarStore.findByIdentity(identity)) return;
+    const rec = CellarStore.add({
+      identity,
+      facts: { color, grapes, otherGrapes, region, country },
+      window: null, count,
+    });
+    // staggered addedTs so the rack reads like a lived-in cellar
+    CellarStore.update(rec.id, { window: cellarComputeWindow(rec), addedTs: Date.now() - i * 5 * 86400000 });
+    added++;
+  });
+  return added;
+}
+try {
+  if (/[?&]cellar-seed\b/.test(window.location.search)) {
+    const n = cellarSeedDemo();
+    console.log("[cellar-seed] added " + n + " demo wines");
+  }
+} catch (e) {}
+
 if (typeof window !== "undefined") {
-  Object.assign(window, { CellarStore, CellarPhotos, cellarComputeWindow, cellarWinClass, cellarVintages });
+  Object.assign(window, { CellarStore, CellarPhotos, cellarComputeWindow, cellarWinClass, cellarVintages, cellarSeedDemo });
 }

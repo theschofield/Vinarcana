@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- maximum-scale=1 suppresses iOS Safari's auto-zoom on <16px input focus
+     (the Cellar form's stranded-zoom bug, Ed's device pass Jul 17 2026);
+     accessibility pinch-zoom still works — iOS ignores the cap for user
+     gestures since iOS 10 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
 <meta name="theme-color" content="#151413" />
 <title>Vintner's Arcana</title>
 <meta property="og:title" content="Vintner's Arcana" />

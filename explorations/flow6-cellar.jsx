@@ -70,6 +70,25 @@ const celLocLine = (rec) => {
   return [f.region, f.country].filter(Boolean).join(", ");
 };
 const celAddedLabel = (ts) => new Date(ts).toLocaleString("en-US", { month: "short", day: "numeric" });
+// beat-time scroll-home guard (the sanctioned belt-and-braces pattern —
+// never a standing keeper): Safari's focus-reveal can nudge the document
+// into its overshoot slack and leave it there (the stranded-layout half
+// of the zoom bug); one-shot restores at gesture/transition beats only
+const celScrollHome = () => { if (window.scrollY > 1) window.scrollTo(0, 0); };
+// focus-gesture edition: Safari's keyboard reveal lands on ITS clock (the
+// fixed-delay guard left 16 stray px in the sim) — correct when the visual
+// viewport actually resizes around the keyboard, with bounded fallbacks.
+// One-shot listeners per gesture, never a standing writer.
+const celGuardFocusScroll = () => {
+  const vv = window.visualViewport;
+  if (vv) {
+    const on = () => { vv.removeEventListener("resize", on); setTimeout(celScrollHome, 80); };
+    vv.addEventListener("resize", on);
+    setTimeout(() => vv.removeEventListener("resize", on), 2200);
+  }
+  setTimeout(celScrollHome, 700);
+  setTimeout(celScrollHome, 1500);
+};
 const celCountLine = (wines, bottles) =>
   wines + (wines === 1 ? " wine · " : " wines · ") + bottles + (bottles === 1 ? " bottle sleeping" : " bottles sleeping");
 
@@ -137,12 +156,18 @@ function CelCombo({ k, label, full, list, value, chips, otherChips, allowOther, 
   const open = (ev) => {
     ev.stopPropagation();
     // flushSync so the input exists inside the tap gesture — mobile
-    // Safari only raises the keyboard for focus() run synchronously
+    // Safari only raises the keyboard for focus() run synchronously;
+    // preventScroll keeps Safari's own focus-reveal off the document
     ReactDOM.flushSync(() => onOpen(k));
-    if (inputRef.current) inputRef.current.focus();
+    if (inputRef.current) inputRef.current.focus({ preventScroll: true });
     // the keyboard will cover low fields: bring the field into view
-    // once the viewport has resized around it
-    setTimeout(() => { if (fieldRef.current) fieldRef.current.scrollIntoView({ block: "center", behavior: "smooth" }); }, 260);
+    // once the viewport has resized around it — inside the layer's own
+    // scroller, then send any stray document px home once the keyboard
+    // has actually settled
+    celGuardFocusScroll();
+    setTimeout(() => {
+      if (fieldRef.current) fieldRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 260);
   };
   // accent-blind narrowing: "sem" must find Sémillon, "gruner" Grüner
   const fold = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -151,7 +176,9 @@ function CelCombo({ k, label, full, list, value, chips, otherChips, allowOther, 
   if (active) {
     const starts = list.filter((x) => fold(x).startsWith(qn));
     const holds = qn ? list.filter((x) => !fold(x).startsWith(qn) && fold(x).includes(qn)) : [];
-    rows = [...starts, ...holds].filter((x) => !(chips || []).includes(x)).slice(0, 6);
+    // every match, uncapped — the overlay scrolls past ~3.5 rows, so the
+    // whole list is browsable before typing anything (Ed's device pass)
+    rows = [...starts, ...holds].filter((x) => !(chips || []).includes(x));
   }
   const exact = list.some((x) => fold(x) === qn);
   const showOther = allowOther && qn.length >= 2 && !exact;
@@ -167,11 +194,13 @@ function CelCombo({ k, label, full, list, value, chips, otherChips, allowOther, 
       <div className={"v" + (!hasValue && !active ? " empty" : "")} onClick={active ? undefined : open}>
         {chips ? (
           <span className="ca2-chips">
+            {/* tapping anywhere on a chip removes it (44px target — the
+                tiny ✕ alone was untappable on device) */}
             {(chips || []).map((c) => (
-              <span key={c} className="ca2-chip">{c} <span className="x" onClick={(ev) => { ev.stopPropagation(); onUnpick(c, false); }}>✕</span></span>
+              <span key={c} className="ca2-chip" onClick={(ev) => { ev.stopPropagation(); onUnpick(c, false); }}>{c} <span className="x">✕</span></span>
             ))}
             {(otherChips || []).map((c) => (
-              <span key={"o:" + c} className="ca2-chip">{c} <span className="x" onClick={(ev) => { ev.stopPropagation(); onUnpick(c, true); }}>✕</span></span>
+              <span key={"o:" + c} className="ca2-chip" onClick={(ev) => { ev.stopPropagation(); onUnpick(c, true); }}>{c} <span className="x">✕</span></span>
             ))}
             {active ? (
               <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)}
@@ -187,18 +216,23 @@ function CelCombo({ k, label, full, list, value, chips, otherChips, allowOther, 
         <span className="ca2-chev"><CelChevDown></CelChevDown></span>
       </div>
       {active ? (
-        <React.Fragment>
+        /* the overlay: pointerdown only guards focus (no blur, no
+           keyboard drop); SELECTION happens on click, so the list is
+           still mounted under the finger when the tap completes — the
+           focus-jump bug was the trailing click falling through a
+           layout that had already shifted */
+        <div className="ca2-ddwrap" onPointerDown={(ev) => ev.preventDefault()}>
           <div className="ca2-dd">
             {rows.map((x) => (
-              <div key={x} className="ca2-dd-row" onPointerDown={(ev) => { ev.preventDefault(); onPick(x, false); setQ(""); }}>{mark(x)}</div>
+              <div key={x} className="ca2-dd-row" onClick={(ev) => { ev.stopPropagation(); onPick(x, false); setQ(""); }}>{mark(x)}</div>
             ))}
             {showOther ? (
-              <div className="ca2-dd-row" onPointerDown={(ev) => { ev.preventDefault(); onPick(q.trim(), true); setQ(""); }}>Use “{q.trim()}”</div>
+              <div className="ca2-dd-row" onClick={(ev) => { ev.stopPropagation(); onPick(q.trim(), true); setQ(""); }}>Use “{q.trim()}”</div>
             ) : null}
             {!rows.length && !showOther ? <div className="ca2-dd-row" style={{ opacity: 0.5 }}>Nothing in the lists</div> : null}
           </div>
           <div className="ca2-dd-note">{note || "Tap one to add it · typing alone adds nothing"}</div>
-        </React.Fragment>
+        </div>
       ) : null}
     </div>
   );
@@ -208,6 +242,21 @@ function CelCombo({ k, label, full, list, value, chips, otherChips, allowOther, 
 function CellarScreen({ light, desktop, leaving, onToast }) {
   const [entries, setEntries] = React.useState(() => CellarStore.all());
   const [view, setView] = React.useState({ name: "rack" });
+  const viewRef = React.useRef(view); viewRef.current = view;
+  // THE PUSH: the outgoing view stays mounted for one fold beat
+  // (.cf-push-leave) while the incoming one plays its entrance; a
+  // return to a still-mounted screen fades it back in (.cf-back)
+  const [leavingView, setLeavingView] = React.useState(null);
+  const leaveTimer = React.useRef(null);
+  const go = (next) => {
+    const cur = viewRef.current;
+    if (cur.name === next.name && cur.id === next.id) return;
+    celScrollHome();
+    clearTimeout(leaveTimer.current);
+    setLeavingView(cur);
+    setView(next);
+    leaveTimer.current = setTimeout(() => setLeavingView(null), 340);
+  };
   const [filters, setFilters] = React.useState([]);
   const [sheet, setSheet] = React.useState(null);       // { id, n0, n, cls }
   const sheetRef = React.useRef(null); sheetRef.current = sheet;
@@ -272,7 +321,8 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           // count 0 retires the wine — no archive (hard product law);
           // the sheet WAS the one-breath undo (+ brings it back before
           // the close commits). The tile folds quietly.
-          setView((v) => (v.name === "detail" && v.id === id ? { name: "rack" } : v));
+          const v = viewRef.current;
+          if (v.name === "detail" && v.id === id) go({ name: "rack" });
           setClosingId(id);
           setTimeout(() => { CellarStore.remove(id); setClosingId(null); refresh(); }, 320);
         } else {
@@ -298,7 +348,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       });
     } else setForm(blankForm);
     setActiveSel(null);
-    setView({ name: "form", mode, id: id || null });
+    go({ name: "form", mode, id: id || null });
   };
   const submitForm = () => {
     if (!form.wine.trim()) return;
@@ -316,7 +366,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       const rec = CellarStore.update(view.id, { identity, facts });
       if (rec) CellarStore.update(view.id, { window: cellarComputeWindow(rec) });
       refresh();
-      setView({ name: "detail", id: view.id });
+      go({ name: "detail", id: view.id });
       return;
     }
     const dup = CellarStore.findByIdentity(identity);
@@ -325,14 +375,14 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       CellarStore.update(dup.id, { count: dup.count + 1 });
       refresh();
       if (onToast) onToast("ALREADY SLEEPING · NOW ×" + (dup.count + 1));
-      setView({ name: "rack" });
+      go({ name: "rack" });
       return;
     }
     const rec = CellarStore.add({ identity, facts, window: null });
     CellarStore.update(rec.id, { window: cellarComputeWindow(rec) });
     refresh();
     vaTrackCel("cellar_added", { wine: identity.wine, method: "form" });
-    setView({ name: "rack" });
+    go({ name: "rack" });
   };
   const pickSel = (k) => (val, other) => {
     setForm((f) => {
@@ -354,13 +404,25 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
   React.useEffect(() => {
     window.__vaCellar = {
       view: () => view.name,
-      go: (name, id) => (name === "form" ? openForm("add") : setView(id ? { name, id } : { name })),
+      go: (name, id) => (name === "form" ? openForm("add") : go(id ? { name, id } : { name })),
       openSheet, closeSheet, refresh,
     };
     return () => { if (window.__vaCellar) delete window.__vaCellar; };
   });
 
   const sheetRec = sheet ? CellarStore.get(sheet.id) : null;
+
+  // push-beat visibility: a screen renders while it is the view OR while
+  // it is folding out; the rack alone survives hidden (scroll kept)
+  const rackActive = view.name === "rack";
+  const rackLeaving = !rackActive && leavingView && leavingView.name === "rack";
+  const rackBack = rackActive && leavingView && leavingView.name !== "rack";
+  const rackCls = (!rackActive && !rackLeaving ? " cf-hidden" : "") +
+    (rackLeaving ? " cf-push-leave" : "") + (rackBack ? " cf-back" : "") + (leaving ? " leaving" : "");
+  const detSrc = view.name === "detail" ? view : (leavingView && leavingView.name === "detail" ? leavingView : null);
+  const detLeaving = detSrc && view.name !== "detail";
+  const formSrc = view.name === "form" ? view : (leavingView && leavingView.name === "form" ? leavingView : null);
+  const formLeaving = formSrc && view.name !== "form";
 
   // ---------- pieces ----------
   const head = (
@@ -392,7 +454,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
         <div className="cl-noresult">Nothing sleeping under those filters</div>
       ) : rows.map((e, i) => (
         <div key={e.id} className={"cl2-tilewrap" + (closingId === e.id ? " closing" : "")} style={{ "--cfi": Math.min(i * 30, 360) + "ms" }}>
-          <div className="cl2-tile" onClick={() => setView({ name: "detail", id: e.id })}>
+          <div className="cl2-tile" onClick={() => go({ name: "detail", id: e.id })}>
             <div className="bot"><CelBot src={celBottleFor(e)}></CelBot></div>
             <div className="tx">
               <div className="p">{e.identity.producer}</div>
@@ -425,7 +487,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
 
   // ---------- desktop rack (the menu spans the window; rack width-capped) ----------
   const deskRack = (
-    <div className={"va-layer cl-screen cf-screen cf-rack" + (view.name !== "rack" ? " cf-hidden" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar">
+    <div className={"va-layer cl-screen cf-screen cf-rack" + rackCls} data-screen-label="Flow — Cellar">
       <div className="cld-wrap">
         <div className="cld-head">
           <div>
@@ -452,8 +514,9 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
             <div className="cld-list">
               {rows.length === 0 && filters.length ? (
                 <div className="cl-noresult">Nothing sleeping under those filters</div>
-              ) : rows.map((e) => (
-                <div className="cld2-cols cld-row" key={e.id} onClick={() => setView({ name: "detail", id: e.id })}>
+              ) : rows.map((e, i) => (
+                <div className="cld2-cols cld-row" key={e.id} style={{ "--cfi": Math.min(60 + i * 30, 420) + "ms" }}
+                  onClick={() => go({ name: "detail", id: e.id })}>
                   <span className="bot"><CelBot src={celBottleFor(e)}></CelBot></span>
                   <span>
                     <div className="cl-eyebrow">{[e.identity.vintage, e.identity.producer && e.identity.producer.toUpperCase()].filter(Boolean).join(" · ")}</div>
@@ -474,7 +537,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
   );
 
   const rack = desktop ? deskRack : (
-    <div className={"va-layer cl-screen cf-screen cf-rack" + (view.name !== "rack" ? " cf-hidden" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar">
+    <div className={"va-layer cl-screen cf-screen cf-rack" + rackCls} data-screen-label="Flow — Cellar">
       <div className={"cf-scroll" + (scrolled.rack ? " scrolled" : "")} onScroll={armScroll("rack")}>
         <div className="cf-flow">
           {head}
@@ -488,8 +551,8 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
 
   // ---------- detail (the wine, opened — sparse S1 records) ----------
   let detail = null;
-  if (view.name === "detail") {
-    const d = CellarStore.get(view.id);
+  if (detSrc) {
+    const d = CellarStore.get(detSrc.id);
     if (!d) { detail = null; }
     else {
       const stats = [];
@@ -500,9 +563,9 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       if (loc) stats.push(["REGION", loc]);
       if (d.identity.vintage) stats.push(["VINTAGE", d.identity.vintage]);
       detail = (
-        <div className={"va-layer cl-screen cf-screen cf-detail" + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar detail">
+        <div className={"va-layer cl-screen cf-screen cf-detail" + (detLeaving ? " cf-push-leave" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar detail">
           <div className="cl2-nav">
-            <span className="cl2-circ" onClick={() => setView({ name: "rack" })}><CelBackIcon></CelBackIcon></span>
+            <span className="cl2-circ" onClick={() => go({ name: "rack" })}><CelBackIcon></CelBackIcon></span>
             <span></span>
           </div>
           <div className={"cf-scroll" + (scrolled.detail ? " scrolled" : "")} onScroll={armScroll("detail")}>
@@ -553,15 +616,22 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
 
   // ---------- the manual form (add + identity-level correction) ----------
   let formView = null;
-  if (view.name === "form") {
-    const editing = view.mode === "edit";
+  if (formSrc) {
+    const editing = formSrc.mode === "edit";
     const vintages = cellarVintages();
     const L = window.CELLAR_LISTS || { types: [], countries: [], grapes: [] };
     formView = (
-      <div className={"va-layer cl-screen cf-screen cf-form" + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar form">
+      <div className={"va-layer cl-screen cf-screen cf-form" + (formLeaving ? " cf-push-leave" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar form">
+        {/* add = ✕ closes to the rack; SET IT RIGHT = circled back to the
+            detail it came from (Ed's device pass — a correction is a
+            step deeper, not a separate errand) */}
         <div className="cl2-nav">
-          <span></span>
-          <span className="cl2-circ" onClick={() => setView(editing ? { name: "detail", id: view.id } : { name: "rack" })}>✕</span>
+          {editing ? (
+            <span className="cl2-circ" onClick={() => go({ name: "detail", id: formSrc.id })}><CelBackIcon></CelBackIcon></span>
+          ) : <span></span>}
+          {editing ? <span></span> : (
+            <span className="cl2-circ" onClick={() => go({ name: "rack" })}>✕</span>
+          )}
         </div>
         <div className={"cf-scroll" + (scrolled.form ? " scrolled" : "")} onScroll={armScroll("form")}>
           <div className="cf-flow">
@@ -573,12 +643,14 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                 <div className="ca-form-grid" onClick={(ev) => ev.stopPropagation()}>
                   <div className="ca-field full"><div className="k">Producer</div>
                     <div className="v"><input value={form.producer} placeholder="Who made it"
-                      onFocus={(e) => setTimeout(() => e.target.closest(".ca-field").scrollIntoView({ block: "center", behavior: "smooth" }), 260)}
+                      onFocus={(e) => { const f = e.target.closest(".ca-field"); celGuardFocusScroll(); setTimeout(() => f.scrollIntoView({ block: "center", behavior: "smooth" }), 260); }}
+                      onBlur={() => setTimeout(celScrollHome, 250)}
                       onChange={(e) => setForm((f) => ({ ...f, producer: e.target.value }))} /></div>
                   </div>
                   <div className="ca-field full"><div className="k">Wine</div>
                     <div className="v"><input value={form.wine} placeholder="What the label calls it"
-                      onFocus={(e) => setTimeout(() => e.target.closest(".ca-field").scrollIntoView({ block: "center", behavior: "smooth" }), 260)}
+                      onFocus={(e) => { const f = e.target.closest(".ca-field"); celGuardFocusScroll(); setTimeout(() => f.scrollIntoView({ block: "center", behavior: "smooth" }), 260); }}
+                      onBlur={() => setTimeout(celScrollHome, 250)}
                       onChange={(e) => setForm((f) => ({ ...f, wine: e.target.value }))} /></div>
                   </div>
                   <CelCombo k="vintage" label="Vintage" list={vintages} value={form.vintage}
@@ -592,14 +664,14 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                     onPick={pickSel("grapes")} onUnpick={unpickGrape}></CelCombo>
                   <div className="ca-field"><div className="k">Region</div>
                     <div className="v"><input value={form.region} placeholder="Where it grew"
-                      onFocus={(e) => setTimeout(() => e.target.closest(".ca-field").scrollIntoView({ block: "center", behavior: "smooth" }), 260)}
+                      onFocus={(e) => { const f = e.target.closest(".ca-field"); celGuardFocusScroll(); setTimeout(() => f.scrollIntoView({ block: "center", behavior: "smooth" }), 260); }}
+                      onBlur={() => setTimeout(celScrollHome, 250)}
                       onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} /></div>
                   </div>
                   <CelCombo k="country" label="Country" list={L.countries} value={form.country}
                     active={activeSel === "country"} onOpen={setActiveSel} onClose={() => setActiveSel(null)}
                     onPick={pickSel("country")} note="Tap one to choose it · typing alone picks nothing"></CelCombo>
                 </div>
-                <div className="ca-form-note">Vintage, type, grape and country come from the cellar's own lists, so your rack sorts clean.</div>
               </div>
               <div className="ca-form-ctas">
                 <div className={"ca-cta fill" + (form.wine.trim() ? "" : " disabled")} onClick={submitForm}>

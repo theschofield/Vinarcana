@@ -358,6 +358,16 @@
    itself — a scroll-owner layer does not. */
 .cl2-nav, .cl-scrim, .cl-sheet { touch-action: none; }
 
+/* the detail/form nav respects the menu in EVERY mode (desktop, the
+   wrapped frame, standalone/web-app) — the canvas's 18px assumed an
+   artboard with no live status bar above it (Ed's device pass: the
+   circled icons sat under the menu on desktop and as a web app). The
+   phone doc-mode override in flow6-docflow.css keeps its own absolute
+   placement. */
+.cf-detail .cl2-nav, .cf-form .cl2-nav {
+  padding-top: calc(max(24px, env(safe-area-inset-top)) + 44px);
+}
+
 /* the pill row scrolls sideways on phones; its pans stay its own */
 .cl-pills { overflow-x: auto; scrollbar-width: none; touch-action: pan-x; overscroll-behavior-x: contain; }
 .cl-pills::-webkit-scrollbar { display: none; }
@@ -371,19 +381,49 @@
 .cl-noresult { padding: 34px 24px; text-align: center; font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(239,236,228,0.35); }
 .rx-light .cl-noresult { color: rgba(21,34,49,0.4); }
 
-/* real inputs wear the canvas .ca-field .v dress */
-.ca-field .v input { font-family: "Instrument Sans", sans-serif; font-size: 14.5px; width: 100%;
+/* real inputs wear the canvas .ca-field .v dress — at 16px, not the
+   canvas's 14.5px: any focused input under 16px makes iOS Safari zoom
+   the whole page and strand it (Ed's device pass, Jul 17 2026). The
+   1.5px deviation lives only while a field is being edited. */
+.ca-field .v input { font-family: "Instrument Sans", sans-serif; font-size: 16px; width: 100%;
   background: transparent; border: none; outline: none; padding: 0; margin: 0; border-radius: 0; }
 .rx-dark .ca-field .v input { color: rgba(239,236,228,0.88); caret-color: var(--apri); }
 .rx-light .ca-field .v input { color: rgba(21,34,49,0.88); caret-color: var(--amber); }
 .rx-dark .ca-field .v input::placeholder { color: rgba(239,236,228,0.28); }
 .rx-light .ca-field .v input::placeholder { color: rgba(21,34,49,0.3); }
 /* combobox: the typed filter shares the value line; chips wrap */
+.ca2-sel { position: relative; }
 .ca2-sel .v { cursor: pointer; }
 .ca2-chips { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; flex: 1; min-width: 0; }
 .ca2-chips input { flex: 1; min-width: 60px; }
+/* the whole chip is the remove target (tap chip = tap its ✕), with a
+   44px-tall extended hit area that stays clear of neighbouring chips */
+.ca2-chip { position: relative; cursor: pointer; }
+.ca2-chip::before { content: ""; position: absolute; left: -2px; right: -2px; top: -10px; bottom: -10px; }
 .ca2-chip .x { cursor: pointer; }
 .ca-cta.disabled { opacity: 0.35; pointer-events: none; }
+/* THE DROPDOWN IS AN OVERLAY (Ed's device pass): an elevated surface
+   that passes over the fields and CTA beneath it — never in-flow, so
+   opening/closing can shift no layout under a mid-air tap (the
+   focus-jump bug was the trailing click landing on whatever slid
+   beneath the finger when the in-flow list unmounted). Long lists
+   scroll after ~3.5 rows so every option is browsable. */
+.ca2-ddwrap { position: absolute; top: 100%; left: 0; right: 0; z-index: 30; }
+.ca2-dd { max-height: 158px; overflow-y: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain;
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.55); }
+.ca2-dd::-webkit-scrollbar { display: none; }
+.rx-light .ca2-dd { box-shadow: 0 18px 40px -18px rgba(21, 34, 49, 0.35); }
+/* the note rides the overlay, on the sheet's own surface so it stays
+   readable over whatever sits beneath */
+.ca2-ddwrap .ca2-dd-note { margin-top: 0; padding: 9px 16px 11px; border-radius: 0 0 10px 10px;
+  background: #201d1b; border: 1px solid rgba(239,236,228,0.12); border-top: none; }
+.rx-light .ca2-ddwrap .ca2-dd-note { background: #e6e4df; border-color: rgba(21,34,49,0.14); border-top: none; }
+.ca2-ddwrap .ca2-dd { border-radius: 10px 10px 0 0; }
+/* the circled nav icons keep their 28px dress but carry 44px targets
+   (a11y — Ed's device pass); the inset leaves the menu links clear */
+.cl2-circ { position: relative; }
+.cl2-circ::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; }
 
 /* ---------- THE COUNT SHEET — E-A (cellar-plan §5.6, D2) ----------
    Ed's construction, the experiment's primary hypothesis: a strictly
@@ -417,9 +457,22 @@
 /* leaving (release sink / another screen takes over): the house exit */
 .cf-screen.leaving .cl-head, .cf-screen.leaving .cl-pills, .cf-screen.leaving .cl2-tilewrap,
 .cf-screen.leaving .cl-empty, .cf-screen.leaving .cl-noresult, .cf-screen.leaving .cl2-nav,
-.cf-screen.leaving .cf-flow > * {
+.cf-screen.leaving .cf-flow > *, .cf-screen.leaving .cld-wrap {
   opacity: 0; transform: translateY(28px); pointer-events: none;
   transition: opacity var(--dUiExit, 620ms) var(--eUiExit, ease), transform var(--dUiExit, 620ms) var(--eUiExit, ease); }
+
+/* THE PUSH (rack ⇄ detail ⇄ form — a beat, not a choreography): the
+   outgoing screen sinks on a quick fold curve while the incoming one
+   plays its entrance; a screen RETURNED to fades back in whole (its
+   pieces are already in place — no re-stagger). */
+.cf-screen.cf-push-leave .cl-head, .cf-screen.cf-push-leave .cl-pills,
+.cf-screen.cf-push-leave .cl2-tilewrap, .cf-screen.cf-push-leave .cl-empty,
+.cf-screen.cf-push-leave .cl-noresult, .cf-screen.cf-push-leave .cl2-nav,
+.cf-screen.cf-push-leave .cf-flow > *, .cf-screen.cf-push-leave .cld-wrap {
+  opacity: 0; transform: translateY(28px); pointer-events: none;
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.6, 1), transform 300ms cubic-bezier(0.4, 0, 0.6, 1); }
+@keyframes cfBack { from { opacity: 0; } }
+.cf-screen.cf-back { animation: cfBack 260ms ease backwards; }
 
 /* bottle renders: decode-gated reveal (the deck's img law — a fresh
    <img> blanks on iOS while it decodes; cached ones appear instantly) */
@@ -435,6 +488,17 @@
 /* ---------- desktop: full-width menu, width-capped rack ---------- */
 .va.vw-desk .cf-screen .cld-wrap { padding-top: 28px; }
 .va.vw-desk .cld-row { cursor: pointer; }
+/* the desktop rack arrives like the phone rack does (Ed's device pass:
+   it had no entrance) */
+.cld-head { animation: cfIn 560ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; }
+.cld-colhead { animation: cfIn 620ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; animation-delay: 60ms; }
+.cld-row { animation: cfIn 620ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; animation-delay: var(--cfi, 60ms); }
+/* the count sheet keeps the rack's width discipline on desktop — the
+   full-window sheet read absurd (Ed); centered, capped like .cld-wrap */
+.va.vw-desk .cl-sheet { left: 50%; right: auto; width: 100%; max-width: 1010px;
+  border-radius: 20px 20px 0 0; transform: translate(-50%, 102%); }
+.va.vw-desk .cl-sheet.in { transform: translate(-50%, 0); }
+.va.vw-desk .cl-sheet.out { transform: translate(-50%, 102%); }
 /* detail/form keep the phone column, centered on the Pour's rhythm */
 .va.vw-desk .cf-detail .cd-scroll, .va.vw-desk .cf-form .ca-formcol,
 .va.vw-desk .cf-detail .cl2-nav, .va.vw-desk .cf-form .cl2-nav {
@@ -442,6 +506,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cl-head, .cl-pills, .cl2-tilewrap, .cl-empty, .cl-noresult,
-  .cf-detail .cf-flow > *, .cf-form .cf-flow > *, .cf-detail .cl2-nav, .cf-form .cl2-nav { animation: none; }
+  .cf-detail .cf-flow > *, .cf-form .cf-flow > *, .cf-detail .cl2-nav, .cf-form .cl2-nav,
+  .cld-head, .cld-colhead, .cld-row, .cf-screen.cf-back { animation: none; }
   .cl-sheet, .cl-scrim, .cl2-tilewrap { transition: none; }
 }
