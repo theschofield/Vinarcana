@@ -85,16 +85,25 @@ const celScrollHome = () => { if (window.scrollY > 1) window.scrollTo(0, 0); };
 // keyboard-dismiss settle followed by an instant scrollTo read as a
 // harsh jump). First-frame-clocked ease, the root glideScrollTop's
 // recipe; the 320ms lead lets Safari finish its own settle first.
+// ONE glide settles everything at once: the document's stranded px AND
+// the scroller's beyond-max over-scroll (Safari lets a scroller run past
+// its resting max while the keyboard is up, then clamps it back in a
+// separate animation — the "second movement" of rounds 4-5; gliding it
+// ourselves in the same motion preempts the clamp entirely).
 const celGlideHome = () => {
   const y0 = window.scrollY;
-  if (y0 < 2) return;
+  const sc = document.querySelector(".cf-form .cf-scroll, .cf-form .ca-formcol");
+  const over0 = sc ? Math.max(0, sc.scrollTop - Math.max(0, sc.scrollHeight - sc.clientHeight)) : 0;
+  const st0 = sc ? sc.scrollTop : 0;
+  if (y0 < 2 && over0 < 2) return;
   let t0 = null;
   const D = 260;
   const step = (now) => {
     if (t0 == null) t0 = now;
     const u = Math.min(1, (now - t0) / D);
     const e = 1 - Math.pow(1 - u, 3);
-    window.scrollTo(0, Math.round(y0 * (1 - e)));
+    if (y0 >= 2) window.scrollTo(0, Math.round(y0 * (1 - e)));
+    if (sc && over0 >= 2) sc.scrollTop = Math.round(st0 - over0 * e);
     if (u < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);

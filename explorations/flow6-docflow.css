@@ -331,13 +331,17 @@ html.va-doc .va:not(.vw-desk) .cf-form .cl2-nav {
 html.va-doc .va:not(.vw-desk) .cf-detail .cf-flow {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 78px);
 }
+/* THE FORM'S LAYER alone runs 150px deeper than the recipe's 100
+   (Ed's device eye, rounds 4-5): Safari's keyboard reveal can strand
+   the document deep enough that a 100px-overshot layer's bottom edge
+   lifts above the fold — the darker band behind the chrome after the
+   first settle. The end-rest repays the recipe's sum exactly:
+   250 overshoot + 100 clearance = 350. */
+html.va-doc .va:not(.vw-desk) .cf-form.cf-screen {
+  height: calc(100lvh + env(safe-area-inset-bottom) + 250px);
+}
 html.va-doc .va:not(.vw-desk) .cf-form .cf-flow {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 74px);
-  /* the FORM alone carries 150px more end-rest than the recipe's 200:
-     Safari's keyboard dismissal clamps the scroller when the content
-     bottom sits above the fold, which read as a second movement after
-     the blur glide (Ed's device eye, Jul 17 2026 round 4) — the extra
-     slack keeps the clamp from ever engaging */
   padding-bottom: calc(350px + env(safe-area-inset-bottom));
 }
 /* the empty rack still centers in the (visual) viewport */
