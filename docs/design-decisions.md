@@ -1450,3 +1450,29 @@ lighter, rxBg == htmlBg == #181717 (single band); light mode re-sampled
 (#dddbd6 band); probe PASS all four with the reach gate (deck-mid 38.07 ·
 reading 3.73 · pour 3.92 · memory-mid 4.66); suite 7/7. Ed's device pass in
 dark is the gate that matters.
+
+## THE COUNT SHEET IS E-A — the transient bottom anchor survives the poison rule (Jul 17, 2026)
+The Cellar's count sheet ran cellar-plan §5.6's experiment: Ed's own
+construction (E-A — a strictly TRANSIENT sheet, position:fixed and
+genuinely bottom-anchored, mounted on count tap, unmounted after the
+close animation, nothing carrying `bottom:` at rest) against the
+canon-safe fallback (E-B — a top-referenced `--foot-vh` slab). The
+poison rule's convictions were all PERSISTENT anchors; the transient
+form was untested territory.
+THE PROTOCOL'S NUMBERS (sim, scraps/count-sheet-probe.py): resting rack
+band 3.05 clean → sheet up 2.22 (the sheet itself covering the band, by
+design) → 3.04 at close+0.5s → 3.05 at +1s and +2s, before/after drift
+0.0, sheet verified unmounted. Any backdrop the anchor summons hides
+behind sheet+scrim and evaporates with the unmount — the hypothesis's
+testable half held exactly.
+THE VERDICT (Ed, on device): "it feels good." E-A SHIPS. E-B stays on
+the books in §5.6 as the specified fallback, never built. The law this
+refines: the poison rule convicts PERSISTENCE, not the anchor itself —
+a strictly transient bottom-anchored surface, measured in and measured
+out, is lawful. New members still arrive only by Ed's decision and a
+band-probe verdict, per the rule.
+Rider verdicts from the same device passes: the scrim (now on desktop
+too) CANCELS — only DONE commits, so at zero it is DONE that retires
+the wine; the sheet is width-capped 450px in every mode; the handled
+sheet pulls down to dismiss (cancel semantics); foot pad 14px, not the
+canvas's 30.

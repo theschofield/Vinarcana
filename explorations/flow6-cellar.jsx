@@ -342,6 +342,40 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     setSheet({ ...s, cls: "out" });
     setTimeout(() => setSheet(null), 270);
   };
+  // PULL-TO-DISMISS (Ed, round 6: a handled sheet must swipe away): the
+  // sheet tracks the finger down (never up past rest), releases past 90px
+  // → slides out from where it is and CANCELS; short pulls snap back on
+  // the class transition. Drag engages only after 10px of vertical
+  // dominance so the stepper and DONE stay ordinary taps.
+  const sheetDrag = React.useRef(null);
+  const sheetDown = (ev) => {
+    sheetDrag.current = { y: ev.clientY, x: ev.clientX, on: false, el: ev.currentTarget };
+  };
+  const sheetMove = (ev) => {
+    const d = sheetDrag.current; if (!d) return;
+    const dy = ev.clientY - d.y, dx = ev.clientX - d.x;
+    if (!d.on) {
+      if (dy < 10 || Math.abs(dy) < Math.abs(dx) * 1.2) return;
+      d.on = true;
+      try { d.el.setPointerCapture(ev.pointerId); } catch (e) {}
+    }
+    d.dy = Math.max(0, dy);
+    d.el.style.transition = "none";
+    d.el.style.transform = "translate(-50%, " + d.dy + "px)";
+  };
+  const sheetUp = () => {
+    const d = sheetDrag.current; sheetDrag.current = null;
+    if (!d || !d.on) return;
+    if ((d.dy || 0) > 90) {
+      // out from the finger's own position, then the scrim's cancel
+      d.el.style.transition = "transform 240ms cubic-bezier(0.4, 0, 0.6, 1)";
+      d.el.style.transform = "translate(-50%, 102%)";
+      const s = sheetRef.current;
+      if (s && s.cls !== "out") { setSheet({ ...s, cls: "out" }); setTimeout(() => setSheet(null), 250); }
+    } else {
+      d.el.style.transition = ""; d.el.style.transform = "";
+    }
+  };
   const closeSheet = () => {
     const s = sheetRef.current;
     if (!s || s.cls === "out") return;   // double-close guard (Done + scrim)
@@ -739,7 +773,8 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           genuinely bottom-anchored, unmounted after the close animation.
           Nothing carries `bottom:` at rest. */}
       {sheet && sheetRec ? (
-        <div className={"cl-sheet " + sheet.cls}>
+        <div className={"cl-sheet " + sheet.cls}
+          onPointerDown={sheetDown} onPointerMove={sheetMove} onPointerUp={sheetUp} onPointerCancel={sheetUp}>
           <div className="cl-grab"></div>
           <div className="cl-sheet-name">{sheetRec.identity.wine}</div>
           <div className="cl-sheet-sub">{[sheetRec.identity.producer, sheetRec.identity.vintage, celLocLine(sheetRec)].filter(Boolean).join(" · ").toUpperCase()}</div>

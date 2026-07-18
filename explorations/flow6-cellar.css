@@ -368,6 +368,12 @@
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 44px);
 }
 
+/* the rack's head clears the live status bar in EVERY mode — browser,
+   wrapped frame, standalone/web-app (Ed, round 6: the home-screen app
+   ran the canvas's 26px and collided with the menu; same formula as the
+   doc-mode rule, so the phone look he approved holds everywhere) */
+.cf-rack .cl-head { padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px); }
+
 /* the pill row scrolls sideways on phones; its pans stay its own */
 .cl-pills { overflow-x: auto; scrollbar-width: none; touch-action: pan-x; overscroll-behavior-x: contain; }
 .cl-pills::-webkit-scrollbar { display: none; }
@@ -437,9 +443,10 @@
    PERSISTENT anchors; this is the untested territory the protocol
    measures (band probe open/close/decay + Ed's device eye). If it
    lingers a backdrop, E-B (top-referenced slab) ships instead. */
-.cl-sheet { position: fixed; bottom: 0; padding-bottom: calc(30px + env(safe-area-inset-bottom)); z-index: 7;
+.cl-sheet { position: fixed; bottom: 0; padding-bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 7;
   /* width-capped at 450px in every mode (Ed, round 2: never wider) —
-     phones ride full-width beneath the cap */
+     phones ride full-width beneath the cap. Foot pad 14px, not the
+     canvas's 30 (Ed's device eye: ~16px too much under DONE). */
   left: 50%; right: auto; width: 100%; max-width: 450px; box-sizing: border-box;
   transform: translate(-50%, 102%); transition: transform 380ms cubic-bezier(0.16, 0.72, 0.18, 1); }
 .cl-sheet.in { transform: translate(-50%, 0); }
