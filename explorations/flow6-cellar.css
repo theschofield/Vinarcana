@@ -474,8 +474,10 @@
 .cf-screen.cf-push-leave .cf-flow > *, .cf-screen.cf-push-leave .cld-wrap {
   opacity: 0; transform: translateY(28px); pointer-events: none;
   transition: opacity 300ms cubic-bezier(0.4, 0, 0.6, 1), transform 300ms cubic-bezier(0.4, 0, 0.6, 1); }
-@keyframes cfBack { from { opacity: 0; } }
-.cf-screen.cf-back { animation: cfBack 260ms ease backwards; }
+/* the return is a real entrance — rise AND fade (Ed, round 3: the
+   fade-only return read as broken) */
+@keyframes cfBack { from { opacity: 0; transform: translateY(26px); } }
+.cf-screen.cf-back { animation: cfBack 380ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; }
 
 /* bottle renders: decode-gated reveal (the deck's img law — a fresh
    <img> blanks on iOS while it decodes; cached ones appear instantly) */

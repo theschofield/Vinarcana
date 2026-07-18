@@ -136,9 +136,11 @@
    explicitly at higher specificity so neither gets clobbered. */
 .va.vw-desk.p-release .rv-screen { transform: translateX(-50%) translateY(22px); }
 
-/* ---- approach → deck / memory: the card stack sinks as it fades, matching
-   the UI below it (the top-of-deck actor gets the same move from the root) */
-.va.p-todeck .rx-deck, .va.p-tomem .rx-deck { opacity: 0; transform: translateY(14px);
+/* ---- approach → deck / memory / cellar: the card stack sinks as it fades,
+   matching the UI below it (the top-of-deck actor gets the same move from
+   the root). The cellar road missed this list when it landed — the actor
+   sank while the deck stood still (Ed's device eye, Jul 17 2026). */
+.va.p-todeck .rx-deck, .va.p-tomem .rx-deck, .va.p-tocellar .rx-deck { opacity: 0; transform: translateY(14px);
   transition: opacity var(--dUiExit, 620ms) var(--eUiExit, ease), transform var(--dUiExit, 620ms) var(--eUiExit, ease); }
 
 /* ---- the fading top-of-deck actor must not visually sit IN FRONT of the
@@ -150,7 +152,8 @@
    The rule lives on the PIN (the actor's permanent home and stacking
    context) — a z-index on the actor inside it couldn't escape it. */
 .va.p-todeck .va-actor-pin, .va.p-deck .va-actor-pin,
-.va.p-tomem .va-actor-pin, .va.p-memory .va-actor-pin { z-index: 2; }
+.va.p-tomem .va-actor-pin, .va.p-memory .va-actor-pin,
+.va.p-tocellar .va-actor-pin, .va.p-cellar .va-actor-pin { z-index: 2; }
 
 /* ---- THE RIDE's viewport anchor ----
    During deck/memory flights on a scrolled page the actor hangs from this

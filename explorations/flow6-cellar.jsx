@@ -81,10 +81,28 @@ const celScrollHome = () => { if (window.scrollY > 1) window.scrollTo(0, 0); };
 // snapped the form back down and buried the dropdown behind the chrome).
 // The document comes home only when focus LEAVES the form: blur-out,
 // dropdown close, or a push away from the screen.
+// the restore is a GLIDE, not a teleport (Ed, round 3: Safari's own
+// keyboard-dismiss settle followed by an instant scrollTo read as a
+// harsh jump). First-frame-clocked ease, the root glideScrollTop's
+// recipe; the 320ms lead lets Safari finish its own settle first.
+const celGlideHome = () => {
+  const y0 = window.scrollY;
+  if (y0 < 2) return;
+  let t0 = null;
+  const D = 260;
+  const step = (now) => {
+    if (t0 == null) t0 = now;
+    const u = Math.min(1, (now - t0) / D);
+    const e = 1 - Math.pow(1 - u, 3);
+    window.scrollTo(0, Math.round(y0 * (1 - e)));
+    if (u < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+};
 const celRestoreOnLeave = () => setTimeout(() => {
   const a = document.activeElement;
-  if (!a || a.tagName !== "INPUT") celScrollHome();
-}, 180);
+  if (!a || a.tagName !== "INPUT") celGlideHome();
+}, 320);
 const celCountLine = (wines, bottles) =>
   wines + (wines === 1 ? " wine · " : " wines · ") + bottles + (bottles === 1 ? " bottle sleeping" : " bottles sleeping");
 
@@ -220,7 +238,7 @@ function CelCombo({ k, label, full, list, value, chips, otherChips, allowOther, 
             ) : null}
             {!rows.length && !showOther ? <div className="ca2-dd-row" style={{ opacity: 0.5 }}>Nothing in the lists</div> : null}
           </div>
-          <div className="ca2-dd-note">{note || "Tap one to add it · typing alone adds nothing"}</div>
+          <div className="ca2-dd-note">{note || "Tap to select one"}</div>
         </div>
       ) : null}
     </div>
@@ -252,7 +270,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       setView(next);
       if (next.name === "rack") {
         setBackFlag(true);
-        setTimeout(() => setBackFlag(false), 340);
+        setTimeout(() => setBackFlag(false), 420);
       }
     }, 300);
   };
@@ -306,6 +324,14 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     setSheet({ id, n0: rec.count, n: rec.count, cls: "" });
     requestAnimationFrame(() => requestAnimationFrame(() =>
       setSheet((s) => s && s.id === id ? { ...s, cls: "in" } : s)));
+  };
+  // scrim tap = CANCEL (revert, commit nothing — Ed, round 3); only DONE
+  // commits. The sheet still plays its exit and unmounts (E-A contract).
+  const cancelSheet = () => {
+    const s = sheetRef.current;
+    if (!s || s.cls === "out") return;
+    setSheet({ ...s, cls: "out" });
+    setTimeout(() => setSheet(null), 270);
   };
   const closeSheet = () => {
     const s = sheetRef.current;
@@ -536,6 +562,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           </React.Fragment>
         )}
       </div>
+      {sheet ? <div className={"cl-scrim " + sheet.cls} onClick={cancelSheet}></div> : null}
     </div>
   );
 
@@ -548,7 +575,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           {entries.length === 0 ? empty : tiles}
         </div>
       </div>
-      {sheet ? <div className={"cl-scrim " + sheet.cls} onClick={closeSheet}></div> : null}
+      {sheet ? <div className={"cl-scrim " + sheet.cls} onClick={cancelSheet}></div> : null}
     </div>
   );
 
@@ -611,7 +638,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
               </div>
             </div>
           </div>
-          {sheet ? <div className={"cl-scrim " + sheet.cls} onClick={closeSheet}></div> : null}
+          {sheet ? <div className={"cl-scrim " + sheet.cls} onClick={cancelSheet}></div> : null}
         </div>
       );
     }
@@ -638,7 +665,11 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
         </div>
         <div className={"cf-scroll" + (scrolled.form ? " scrolled" : "")} onScroll={armScroll("form")}>
           <div className="cf-flow">
-            <div className="ca-formcol" onClick={() => setActiveSel(null)}>
+            <div className="ca-formcol" onClick={() => {
+              setActiveSel(null);
+              const a = document.activeElement;
+              if (a && a.tagName === "INPUT") a.blur();
+            }}>
               <div className="ca-fix-head">
                 <h2 className="ca-fix-title">{editing ? "Set it right." : "Your bottle, your words."}</h2>
               </div>
@@ -656,10 +687,10 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                   </div>
                   <CelCombo k="vintage" label="Vintage" list={vintages} value={form.vintage}
                     active={activeSel === "vintage"} onOpen={setActiveSel} onClose={() => setActiveSel(null)}
-                    onPick={pickSel("vintage")} note="Tap one to choose it · typing alone picks nothing"></CelCombo>
+                    onPick={pickSel("vintage")}></CelCombo>
                   <CelCombo k="type" label="Type" list={L.types} value={form.type}
                     active={activeSel === "type"} onOpen={setActiveSel} onClose={() => setActiveSel(null)}
-                    onPick={pickSel("type")} note="Tap one to choose it · typing alone picks nothing"></CelCombo>
+                    onPick={pickSel("type")}></CelCombo>
                   <CelCombo k="grapes" label="Grape" full list={L.grapes} chips={form.grapes} otherChips={form.otherGrapes}
                     allowOther active={activeSel === "grapes"} onOpen={setActiveSel} onClose={() => setActiveSel(null)}
                     onPick={pickSel("grapes")} onUnpick={unpickGrape}></CelCombo>
@@ -670,7 +701,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                   </div>
                   <CelCombo k="country" label="Country" list={L.countries} value={form.country}
                     active={activeSel === "country"} onOpen={setActiveSel} onClose={() => setActiveSel(null)}
-                    onPick={pickSel("country")} note="Tap one to choose it · typing alone picks nothing"></CelCombo>
+                    onPick={pickSel("country")}></CelCombo>
                 </div>
               </div>
               <div className="ca-form-ctas">

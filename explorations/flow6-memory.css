@@ -67,10 +67,12 @@
 
 /* the Pour pairing, miniaturized */
 .mf-pair { position: relative; width: 68px; height: 96px; flex: none; }
-.mf-pair .card { position: absolute; left: 0; top: 11px; height: 72px; border-radius: 4px; transform: rotate(-4deg); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.8); display: block; }
-.rx-light .mf-pair .card { box-shadow: 0 10px 22px -8px rgba(21,34,49,0.4); }
-.mf-pair .bottle { position: absolute; left: 30px; top: 0; height: 96px; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5)); display: block; }
-.rx-light .mf-pair .bottle { filter: drop-shadow(0 8px 14px rgba(21,34,49,0.28)); }
+/* shadows softened to the cellar's desk treatment (Ed's verdict,
+   Jul 17 2026 — amends the memory-final canvas values) */
+.mf-pair .card { position: absolute; left: 0; top: 11px; height: 72px; border-radius: 4px; transform: rotate(-4deg); box-shadow: 0 10px 18px -8px rgba(0,0,0,0.25); display: block; }
+.rx-light .mf-pair .card { box-shadow: 0 10px 18px -8px rgba(21,34,49,0.25); }
+.mf-pair .bottle { position: absolute; left: 30px; top: 0; height: 96px; filter: drop-shadow(0 7px 8px rgba(0,0,0,0.25)); display: block; }
+.rx-light .mf-pair .bottle { filter: drop-shadow(0 7px 8px rgba(21,34,49,0.25)); }
 
 /* text stack */
 .mf-main { flex: 1; min-width: 0; }
