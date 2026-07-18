@@ -11,8 +11,8 @@ construction:
   1. Boot a sim (iPhone 17, iOS 26) + `safaridriver -p 4444`.
   2. python3 scraps/backdrop-probe.py http://localhost:8123
 Drives the REAL page (deck mid-scroll, the reading, the pour, the
-memory ledger mid-scroll) and measures the band where it carries
-large-scale texture — the only places the tell is valid: the DECK at
+memory ledger mid-scroll, the cellar rack mid-scroll) and measures
+the band where it carries large-scale texture — the only places the tell is valid: the DECK at
 MID-scroll (raw tiles run behind the chrome; clean ≈ sd 36-44), the
 READING (veil art; clean ≈ 3.5), and the MEMORY ledger at MID-scroll
 (a seeded row's card/bottle art parked in the band; the real ledger is
@@ -69,7 +69,8 @@ def main():
     sid = s["value"]["sessionId"]
     fails = []
     try:
-        req("POST", f"/session/{sid}/url", {"url": base + "/index.html"}, timeout=30)
+        # ?va-off: probe runs hit the LIVE site — never mint cohort installs
+        req("POST", f"/session/{sid}/url", {"url": base + "/index.html?va-off"}, timeout=30)
         t0 = time.time()
         while time.time() - t0 < 60 and not ex(sid, "return !!window.__vaDrive"): time.sleep(1)
         time.sleep(2.5)
@@ -154,7 +155,49 @@ def main():
         if shot_and_measure("memory-mid") != "clean": fails.append("memory")
         if backup is None: ex(sid, "localStorage.removeItem('va-memory')")
         else: ex(sid, "localStorage.setItem('va-memory', arguments[0])", [backup])
-        print("BAND PROBE:", "FAIL — " + ", ".join(fails) if fails else "PASS (deck + reading + pour + memory clean)")
+        # THE CELLAR RACK (sprint 1 — a scroll owner on the memory recipe):
+        # seed a throwaway rack (restored below), enter from memory, gate
+        # REACH by rect arithmetic (the ledger-cutoff lesson: band stats
+        # prove no-backdrop, never reach), then park a tile's bottle art
+        # in the chrome band and measure.
+        cel_backup = ex(sid, "return localStorage.getItem('va-cellar')")
+        ex(sid, """
+          const seeds = { v: 1, wines: [] };
+          const grapes = ['Riesling', 'Nebbiolo', 'Sémillon', 'Grenache', 'Chardonnay', 'Syrah'];
+          for (let i = 0; i < 20; i++) seeds.wines.push({
+            id: 'probe-' + i, addedTs: Date.now() - i * 86400000, updatedTs: Date.now(), count: 1 + (i % 3),
+            identity: { producer: 'Probe Estate ' + i, wine: 'Probe Cuvée ' + i, vintage: String(2010 + (i % 15)), source: 'manual', matchedId: null, confidence: null },
+            facts: { color: i % 2 ? 'Red' : 'White', grapes: [grapes[i % grapes.length]], otherGrapes: [], region: 'Probe Valley', country: 'France' },
+            window: { from: '2020', to: '2030', status: 'ready', word: 'READY' },
+            tastes: null, story: null, stats: null, labelPhoto: null, pairings: [], enrichment: { status: 'pending', ts: null },
+          });
+          localStorage.setItem('va-cellar', JSON.stringify(seeds));""")
+        ex(sid, "window.__vaDrive.cellar()")
+        t0 = time.time()
+        while time.time() - t0 < 20 and ex(sid, "return window.__vaDrive.phase()") != "cellar": time.sleep(0.5)
+        time.sleep(2)
+        # THE REACH GATE: the rack's mask-free layer must overshoot the
+        # layout viewport by >=100px (stage-construction §4)
+        over_c = ex(sid, """
+          const r = document.querySelector('.cf-rack').getBoundingClientRect();
+          return Math.round(r.bottom - window.innerHeight);""")
+        print(f"cellar layer overshoot past layout viewport: {over_c}px", flush=True)
+        if over_c < 100: fails.append(f"cellar-cutoff (overshoot {over_c}px < 100)")
+        ex(sid, """
+          const s = document.querySelector('.cf-rack .cf-scroll');
+          s.scrollTop = Math.round(s.scrollHeight * 0.5);
+          // park the nearest tile's bottle art on the band center (pt 785)
+          let best = null, bd = 1e9;
+          for (const b of document.querySelectorAll('.cl2-tile .bot')) {
+            const r = b.getBoundingClientRect(); const c = r.top + r.height / 2;
+            if (Math.abs(c - 785) < bd) { bd = Math.abs(c - 785); best = c; }
+          }
+          if (best != null) s.scrollTop += Math.round(best - 785);""")
+        time.sleep(1)
+        if shot_and_measure("cellar-mid") != "clean": fails.append("cellar")
+        if cel_backup is None: ex(sid, "localStorage.removeItem('va-cellar')")
+        else: ex(sid, "localStorage.setItem('va-cellar', arguments[0])", [cel_backup])
+        print("BAND PROBE:", "FAIL — " + ", ".join(fails) if fails else "PASS (deck + reading + pour + memory + cellar clean)")
     finally:
         try: req("DELETE", f"/session/{sid}", timeout=30)
         except Exception as e: print("close:", e)

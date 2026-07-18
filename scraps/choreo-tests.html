@@ -41,6 +41,19 @@
        the ride, the ledger's own scroll holds still while its rows
        fade, and the row's mini card → actor takeover is same-frame
      · seeds a throwaway ledger and RESTORES the real va-memory after
+  T8 CELLAR RACK · scrolled rack + count sheet + exit (sprint 1)
+     · the rack scrolls in its own layer over the stage (the Memory
+       recipe, cellar-plan R1) — THE DOCUMENT NEVER MOVES while the
+       rack scrolls, while the E-A count sheet opens/closes, or
+       through the release exit from a deep-scrolled rack
+     · the sheet is strictly TRANSIENT: unmounted after close —
+       nothing carries bottom-anchoring at rest (§5.6 E-A contract)
+     · seeds a throwaway rack and RESTORES the real va-cellar after
+
+  ANALYTICS-OFF PREAMBLE: the iframe loads /index.html?va-off — the
+  suite runs against the LIVE site, and a harness run must never mint
+  a cohort install or queue events (cellar-plan §6 S1; the same
+  discipline as seed-and-restore).
 
   Machine-readable copy of the report: window.__choreoReport
 -->
@@ -55,7 +68,7 @@
 </head>
 <body>
 <div id="log">booting…</div>
-<iframe id="f" src="/index.html"></iframe>
+<iframe id="f" src="/index.html?va-off"></iframe>
 <script>
 (async () => {
   const logEl = document.getElementById("log");
@@ -416,6 +429,83 @@
   } finally {
     if (memBackup == null) W().localStorage.removeItem("va-memory");
     else W().localStorage.setItem("va-memory", memBackup);
+  }
+
+  // ---------- T8 · CELLAR RACK (scrolled rack · count sheet · exit) ----------
+  // Sprint 1 (cellar-plan §6 S1): the rack is a SCROLL OWNER on the
+  // Memory recipe — the document must hold still while the rack
+  // scrolls, while the E-A count sheet opens and closes, and through
+  // the release exit from a deep-scrolled rack. The sheet must be
+  // strictly transient (unmounted after close — the §5.6 contract).
+  say("T8 cellar rack — running…");
+  const celBackup = W().localStorage.getItem("va-cellar");
+  const celIdxBackup = W().localStorage.getItem("va-cellar-index");
+  try {
+    // seed a throwaway rack deep enough for a real scroll premise
+    const seeds = { v: 1, wines: [] };
+    const grapes = ["Riesling", "Nebbiolo", "Sémillon", "Grenache", "Chardonnay", "Syrah"];
+    for (let i = 0; i < 24; i++) {
+      seeds.wines.push({
+        id: "t8-" + i, addedTs: Date.now() - i * 86400000, updatedTs: Date.now(), count: 1 + (i % 3),
+        identity: { producer: "Suite Estate " + i, wine: "Suite Cuvée " + i, vintage: String(2010 + (i % 15)), source: "manual", matchedId: null, confidence: null },
+        facts: { color: i % 2 ? "Red" : "White", grapes: [grapes[i % grapes.length]], otherGrapes: [], region: "Suite Valley", country: "France" },
+        window: { from: "2020", to: "2030", status: "ready", word: "READY" },
+        tastes: null, story: null, stats: null, labelPhoto: null, pairings: [], enrichment: { status: "pending", ts: null },
+      });
+    }
+    W().localStorage.setItem("va-cellar", JSON.stringify(seeds));
+    W().__vaDrive.cellar();
+    if (!(await waitPhase("cellar"))) throw new Error("never reached the cellar");
+    await sleep(1400);
+    const rackEl = D().querySelector(".cf-rack .cf-scroll");
+    if (!rackEl) throw new Error("no .cf-scroll — the rack's layer scroller is missing");
+    rackEl.scrollTop = rackEl.scrollHeight;
+    await sleep(200);
+    rackEl.scrollTop = Math.round(rackEl.scrollTop * 0.6);
+    await sleep(600);
+    const c0 = Math.round(rackEl.scrollTop);
+    const cs0 = Math.round(W().scrollY);
+    const fails = [];
+    if (c0 < 400) fails.push("rack only scrolled " + c0 + "px — scrolled premise weak");
+    // open the count sheet on a visible tile's chip
+    const vh8 = W().innerHeight;
+    const chips = [...D().querySelectorAll(".cl2-tile .cl-qty")];
+    const chip = chips.find(c => { const b = c.getBoundingClientRect(); return b.top > vh8 * 0.2 && b.bottom < vh8 * 0.8; }) || chips[0];
+    if (!chip) throw new Error("no count chips in the rack");
+    tap(chip);
+    const t8a = await sample(900, () => ({
+      s: W().scrollY, c: rackEl.scrollTop,
+      sheet: !!D().querySelector(".cl-sheet"),
+    }));
+    if (!t8a.some(r => r.sheet)) fails.push("the count sheet never mounted on chip tap");
+    // adjust once (+) then close — the document must never move
+    const plus = D().querySelectorAll(".cl-sheet-row .cl-stepbtn")[1];
+    if (plus) tap(plus);
+    const done = D().querySelector(".cl-done");
+    if (done) tap(done);
+    const t8b = await sample(1200, () => ({
+      s: W().scrollY, c: rackEl.scrollTop,
+      sheet: !!D().querySelector(".cl-sheet"),
+    }));
+    if (t8b[t8b.length - 1].sheet) fails.push("the sheet is still mounted after close (E-A must be strictly transient)");
+    // release exit from the scrolled rack
+    W().__vaDrive.release();
+    const t8c = await sample(1400, () => ({ s: W().scrollY }));
+    const sMax8 = Math.max(...[...t8a, ...t8b, ...t8c].map(r => Math.abs(r.s - cs0)));
+    if (sMax8 > 2) fails.push("the DOCUMENT moved " + Math.round(sMax8) + "px (law: the rack never scrolls the document)");
+    const cRows8 = [...t8a, ...t8b].filter(r => !isNaN(r.c));
+    const cMax8 = Math.max(...cRows8.map(r => Math.abs(r.c - c0)));
+    if (cMax8 > 1) fails.push("the rack's own scroll moved " + Math.round(cMax8) + "px during the sheet");
+    if (!(await waitPhase("approach", 40))) fails.push("the release never reformed the approach");
+    book("T8 cellar rack", verdict("T8 cellar rack (rack at " + c0 + ", document still)", fails), fails);
+  } catch (e) {
+    const msg = [String((e && e.message) || e)];
+    book("T8 cellar rack", verdict("T8 cellar rack", msg), msg);
+  } finally {
+    if (celBackup == null) W().localStorage.removeItem("va-cellar");
+    else W().localStorage.setItem("va-cellar", celBackup);
+    if (celIdxBackup == null) W().localStorage.removeItem("va-cellar-index");
+    else W().localStorage.setItem("va-cellar-index", celIdxBackup);
   }
 
   say("— suite done · " + report.pass.length + " pass · " + report.fail.length + " fail" +

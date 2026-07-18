@@ -201,7 +201,7 @@ function App() {
 
   const [phase, setPhase] = React.useState("approach");
   const phaseRef = React.useRef("approach"); phaseRef.current = phase;
-  const [mounts, setMounts] = React.useState({ approach: true, reading: false, reveal: false, deck: false, memory: false });
+  const [mounts, setMounts] = React.useState({ approach: true, reading: false, reveal: false, deck: false, memory: false, cellar: false });
   // Memory → Pour re-entry: which ledger row the actor took over, and which
   // wine's pane the Reveal should open on (multi-pour lenses)
   const [memPicked, setMemPicked] = React.useState(null);
@@ -904,7 +904,7 @@ function App() {
       // glide insurance only — a teleport here blanks the tree (scroll law)
       if (window.scrollY > 1) window.scrollTo(0, 0);
       setReleasing(false);
-      setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: false }));
+      setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: false, cellar: false }));
       setVoiceOn(false); setVeilOn(false); setLensesOn(false);
       setEchoOn(false); setPourOn(false); setGlowOn(false); setBottleOn(false); setHandoffOn(false);
       setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
@@ -979,7 +979,7 @@ function App() {
         // glide insurance only (teleports blank the tree — scroll law)
         if (window.scrollY > 1) window.scrollTo(0, 0);
         setReleasing(false);
-        setMounts((m) => ({ ...m, reading: false, reveal: false, memory: false, deck: true }));
+        setMounts((m) => ({ ...m, reading: false, reveal: false, memory: false, cellar: false, deck: true }));
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
         setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
@@ -1154,7 +1154,7 @@ function App() {
         // glide insurance only (teleports blank the tree — scroll law)
         if (window.scrollY > 1) window.scrollTo(0, 0);
         setReleasing(false);
-        setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: true }));
+        setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, cellar: false, memory: true }));
         setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
         setGlowOn(false); setBottleOn(false); setHandoffOn(false);
         setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
@@ -1163,6 +1163,55 @@ function App() {
         setActor((a) => a && ({ ...a, o: 0, dur: 0, instant: true }));
         setEyeb(null);
         setPhase("memory");
+      } });
+      clock.run(ev, TL.release.d + 40, ffRef, () => { ffRef.current = 1; setFF(false); });
+    }
+  };
+
+  // ---------- THE CELLAR ----------
+  // Enter from the status bar on any stage — the same two roads as THE
+  // DECK and MEMORY: from the Approach the UI fades on its exit curve;
+  // from anywhere deeper it's the house Release sink, landing on the
+  // rack. No actor is involved (S1 has no cellar → Pour ride).
+  const toCellar = () => {
+    const p = phaseRef.current;
+    if (p === "cellar" || p === "tocellar") return;
+    // shipped return glide — hides inside the whole-screen release sink
+    glideScrollTop();
+    clock.cancel();
+    vaTrack("cellar_viewed");
+    if (p === "approach" || p === "reform" || p === "pull") {
+      setReleasing(false);
+      const dur = tRef.current.dUiExit;
+      const ev = [];
+      ev.push({ t: 0, run: () => { setPhase("tocellar");
+        setActor((a) => a && ({ ...a, o: 0, top: a.top + 14, dur: dv(dur), oDur: dv(dur), ease: E("easeUiExit"), instant: false }));
+      } });
+      ev.push({ t: Math.max(0, dur - 150), run: () => {
+        setMounts((m) => ({ ...m, cellar: true }));
+        setPhase("cellar");
+      } });
+      clock.run(ev, dur + 40, ffRef, () => { if (phaseRef.current === "tocellar") { setMounts((m) => ({ ...m, cellar: true })); setPhase("cellar"); } });
+    } else {
+      const TL = tRef.current.tlReturn;
+      const ev = [];
+      ev.push({ t: 0, run: () => { setPhase("release"); setReleasing(true); setVeilOn(false); setGlowOn(false);
+        setActor((a) => a && ({ ...a, o: 0, top: a.top + 36, dur: dv(TL.release.d), oDur: dv(TL.release.d), ease: E("easeRelease"), instant: false }));
+        setEyeb((e) => e && ({ ...e, o: 0, dur: dv(TL.release.d), oDur: dv(TL.release.d), instant: false }));
+      } });
+      ev.push({ t: TL.release.d, run: () => {
+        // glide insurance only (teleports blank the tree — scroll law)
+        if (window.scrollY > 1) window.scrollTo(0, 0);
+        setReleasing(false);
+        setMounts((m) => ({ ...m, reading: false, reveal: false, deck: false, memory: false, cellar: true }));
+        setVoiceOn(false); setLensesOn(false); setEchoOn(false); setPourOn(false);
+        setGlowOn(false); setBottleOn(false); setHandoffOn(false);
+        setCard(null); setLens(null); setPicked(null); setWhisper(""); setWhispered(false);
+        setMemPicked(null); setPourWine(null); setDeeper(null);
+        // same as toDeck: hidden, never unmounted (iOS img-remount flash)
+        setActor((a) => a && ({ ...a, o: 0, dur: 0, instant: true }));
+        setEyeb(null);
+        setPhase("cellar");
       } });
       clock.run(ev, TL.release.d + 40, ffRef, () => { ffRef.current = 1; setFF(false); });
     }
@@ -1281,7 +1330,7 @@ function App() {
     if (window.scrollY) window.scrollTo(0, 0);
     clock.cancel();
     setReleasing(false);
-    setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false, deck: false, memory: false });
+    setPhase("approach"); setMounts({ approach: true, reading: false, reveal: false, deck: false, memory: false, cellar: false });
     setLens(null); setPicked(null); setEyeb(null); setCard(id);
     setMemPicked(null); setPourWine(null); setDeeper(null);
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -1301,6 +1350,7 @@ function App() {
     deckDraw: (id, r) => runDeckDraw(id, r),
     memory: () => toMemory(),
     memoryOpen: (entry, r) => openMemoryPour(entry, r),
+    cellar: () => toCellar(),
     deeper: (src) => openDeeper(src || "read"),
     hurry, phase: () => phaseRef.current,
   };
@@ -1310,7 +1360,7 @@ function App() {
     phase,
     canDraw: phase === "approach",
     approachUiIn: phase === "approach" || phase === "reform",
-    approachShown: ["approach", "pull", "lift", "drop", "reform", "todeck", "tomem"].includes(phase),
+    approachShown: ["approach", "pull", "lift", "drop", "reform", "todeck", "tomem", "tocellar"].includes(phase),
     deckIn: ["approach", "pull", "lift", "reform"].includes(phase),
     veilIn: veilOn,
     voiceIn: voiceOn,
@@ -1412,7 +1462,8 @@ function App() {
           {F.echoIn || phase === "release" ? <div className={"rv-glow" + (F.glowIn ? " on" : "")}></div> : null}
           <div className="va-status-pin"><StatusBar6 light={light} onHome={home} onDeck={toDeck} onToast={showToast}
             deckOn={["todeck", "deck", "deckfly"].includes(phase)}
-            onMemory={toMemory} memOn={["tomem", "memory", "memfly"].includes(phase)}></StatusBar6></div>
+            onMemory={toMemory} memOn={["tomem", "memory", "memfly"].includes(phase)}
+            onCellar={toCellar} cellarOn={["tocellar", "cellar"].includes(phase)}></StatusBar6></div>
           {/* THE ACTOR'S ONE HOME: a zero-height sticky pin (the status-pin
               recipe), DOM-early so sticky can pin. Its origin is the
               viewport in doc mode and the .va box everywhere else — equal to
@@ -1456,6 +1507,9 @@ function App() {
           {mounts.memory ? (
             <MemoryScreen light={light} leaving={["memfly", "choose", "slide"].includes(phase)} pickedId={memPicked}
               onOpen={openMemoryPour} onDraw={() => release(null, false)}></MemoryScreen>
+          ) : null}
+          {mounts.cellar ? (
+            <CellarScreen light={light} desktop={desktop} leaving={phase === "release"} onToast={showToast}></CellarScreen>
           ) : null}
           {phase === "reading" && card && !deeper && window.GUIDES && GUIDES[card] ? (
             <DeeperAffordance key={card} hintArm={!hintDoneRef.current}

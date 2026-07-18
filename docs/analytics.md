@@ -85,10 +85,11 @@ for accounts (cellar-plan §3.4).
 | `pour_viewed` | phase arrives at `reveal` (any road) | `origin` (draw·deck·memory), `card`, `lens` |
 | `ritual_complete` | draw road reaches the pour (once per draw; replays count as new draws) | `card`, `lens`, `whisper` (Idea 2's flagship modality — its adoption reads off this flag) |
 | `memory_saved` | a keep writes the journal (migration/no-op re-keeps excluded) | `card`, `lens`, `wine` |
-| `deck_viewed` / `memory_viewed` | entering those screens | — |
+| `deck_viewed` / `memory_viewed` / `cellar_viewed` | entering those screens (`cellar_viewed` wired S1, Jul 17 2026 — the deck/memory precedent; NOT an affinity signal, adds are) | — |
 | `deeper_opened` | Deeper Reading opens | `src` (read·pour), `card` |
 | `affinity_set` | the tag changes | `tag` |
-| `cellar_added` | **reserved, not wired** — the Cellar sprint (manual form add AND photo capture) MUST call `VAAnalytics.track("cellar_added", { wine, method })` | `wine`, `method` (form·photo) |
+| `cellar_added` | **WIRED (S1, Jul 17 2026)** — fires at the manual-add commit (flow6-cellar.jsx, vaTrack-guarded); the photo road adds `method: "photo"` in S2 | `wine`, `method` (form·photo) |
+| `cellar_count` | **wired S1** — count-sheet stepper confirm (net change only); `sheet` stamps which construction served it (cellar-plan §5.6 experiment) | `delta`, `zero`, `sheet` (E-A·E-B) |
 | `buy_tapped` | **reserved, not wired** — the Idea-4 buy button MUST call `VAAnalytics.track("buy_tapped", { wine, card, lens })`; with `pour_viewed` it completes the wine-conversion funnel the business plan calls THE open question (business-ideas-ledger, Phase 2) | `wine`, `card`, `lens` |
 
 Every event also carries: `install`, `session`, `ts`, `tzm`, `affinity`,
@@ -110,7 +111,9 @@ business-ideas-ledger Phase 2, resolved behaviorally. Only the optional
 behaviors discriminate:
 
 - wine signals: `memory_saved`, `cellar_added`, `pour_viewed` with
-  `origin: "memory"` (re-opening a kept pour)
+  `origin: "memory"` (re-opening a kept pour) — `cellar_viewed` and
+  `cellar_count` deliberately do NOT count (browsing isn't the signal;
+  adding is)
 - tarot signals: `deeper_opened`, `deck_viewed`
 
 A side wins at ≥2 signals; ties keep the earlier tag (else wine — the

@@ -115,7 +115,7 @@ html.va-doc .va:not(.vw-desk) .rx {
 html.va-doc .va:not(.vw-desk) .va-layer,
 html.va-doc .va:not(.vw-desk) .va-smoke-fx,
 html.va-doc .va:not(.vw-desk) .va-ff-catch { height: 100dvh; bottom: auto; }
-html.va-doc .va:not(.vw-desk) .va-layer:not(.dk-screen):not(.rv-screen):not(.mf-screen),
+html.va-doc .va:not(.vw-desk) .va-layer:not(.dk-screen):not(.rv-screen):not(.mf-screen):not(.cf-screen),
 html.va-doc .va:not(.vw-desk) .rx-status { touch-action: none; }
 
 /* DEAD END — never resurrect: THE STAGE PIN (a zero-height sticky pin
@@ -263,6 +263,79 @@ html.va-doc .va:not(.vw-desk) .mf-list {
 }
 /* empty state still centers in the (visual) viewport */
 html.va-doc .va:not(.vw-desk) .mf-empty {
+  flex: none; min-height: calc(100svh - max(24px, env(safe-area-inset-top)) - 160px);
+}
+
+/* ---- THE CELLAR: rack / detail / form layers ON the stage (sprint 1,
+   Jul 17 2026 — stage-construction §5 followed verbatim; R1/D1: the
+   Memory ledger's recipe). Every .cf-screen is a SCROLL OWNER: its
+   .cf-scroll owns the pans (the layer is exempted from the pan-block
+   list above), overscroll containment + the ≥1px ballast keep every
+   pan out of the document, and THE DOCUMENT NEVER MOVES. The layers
+   are sized like the deck's/ledger's — mask-free bottoms REQUIRE the
+   100px overshoot past the physical screen (the ledger-cutoff lesson;
+   the probe's cellar step gates reach by rect arithmetic). D5: the
+   rack's head + pills live INSIDE the scroller and scroll away; the
+   detail/form nav stays fixed above its scroller (the Pour's pattern)
+   and eats pans itself (membership rule). */
+html.va-doc .va:not(.vw-desk) .cf-screen {
+  height: calc(100lvh + env(safe-area-inset-bottom) + 100px);
+}
+html.va-doc .va:not(.vw-desk) .cf-scroll {
+  display: block; position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  /* the scroll-armed top fade, viewport edition: these scrollers' top
+     edge IS the viewport top, so the fade spans the menu band (the
+     ledger's exact recipe). NO bottom fade on an edge-to-edge scroller. */
+  --vaTopFade: 0px;
+  transition: --vaTopFade 280ms ease;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0px, #000 var(--vaTopFade), #000 100%);
+}
+html.va-doc .va:not(.vw-desk) .cf-scroll.scrolled {
+  --vaTopFade: calc(max(24px, env(safe-area-inset-top)) + 72px);
+}
+html.va-doc .va:not(.vw-desk) .cf-scroll::-webkit-scrollbar { display: none; }
+/* THE BALLAST + end-of-scroll rest: ≥1px of real scroll from any
+   content height, and the padding repays the 100px overshoot PLUS
+   ~100px of clearance (the deck's exact recipe) */
+html.va-doc .va:not(.vw-desk) .cf-flow {
+  display: block; box-sizing: border-box;
+  min-height: calc(100% + 1px);
+  padding-bottom: calc(200px + env(safe-area-inset-bottom));
+}
+/* rack: head + pills scroll away inside the layer's scroller (D5) */
+html.va-doc .va:not(.vw-desk) .cf-rack .cl-head {
+  padding-top: calc(max(24px, env(safe-area-inset-top)) + 52px);
+}
+/* the inner canvas scroll regions give up their own scroll + mask to
+   the layer's scroller (the mf-list conversion, verbatim) */
+html.va-doc .va:not(.vw-desk) .cf-screen .cl2-list,
+html.va-doc .va:not(.vw-desk) .cf-screen .cd-scroll,
+html.va-doc .va:not(.vw-desk) .cf-screen .ca-formcol {
+  display: block; flex: none; height: auto; min-height: 0; overflow: visible;
+  -webkit-mask-image: none; mask-image: none;
+}
+/* detail/form: the circled nav hangs fixed above the scroller — small
+   content, absolute in the layer, pan-eating (never bottom-anchored) */
+html.va-doc .va:not(.vw-desk) .cf-detail .cl2-nav,
+html.va-doc .va:not(.vw-desk) .cf-form .cl2-nav {
+  position: absolute; left: 0; right: 0; z-index: 6;
+  top: calc(max(24px, env(safe-area-inset-top)) + 44px);
+  padding-top: 0;
+}
+/* content clears the nav: nav top + 28px circle + a breath */
+html.va-doc .va:not(.vw-desk) .cf-detail .cf-flow {
+  padding-top: calc(max(24px, env(safe-area-inset-top)) + 78px);
+}
+html.va-doc .va:not(.vw-desk) .cf-form .cf-flow {
+  padding-top: calc(max(24px, env(safe-area-inset-top)) + 74px);
+}
+/* the empty rack still centers in the (visual) viewport */
+html.va-doc .va:not(.vw-desk) .cl-empty {
   flex: none; min-height: calc(100svh - max(24px, env(safe-area-inset-top)) - 160px);
 }
 

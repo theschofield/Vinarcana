@@ -91,8 +91,8 @@ function DeckGrid({ F, drawingId, pickedId, onPick }) {
   );
 }
 
-// ---------- persistent chrome, v6: + DECK + MEMORY ----------
-function StatusBar6({ light, onHome, onDeck, deckOn, onMemory, memOn, onToast }) {
+// ---------- persistent chrome, v6: + DECK + MEMORY + CELLAR ----------
+function StatusBar6({ light, onHome, onDeck, deckOn, onMemory, memOn, onCellar, cellarOn, onToast }) {
   const dim = light ? "rgba(21,34,49,0.62)" : "rgba(239,236,228,0.7)";
   return (
     <div className="rx-status">
@@ -100,7 +100,7 @@ function StatusBar6({ light, onHome, onDeck, deckOn, onMemory, memOn, onToast })
       <div className="links">
         <div className={"rx-mono dk-link" + (deckOn ? " on" : "")} style={{ fontSize: "9px" }} onClick={onDeck}>DECK</div>
         <div className={"rx-mono dk-link" + (memOn ? " on" : "")} style={{ fontSize: "9px" }} onClick={onMemory}>MEMORY</div>
-        <div className="rx-mono" style={{ fontSize: "9px" }} onClick={() => onToast("CELLAR · STILL IN THE CASK")}>CELLAR</div>
+        <div className={"rx-mono dk-link" + (cellarOn ? " on" : "")} style={{ fontSize: "9px" }} onClick={onCellar}>CELLAR</div>
       </div>
     </div>
   );

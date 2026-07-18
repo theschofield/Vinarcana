@@ -175,8 +175,13 @@ The z-stack, bottom to top:
   (from a scrolled PANE — the document never moves), memory ride (from
   a scrolled LEDGER — the document never moves, the ledger's own
   scroll holds still, same-frame takeover on the row's mini card;
-  seeds a throwaway ledger and restores the real va-memory). Seven
-  tests, must be 7/7.
+  seeds a throwaway ledger and restores the real va-memory), cellar
+  rack (S1, Jul 17 2026 — from a scrolled RACK the document never
+  moves through scroll, the E-A count sheet's open/close, or the
+  release exit; the sheet must unmount after close; seeds and
+  restores va-cellar). Eight tests, must be 8/8. The harness loads
+  the app with `?va-off` — live-site runs must never mint cohort
+  installs (docs/analytics.md).
 - **Recorded video or it didn't happen.** Anything touching scroll,
   compositing, or the pinned set gets a safaridriver run on the REAL page
   (no iframe — the iframe hides document-scroll rasterization behavior),
@@ -290,6 +295,22 @@ Scroll law 3(b)'s frame-walk is **permanent**, not interim: Ed chose the
 canvas's persistent-actor construction for Deck → Lenses over the
 origin-adoption proposal (choreography-grammar.md, Decision). 3(c) remains
 on the books as a lawful pattern but has no current application.
+
+## ADDENDUM · Jul 17, 2026 (the Cellar composes by the recipe)
+
+Sprint 1's three cellar screens — rack, detail, manual form — are the
+§5 recipe's first from-scratch application: every one a SCROLL OWNER
+(`.cf-screen` layers, `100lvh + safe + 100px`, `.cf-scroll` absolute
+inset-0 / pan-y / contained / 1px-ballasted `.cf-flow`, end rest
+`200px + safe`, menu-band top fade, mask-free bottom), all three
+carried by ONE `.cf-screen` entry on the docflow pan-block `:not()`
+list. Fixed furniture above a scroller (the detail/form circled nav,
+the count-sheet scrim and sheet) carries `touch-action: none` itself —
+the membership rule's self-carry clause. The suite's T8 and the
+probe's cellar step (reach-gated) enforce it; the §5.6 count-sheet
+EXPERIMENT (a strictly transient bottom-anchored sheet) is measured,
+not assumed — sim shows full decay on unmount (band 3.05 → 2.22 sheet
+up → 3.05 within 0.5s of close); Ed's device eye decides.
 
 ## ADDENDUM · Jul 14, 2026 (the ledger leaves the document)
 
