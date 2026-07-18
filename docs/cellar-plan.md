@@ -35,7 +35,7 @@ Hard product laws (non-negotiable, from the brief; restated so no hand loses the
 | D10 | Jul 15 | C9 + meta: every sprint ships an ED REVIEW SCRIPT (exact steps to trigger what needs his eye); the plan stays meticulous, hands-off-able, and re-questions its own assumptions (§8). |
 | D11 | Jul 15 | OQ4 correction adopted: NOTHING is generated before the user confirms identity. The match sheet shows database-known facts only (or cached enrichment once the shared DB exists). Generation runs post-confirm. |
 | D12 | Jul 15 | Framework evolution is a design requirement: Ed will add/remove/re-sentiment lenses while real users hold live cellars and journals. §3.6 designs for it (stable lens ids, framework versioning, diff-scoped re-maps, fail-safe index, preview-branch testing, lens telemetry); the F-track carries the work. |
-| D13 | Jul 17 | **Analytics substrate adopted** (shipped separately — canon: docs/analytics.md; read it before any telemetry work). ONE-CHANNEL LAW: every measurement in this plan rides `VAAnalytics.track()` → `api/track` → `va_events` — no parallel loggers, ever; events carry install/session/affinity so every metric joins to segments. Sequencing absorbed: the Supabase project exists NOW (analytics go-live, Ed's ~10-min checklist, gate ≈ Jul 23 before the friends cohort) — S6 REUSES that project (`va_events` is its first table) and its old "create Supabase" task shrinks to schema + auth. §5.8 rewired; per-sprint event wiring in §6; laws in §8.12. |
+| D13 | Jul 17 | **Analytics substrate adopted** (shipped separately — canon: docs/analytics.md; read it before any telemetry work). ONE-CHANNEL LAW: every measurement in this plan rides `VAAnalytics.track()` → `api/track` → `va_events` — no parallel loggers, ever; events carry install/session/affinity so every metric joins to segments. Sequencing absorbed: the Supabase project exists NOW — S6 REUSES that project (`va_events` is its first table) and its old "create Supabase" task shrinks to schema + auth. §5.8 rewired; per-sprint event wiring in §6; laws in §8.12. **DONE Jul 17:** project `vin-arcana-base` live end-to-end, created via the Vercel MARKETPLACE integration — env vars auto-injected under Vercel's names (api/track already speaks them; no hand-set keys anywhere), the Jul 23 gate is cleared, and Ed's devices are `?va-off`. |
 
 ---
 
@@ -518,7 +518,9 @@ Verification: suite T8 (scrolled rack ride — THE DOCUMENT NEVER MOVES; store s
 restored) · probe cellar step (tiles in the band + reach gate ≥100px) · count-sheet
 experiment measurements (band-probe numbers — dev-side evidence, NOT analytics events; the
 two must never be conflated) · sim keyboard pass · a `cellar_added` row visible in
-va_events (dev-marked).
+va_events (dev-marked) · the suite harness gains an analytics-off preamble (sets
+`va-an-off` before driving — harness runs against the LIVE site must never mint cohort
+installs; same discipline as seed-and-restore).
 **Ed review script:** phone, live deploy → CELLAR from Approach (watch the road) → add 3
 wines via form, one a blend (chips) and one with an "other" grape → filter RED + READY NOW
 → tap a count, sit 10s watching the bottom chrome, +1, confirm, watch the slide-under →
@@ -638,8 +640,9 @@ appear on the other → sign out → local still works → fresh anonymous devic
 already-cached wine → rich match sheet appears INSTANTLY (the cache, visible).
 
 Dependencies: S2 needs D-series verdicts (done) + LWIN download; S4 needs S3 records; S6
-needs a Supabase account (Ed creates, ~10 min, free) + Google Cloud OAuth consent app
-(Ed's Google account, free; I script the clicks when we get there).
+needs only the Google Cloud OAuth consent app (Ed's Google account, free; I script the
+clicks when we get there) — the Supabase side is DONE (D13: `vin-arcana-base` live via the
+Vercel marketplace integration, env vars auto-injected).
 
 ---
 
@@ -654,8 +657,9 @@ needs a Supabase account (Ed creates, ~10 min, free) + Google Cloud OAuth consen
 | Lint fallback rate high | one retry w/ report; fallback is safe by design; log + batch review | tune prompt, never loosen lint |
 | Open endpoint abuse | origin allowlist + per-IP bucket + daily budget cap | `CELLAR_PIPELINE_DISABLED=1` → manual-only app |
 | Vercel Hobby ToS (commercial) | budget Pro from the moment money is real (§4.1) | $20/mo, not a risk — a line item |
-| ~~Supabase free-tier pause (7d idle)~~ RETIRED by D13 | cohort event traffic keeps the project warm from Jul 23 on; Pro before real scale | $25/mo |
-| Analytics gate slips past ~Jul 23 (env vars unset when the cohort starts) | client outboxes hold up to 600 events and flush retroactively with original timestamps — data survives DAYS of slippage; only Safari-data-clearing loses it | Ed's 10-min go-live checklist (analytics.md) is the whole fix |
+| ~~Supabase free-tier pause (7d idle)~~ RETIRED by D13 | cohort event traffic keeps `vin-arcana-base` warm; Pro before real scale | $25/mo |
+| ~~Analytics gate slips past ~Jul 23~~ CLEARED Jul 17 | sink live end-to-end (marketplace integration, auto-injected env vars) | — |
+| Harness traffic pollutes cohort data (suite/probe run against the LIVE site with fresh install ids) | the suite harness arms the analytics off-flag (`va-an-off`) in its setup before driving — same discipline as seed-and-restore; golden-set runs self-mark `dev` | analysis always filters `not dev` (§8.12) as the backstop |
 | Sync conflicts corrupt counts | LWW v1 + conflict drill in S6; counts are user-correctable in one tap | worst case a count is off by one and the user fixes it — never data loss of a record |
 | Pairing soft-secrecy (owned wines' pairings readable client-side) | system-wide mapping never leaves the server; per-wine results are the same exposure as today | accepted; revisit only if it ever matters commercially |
 | Model/pricing drift | per-stage model env config; golden set re-run on change | pin previous model; batch re-runs at 50% |
