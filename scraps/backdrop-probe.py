@@ -11,7 +11,9 @@ construction:
   1. Boot a sim (iPhone 17, iOS 26) + `safaridriver -p 4444`.
   2. python3 scraps/backdrop-probe.py http://localhost:8123
 Drives the REAL page (deck mid-scroll, the reading, the pour, the
-memory ledger mid-scroll, the cellar rack mid-scroll) and measures
+memory ledger mid-scroll, the cellar rack mid-scroll, the S2 match
+screen + decision bar — reach/fixed/anchor gated by rect arithmetic,
+its band read against the bare-field ~3.0 calibration) and measures
 the band where it carries large-scale texture — the only places the tell is valid: the DECK at
 MID-scroll (raw tiles run behind the chrome; clean ≈ sd 36-44), the
 READING (veil art; clean ≈ 3.5), and the MEMORY ledger at MID-scroll
@@ -195,9 +197,58 @@ def main():
           if (best != null) s.scrollTop += Math.round(best - 785);""")
         time.sleep(1)
         if shot_and_measure("cellar-mid") != "clean": fails.append("cellar")
+        # THE MATCH SCREEN + DECISION BAR (sprint 2 — R2's cheap insurance
+        # on a new host layer): mockFlow seeds a canned read (no pipeline).
+        # The bar is the Pour foot-pin construction reused — assert the
+        # geometry directly (rect arithmetic, the ledger-cutoff lesson):
+        # layer overshoot >=100, NOTHING position:fixed on the screen, the
+        # bar absolute + top-referenced (never bottom-anchored), resting
+        # inside the viewport. Then measure the band (bare field + grain
+        # reads ~3.0 clean; the backdrop's flat fill would read ~2.0).
+        ex(sid, "window.__vaCellar.mockFlow('match')")
+        time.sleep(2)
+        over_m = ex(sid, """
+          const el = document.querySelector('.cf-match');
+          if (!el) return -1;
+          return Math.round(el.getBoundingClientRect().bottom - window.innerHeight);""")
+        print(f"match layer overshoot past layout viewport: {over_m}px", flush=True)
+        if over_m < 100: fails.append(f"match-cutoff (overshoot {over_m}px < 100)")
+        bar_audit = ex(sid, """
+          const out = { fixed: [], bar: null };
+          const scr = document.querySelector('.cf-match');
+          if (!scr) return out;
+          for (const el of scr.querySelectorAll('*')) {
+            if (getComputedStyle(el).position === 'fixed')
+              out.fixed.push(String(el.className).split(' ')[0] || el.tagName);
+          }
+          const pin = scr.querySelector('.ca-barpin');
+          if (pin) {
+            const r = pin.getBoundingClientRect();
+            const vv = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            out.bar = { pos: getComputedStyle(pin).position, top: Math.round(r.top),
+                        want: Math.round(vv - 68), vh: window.innerHeight };
+          }
+          return out;""")
+        print(f"match bar audit: {bar_audit}", flush=True)
+        if bar_audit.get("fixed"): fails.append("match-fixed (" + ",".join(bar_audit["fixed"][:3]) + ")")
+        b = bar_audit.get("bar")
+        if not b: fails.append("match-bar-missing")
+        else:
+            if b["pos"] != "absolute": fails.append(f"match-bar-position ({b['pos']})")
+            # R2's geometry, asserted directly: the pin tops at the live
+            # VisualViewport height minus the Pour's as-built 68
+            if abs(b["top"] - b["want"]) > 2: fails.append(f"match-bar-geometry (top {b['top']} want {b['want']})")
+        # the match band itself is FLAT-ON-FLAT by design (short sparse
+        # content never reaches the chrome; the band shows the bare field)
+        # — like the Approach, its paint stats are device-only evidence
+        # (stage-construction §4). Recorded, not gated; the gated checks
+        # for this step are reach + no-fixed + the bar's exact geometry.
+        subprocess.run(["xcrun", "simctl", "io", UDID, "screenshot", "band-match-bar.png"], capture_output=True)
+        m_sd, m_step, _ = measure("band-match-bar.png")
+        print(f"match-bar band (informational — flat-on-flat, device-only): stddev {m_sd}, edge step {m_step}", flush=True)
         if cel_backup is None: ex(sid, "localStorage.removeItem('va-cellar')")
         else: ex(sid, "localStorage.setItem('va-cellar', arguments[0])", [cel_backup])
-        print("BAND PROBE:", "FAIL — " + ", ".join(fails) if fails else "PASS (deck + reading + pour + memory + cellar clean)")
+        print("BAND PROBE:", "FAIL — " + ", ".join(fails) if fails else "PASS (deck + reading + pour + memory + cellar + match clean)")
     finally:
         try: req("DELETE", f"/session/{sid}", timeout=30)
         except Exception as e: print("close:", e)

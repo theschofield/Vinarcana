@@ -76,6 +76,36 @@ for accounts (cellar-plan §3.4).
    re-arms) so the cohort data stays clean. Localhost traffic self-marks
    `dev = true` instead.
 
+## S2 addendum — the quota table (Ed, ~2 min, SQL editor)
+
+The cellar pipeline functions meter PER-INSTALL (cellar-plan §8.13: the
+quota seam is tomorrow's entitlement meter). Durable counting rides one
+atomic RPC in the SAME Supabase project; until this runs, the functions
+fall back to a weaker per-instance in-memory bucket (nothing blocks, the
+origin allowlist still stands).
+
+```sql
+create table va_quota (
+  qkey         text primary key,   -- "i:<install>" | "ip:<ip>" | "day:<date>" | "r:<ip>"
+  n            int not null default 0,
+  window_start bigint not null
+);
+alter table va_quota enable row level security;  -- no policies: service key only
+
+create or replace function va_quota_bump(qkey text, window_ms bigint, cap int)
+returns boolean language plpgsql security definer as $$
+declare now_ms bigint := (extract(epoch from now()) * 1000)::bigint;
+        cur int;
+begin
+  insert into va_quota as q (qkey, n, window_start) values (qkey, 1, now_ms)
+  on conflict (qkey) do update set
+    n = case when now_ms - q.window_start > window_ms then 1 else q.n + 1 end,
+    window_start = case when now_ms - q.window_start > window_ms then now_ms else q.window_start end
+  returning n into cur;
+  return cur <= cap;
+end $$;
+```
+
 ## Events
 
 | event | fired | props |
@@ -90,6 +120,7 @@ for accounts (cellar-plan §3.4).
 | `affinity_set` | the tag changes | `tag` |
 | `cellar_added` | **WIRED (S1, Jul 17 2026)** — fires at the manual-add commit (flow6-cellar.jsx, vaTrack-guarded); the photo road adds `method: "photo"` in S2 | `wine`, `method` (form·photo) |
 | `cellar_count` | **wired S1** — count-sheet stepper confirm (net change only); `sheet` stamps which construction served it (cellar-plan §5.6 experiment) | `delta`, `zero`, `sheet` (E-A·E-B) |
+| `cellar_identify` | **WIRED (S2, Jul 19 2026)** — ONE event per photo-identify attempt (cellar-plan §5.8); floats + enums ONLY — the props-hygiene law keeps `rawReading` and guessed names out of props forever | `conf` (extract 0–1), `match` (top resolve score), `route` (sheet·correction·manual·none), `outcome` (added·duplicate·corrected·manual·abandoned·retaken·error·offline·disabled·quota) |
 | `buy_tapped` | **reserved, not wired** — the Idea-4 buy button MUST call `VAAnalytics.track("buy_tapped", { wine, card, lens })`; with `pour_viewed` it completes the wine-conversion funnel the business plan calls THE open question (business-ideas-ledger, Phase 2) | `wine`, `card`, `lens` |
 
 Every event also carries: `install`, `session`, `ts`, `tzm`, `affinity`,

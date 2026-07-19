@@ -49,6 +49,15 @@
      · the sheet is strictly TRANSIENT: unmounted after close —
        nothing carries bottom-anchoring at rest (§5.6 E-A contract)
      · seeds a throwaway rack and RESTORES the real va-cellar after
+  T9 CELLAR IDENTIFY+MATCH · the photo road's screens (sprint 2)
+     · identify is a plain STAGE — the full pan-membership audit runs
+       on it (every touchable point resolves touch-action: none)
+     · match/correction are SCROLL OWNERS; the R2 decision bar and the
+       nav eat pans themselves (membership rule, self-carry clause);
+       the match scroller keeps ≥1px of real scroll (ballast law)
+     · THE DOCUMENT NEVER MOVES through mock identify → match →
+       correction → abandon (mockFlow drives a canned Vat 1 read —
+       the pipeline is never touched: no cost, no quota, no events)
 
   ANALYTICS-OFF PREAMBLE: the iframe loads /index.html?va-off — the
   suite runs against the LIVE site, and a harness run must never mint
@@ -506,6 +515,80 @@
     else W().localStorage.setItem("va-cellar", celBackup);
     if (celIdxBackup == null) W().localStorage.removeItem("va-cellar-index");
     else W().localStorage.setItem("va-cellar-index", celIdxBackup);
+  }
+
+  // ---------- T9 · CELLAR IDENTIFY + MATCH (sprint 2) ----------
+  // The photo road's screens on the recipe: identify is a plain STAGE
+  // (every touchable point pan-blocked — the membership rule), match and
+  // correction are SCROLL OWNERS (.cf-screen family) whose decision
+  // bar/nav eat pans themselves (the self-carry clause). THE DOCUMENT
+  // NEVER MOVES through the whole mocked flow. mockFlow() seeds a canned
+  // Vat 1 read — the pipeline is never touched (no cost, no events).
+  say("T9 cellar identify+match — running…");
+  try {
+    W().__vaDrive.cellar();
+    if (!(await waitPhase("cellar"))) throw new Error("never reached the cellar");
+    await sleep(1200);
+    if (!W().__vaCellar || !W().__vaCellar.mockFlow) throw new Error("no __vaCellar.mockFlow drive hook");
+    const fails = [];
+    const s9 = Math.round(W().scrollY);
+    const blocked9 = (el) => { let n = el;
+      while (n && n !== D().documentElement) { if (W().getComputedStyle(n).touchAction === "none") return true; n = n.parentElement; }
+      return false; };
+
+    // identify: a STAGE — the full pan-membership audit
+    W().__vaCellar.mockFlow("identify");
+    await sleep(900);
+    if (W().__vaCellar.view() !== "identify") fails.push("identify never mounted");
+    else {
+      const stage = D().querySelector(".ca-idstage");
+      const offenders = new Set();
+      for (let gx = 0.06; gx < 1; gx += 0.12) for (let gy = 0.05; gy < 1; gy += 0.08) {
+        const el = D().elementFromPoint(gx * W().innerWidth, gy * W().innerHeight);
+        if (!el || !(stage && stage.contains(el))) continue;
+        if (!blocked9(el)) offenders.add((el.className && String(el.className).split(" ")[0]) || el.tagName.toLowerCase());
+      }
+      if (offenders.size) fails.push("identify: pan reaches the document through: " + [...offenders].slice(0, 6).join(", "));
+    }
+
+    // match: a SCROLL OWNER with the R2 decision bar
+    W().__vaCellar.mockFlow("match");
+    await sleep(1000);
+    if (W().__vaCellar.view() !== "match") fails.push("match never mounted");
+    const bar = D().querySelector(".cf-match .ca-barpin");
+    if (!bar) fails.push("no .ca-barpin on the match screen");
+    else if (W().getComputedStyle(bar).touchAction !== "none")
+      fails.push("the decision bar does not eat pans (membership rule self-carry)");
+    const mnav = D().querySelector(".cf-match .cl2-nav");
+    if (mnav && W().getComputedStyle(mnav).touchAction !== "none")
+      fails.push("the match nav does not eat pans");
+    const msc = D().querySelector(".cf-match .cf-scroll");
+    if (msc) {
+      // THE BALLAST: even short match content must be a REAL scroller so
+      // overscroll containment binds (≥1px of scroll from any height)
+      if (msc.scrollHeight - msc.clientHeight < 1) fails.push("match scroller has no scroll slack (ballast law)");
+      msc.scrollTop = msc.scrollHeight;
+      await sleep(300);
+    }
+
+    // NOT QUITE → correction, then abandon home — document still throughout
+    const notQuite = D().querySelector(".cf-match .ca-bar .ca-cta.ghost");
+    if (notQuite) tap(notQuite);
+    const t9 = await sample(1400, () => ({ s: W().scrollY }));
+    if (W().__vaCellar.view() !== "correct") fails.push("NOT QUITE never reached the correction screen");
+    if (!D().querySelector(".cf-correct .ca-opt")) fails.push("correction options missing");
+    const x9 = [...D().querySelectorAll(".cf-correct .cl2-circ")].pop();
+    if (x9) tap(x9);
+    const t9b = await sample(900, () => ({ s: W().scrollY }));
+    const sMax9 = Math.max(...[...t9, ...t9b].map(r => Math.abs(r.s - s9)));
+    if (sMax9 > 2) fails.push("the DOCUMENT moved " + Math.round(sMax9) + "px through the identify/match flow");
+    if (W().__vaCellar.view() !== "rack") fails.push("abandon never returned to the rack");
+    W().__vaDrive.release();
+    await waitPhase("approach", 40);
+    book("T9 cellar identify+match", verdict("T9 cellar identify+match (document still)", fails), fails);
+  } catch (e) {
+    const msg = [String((e && e.message) || e)];
+    book("T9 cellar identify+match", verdict("T9 cellar identify+match", msg), msg);
   }
 
   say("— suite done · " + report.pass.length + " pass · " + report.fail.length + " fail" +

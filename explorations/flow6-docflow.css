@@ -319,17 +319,42 @@ html.va-doc .va:not(.vw-desk) .cf-screen .ca-formcol {
   display: block; flex: none; height: auto; min-height: 0; overflow: visible;
   -webkit-mask-image: none; mask-image: none;
 }
-/* detail/form: the circled nav hangs fixed above the scroller — small
-   content, absolute in the layer, pan-eating (never bottom-anchored) */
+/* detail/form (and S2's match/correction): the circled nav hangs fixed
+   above the scroller — small content, absolute in the layer, pan-eating
+   (never bottom-anchored) */
 html.va-doc .va:not(.vw-desk) .cf-detail .cl2-nav,
-html.va-doc .va:not(.vw-desk) .cf-form .cl2-nav {
+html.va-doc .va:not(.vw-desk) .cf-form .cl2-nav,
+html.va-doc .va:not(.vw-desk) .cf-match .cl2-nav,
+html.va-doc .va:not(.vw-desk) .cf-correct .cl2-nav {
   position: absolute; left: 0; right: 0; z-index: 6;
   top: calc(max(24px, env(safe-area-inset-top)) + 44px);
   padding-top: 0;
 }
 /* content clears the nav: nav top + 28px circle + a breath */
-html.va-doc .va:not(.vw-desk) .cf-detail .cf-flow {
+html.va-doc .va:not(.vw-desk) .cf-detail .cf-flow,
+html.va-doc .va:not(.vw-desk) .cf-match .cf-flow,
+html.va-doc .va:not(.vw-desk) .cf-correct .cf-flow {
   padding-top: calc(max(24px, env(safe-area-inset-top)) + 78px);
+}
+/* THE MATCH DECISION BAR (S2, R2): the Pour foot bar's construction
+   reused exactly — absolute INSIDE the pan-eating layer, top-referenced
+   at the live VisualViewport height (--foot-vh), never fixed, never
+   bottom-anchored (both summon the backdrop). 68px is the Pour's
+   as-built offset (Ed sat its bar 20px below the fixed-era 88 once the
+   conviction landed); the band probe gates any regression here too. */
+html.va-doc .va:not(.vw-desk) .cf-match .ca-barpin {
+  position: absolute; left: 0; right: 0;
+  top: calc(var(--foot-vh, 100svh) - 68px); bottom: auto;
+  z-index: 35; overflow: visible;
+}
+/* the bar's own foot pad matches the Pour's actions bar */
+html.va-doc .va:not(.vw-desk) .cf-match .ca-bar {
+  padding: 14px 24px calc(24px + env(safe-area-inset-bottom));
+}
+/* the match content's end-rest clears the floating bar: the recipe's
+   200 (overshoot repayment + clearance) plus the bar's ~110px reach */
+html.va-doc .va:not(.vw-desk) .cf-match .cf-flow {
+  padding-bottom: calc(310px + env(safe-area-inset-bottom));
 }
 /* THE FORM'S LAYER alone runs 150px deeper than the recipe's 100
    (Ed's device eye, rounds 4-5): Safari's keyboard reveal can strand

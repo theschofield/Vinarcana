@@ -1,5 +1,10 @@
 # Sprint 2 kickoff — paste this to a fresh Claude Code session
 
+> **STATUS: S2 BUILT (Jul 19 2026)** — see cellar-plan §0 D21 for the
+> as-built log and Ed's remaining setup steps (API key env · va_quota
+> SQL · golden-set photos · the device review script). This file stays
+> as the record of what the sprint was asked to do.
+
 > Ed: open a fresh session in this project and paste everything below the rule.
 > (Why fresh: S1's conversation is spent; the plan is designed so a build
 > session needs only the repo. This file is the whole handoff.)

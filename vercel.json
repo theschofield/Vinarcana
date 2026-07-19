@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "api/cellar-extract.js": { "maxDuration": 60 },
+    "api/cellar-resolve.js": { "maxDuration": 30, "includeFiles": "api/_lwin/**" }
+  }
+}

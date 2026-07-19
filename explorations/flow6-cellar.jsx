@@ -51,6 +51,68 @@ function CelWave() {
   );
 }
 
+function CelPenIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+    </svg>
+  );
+}
+
+// ---------- photo intake (S2, R3: native input — no custom camera) ----------
+// The browser's own decode applies EXIF orientation (iOS 13.4+ default),
+// so drawing to a canvas normalizes rotation AND format (HEIC from the
+// library re-encodes too): ≤1280px longest edge, JPEG q0.8 — the ~150-250KB
+// the extract function expects. The blob is the retention-law artifact
+// (kept ONLY if the record lands manual+unmatched); the dataUrl rides the
+// pipeline request and dies with it.
+function cellarProcessPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.max(1, Math.round(img.naturalWidth * scale));
+        const h = Math.max(1, Math.round(img.naturalHeight * scale));
+        const cv = document.createElement("canvas");
+        cv.width = w; cv.height = h;
+        cv.getContext("2d").drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        cv.toBlob((blob) => {
+          if (!blob) { reject(new Error("encode")); return; }
+          const rd = new FileReader();
+          rd.onload = () => resolve({ blob, dataUrl: rd.result });
+          rd.onerror = () => reject(new Error("read"));
+          rd.readAsDataURL(blob);
+        }, "image/jpeg", 0.8);
+      } catch (e) { reject(e); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("decode")); };
+    img.src = url;
+  });
+}
+
+// pipeline calls carry the analytics install id — the per-install quota
+// key (cellar-plan §8.13: today's quota seam is tomorrow's entitlement
+// meter). Analytics missing must cost the cellar nothing, as ever.
+const celInstallId = () => { try { return (window.VAAnalytics && VAAnalytics.install) || null; } catch (e) { return null; } };
+
+// a candidate's display name: the wine line already carries the producer
+// for some LWIN grand-vin rows — never print "Montrose Montrose"
+const celCandName = (c) => {
+  const p = String(c.producer || ""), w = String(c.wine || "");
+  return w.toLowerCase().startsWith(p.toLowerCase()) ? w : (p + " " + w).trim();
+};
+
+// the identify stage's honest lines (voice copy for Ed's S2 review)
+const CEL_FAIL_LINES = {
+  offline: "No road to the cellar right now",
+  disabled: "The reader is resting",
+  quota: "The reader needs a breath · try again soon",
+  error: "The label kept its secrets",
+};
+
 // ---------- display helpers ----------
 const celBottleFor = (rec) => {
   const c = String((rec.facts && rec.facts.color) || "").toLowerCase();
@@ -131,6 +193,26 @@ function CelBot({ src, style }) {
         el.dataset.t0 = String(performance.now());
         if (el.complete && el.naturalWidth) el.classList.add("ld-i");
       }} />
+  );
+}
+
+// the kept label photo (detail; manual+unmatched records only) — the blob
+// comes out of the IndexedDB sidecar and rides the decode gate like every
+// other image swap (iOS blanks fresh <img>s)
+function CelPhotoStrip({ recId }) {
+  const [url, setUrl] = React.useState(null);
+  React.useEffect(() => {
+    let alive = true, obj = null;
+    CellarPhotos.get(recId).then((blob) => {
+      if (alive && blob) { obj = URL.createObjectURL(blob); setUrl(obj); }
+    }).catch(() => {});
+    return () => { alive = false; if (obj) URL.revokeObjectURL(obj); };
+  }, [recId]);
+  return (
+    <div className="cd-photo">
+      <span className="ph">{url ? <CelBot src={url}></CelBot> : null}</span>
+      <div className="tx">Your label photo · kept with the bottle<br />because this entry is yours alone</div>
+    </div>
   );
 }
 
@@ -284,7 +366,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     }, 300);
   };
   const [filters, setFilters] = React.useState([]);
-  const [sheet, setSheet] = React.useState(null);       // { id, n0, n, cls }
+  const [sheet, setSheet] = React.useState(null);       // { id, n0, n, cls, note }
   const sheetRef = React.useRef(null); sheetRef.current = sheet;
   const [closingId, setClosingId] = React.useState(null);
   const [scrolled, setScrolled] = React.useState({});
@@ -328,9 +410,13 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     : celCountLine(totals.wines, totals.bottles);
 
   // ---------- the count sheet (E-A — transient, see §5.6) ----------
-  const openSheet = (id) => {
+  // S2: opts carry the duplicate prompt (photo road, plan §6) — the sheet
+  // IS the prompt: n presets to count+1, the note explains, DONE commits,
+  // the scrim cancels. No new surface, the E-A contract untouched.
+  const openSheet = (id, opts) => {
     const rec = CellarStore.get(id); if (!rec) return;
-    setSheet({ id, n0: rec.count, n: rec.count, cls: "" });
+    const preset = opts && opts.preset != null ? Math.max(0, opts.preset) : rec.count;
+    setSheet({ id, n0: rec.count, n: preset, cls: "", note: (opts && opts.note) || null });
     requestAnimationFrame(() => requestAnimationFrame(() =>
       setSheet((s) => s && s.id === id ? { ...s, cls: "in" } : s)));
   };
@@ -451,11 +537,23 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       CellarStore.update(dup.id, { count: dup.count + 1 });
       refresh();
       if (onToast) onToast("ALREADY SLEEPING · NOW ×" + (dup.count + 1));
+      if (view.fromPhoto) { reportIdentify("duplicate"); addFlow.current = null; setMatchData(null); }
       go({ name: "rack" });
       return;
     }
     const rec = CellarStore.add({ identity, facts, window: null });
     CellarStore.update(rec.id, { window: cellarComputeWindow(rec) });
+    if (view.fromPhoto) {
+      // manual + unmatched: the ONE case the label photo is kept (hard
+      // product law) — IndexedDB blob keyed by the record id
+      const f = addFlow.current;
+      if (f && f.photo && f.photo.blob) {
+        CellarPhotos.put(rec.id, f.photo.blob);
+        CellarStore.update(rec.id, { labelPhoto: rec.id });
+      }
+      reportIdentify("manual");
+      addFlow.current = null; setMatchData(null);
+    }
     refresh();
     vaTrackCel("cellar_added", { wine: identity.wine, method: "form" });
     go({ name: "rack" });
@@ -476,12 +574,228 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       : { ...f, grapes: f.grapes.filter((g) => g !== val) });
   };
 
-  // headless drive for the suite + the band probe
+  // ---------- THE PHOTO ROAD (S2 — capture · identify · match · correct) ----------
+  // The add affordance is now the ONE entry (R3): tap → native photo sheet
+  // (Take Photo / Photo Library — brief amendment A1) → identify stage →
+  // match sheet or correction. The manual form remains reachable as the
+  // correction path, and IS the whole road when the pipeline is off.
+  const fileRef = React.useRef(null);
+  const addFlow = React.useRef(null);   // { photo, extract, candidates, threshold, top, route, reported, ctl }
+  const [idState, setIdState] = React.useState(null);   // { step, fail }
+  const [matchData, setMatchData] = React.useState(null); // { extract, candidates, threshold }
+  const PIPE_OFF = "va-cellar-pipe-off";
+
+  // ONE identify event per attempt (§5.8) — floats + enums only; the
+  // props-hygiene law keeps rawReading and guessed names out of here.
+  const reportIdentify = (outcome) => {
+    const f = addFlow.current;
+    if (!f || f.reported) return;
+    f.reported = true;
+    vaTrackCel("cellar_identify", {
+      conf: f.extract ? Math.round(((f.extract.confidence || 0)) * 100) / 100 : 0,
+      match: f.top ? f.top.score : 0,
+      route: f.route || "none",
+      outcome,
+    });
+  };
+
+  const beginAdd = () => {
+    let off = false;
+    try { off = sessionStorage.getItem(PIPE_OFF) === "1"; } catch (e) {}
+    // kill-switch memory: once the pipeline says disabled, the + goes
+    // straight to the form for the rest of the session — manual-only,
+    // whole by design; a fresh session re-probes
+    if (off || !window.fetch || !fileRef.current) { openForm("add"); return; }
+    fileRef.current.value = "";
+    fileRef.current.click();
+  };
+
+  const onPhotoPicked = (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    cellarProcessPhoto(file).then((photo) => {
+      reportIdentify("retaken");      // a live attempt being replaced closes out
+      if (addFlow.current && addFlow.current.ctl) addFlow.current.ctl.abort();
+      addFlow.current = { photo, reported: false };
+      setIdState({ step: 0, fail: null });
+      setMatchData(null);
+      go({ name: "identify" });
+      runPipeline(photo);
+    }).catch(() => openForm("add"));  // undecodable file → the manual road
+  };
+
+  const idFail = (kind) => {
+    setIdState((s) => (s ? { ...s, fail: kind } : s));
+    reportIdentify(kind === "offline" ? "offline" : kind === "disabled" ? "disabled" : kind === "quota" ? "quota" : "error");
+  };
+
+  const runPipeline = async (photo) => {
+    const f = addFlow.current;
+    const ctl = new AbortController(); f.ctl = ctl;
+    const post = (path, body) => fetch(path, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ install: celInstallId(), ...body }),
+      signal: ctl.signal,
+    });
+    try {
+      const er = await post("/api/cellar-extract", { image: photo.dataUrl });
+      if (ctl.signal.aborted) return;
+      if (er.status === 503) {
+        const b = await er.json().catch(() => null);
+        if (b && b.disabled) { try { sessionStorage.setItem(PIPE_OFF, "1"); } catch (e) {} idFail("disabled"); }
+        else idFail("error");
+        return;
+      }
+      if (er.status === 429) { idFail("quota"); return; }
+      if (!er.ok) { idFail("error"); return; }
+      const extract = await er.json();
+      if (ctl.signal.aborted) return;
+      f.extract = extract;
+      setIdState({ step: 1, fail: null });
+      const fields = extract.fields || {};
+      let candidates = [], threshold = 1;
+      if (fields.producer || fields.wine) {
+        try {
+          const rr = await post("/api/cellar-resolve", { terms: fields });
+          if (rr.ok) {
+            const body = await rr.json();
+            candidates = body.candidates || [];
+            threshold = typeof body.threshold === "number" ? body.threshold : 1;
+          }
+          // resolve down (501/502) is a MISS, never an error — the
+          // correction screen carries on with the read alone
+        } catch (e) { if (ctl.signal.aborted) return; }
+      }
+      if (ctl.signal.aborted) return;
+      f.candidates = candidates; f.threshold = threshold;
+      f.top = candidates[0] || null;
+      const toSheet = !!(f.top && f.top.score >= threshold);
+      f.route = toSheet ? "sheet" : "correction";
+      setIdState({ step: 2, fail: null });
+      setMatchData({ extract, candidates, threshold });
+      // let the third step light for a breath before the push
+      setTimeout(() => { if (!ctl.signal.aborted) go({ name: toSheet ? "match" : "correct" }); }, 450);
+    } catch (err) {
+      if (ctl.signal.aborted) return;
+      idFail("offline");   // fetch only throws for network trouble here
+    }
+  };
+
+  // cancel = abandon + discard (plan §6): the photo dies with the flow
+  const abandonFlow = () => {
+    const f = addFlow.current;
+    if (f && f.ctl) f.ctl.abort();
+    reportIdentify("abandoned");
+    addFlow.current = null;
+    setMatchData(null);
+    go({ name: "rack" });
+  };
+
+  const retake = () => {
+    if (!fileRef.current) return;
+    fileRef.current.value = "";
+    fileRef.current.click();
+  };
+
+  // THAT'S THE ONE (match sheet) and a correction runner-up land the same
+  // way: identity-only + facts LWIN knows, enrichment pending (the
+  // settling shimmer) — generation is post-confirm territory (D11, S3).
+  // The photo is DISCARDED on a match (retention law: manual+unmatched only).
+  const confirmCandidate = (cand) => {
+    const f = addFlow.current || {};
+    const fields = (f.extract && f.extract.fields) || {};
+    const identity = {
+      producer: cand.producer, wine: cand.wine,
+      vintage: fields.vintage || "NV",
+      source: "matched", matchedId: cand.lwin, confidence: cand.score,
+    };
+    const fromCorrect = viewRef.current.name === "correct";
+    const dup = CellarStore.findByIdentity(identity);
+    if (dup) {
+      // duplicate → the count sheet IS the prompt (preset +1, DONE commits)
+      reportIdentify("duplicate");
+      addFlow.current = null; setMatchData(null);
+      go({ name: "rack" });
+      setTimeout(() => openSheet(dup.id, {
+        preset: dup.count + 1,
+        note: "Already in the rack · Done adds this bottle",
+      }), 760);
+      return;
+    }
+    const facts = {
+      color: cand.type || fields.type || null,
+      grapes: [], otherGrapes: [],
+      region: cand.region || null, country: cand.country || null,
+      appellation: cand.classification || cand.designation || null,
+    };
+    const rec = CellarStore.add({ identity, facts, window: null });
+    CellarStore.update(rec.id, { window: cellarComputeWindow(rec) });
+    refresh();
+    vaTrackCel("cellar_added", { wine: identity.wine, method: "photo" });
+    reportIdentify(fromCorrect ? "corrected" : "added");
+    addFlow.current = null; setMatchData(null);
+    go({ name: "rack" });
+  };
+
+  // "Enter it yourself" — the form, prefilled with whatever the label
+  // reader saw; pick-only facets only prefill values the lists know
+  const openFormFromPhoto = () => {
+    const f = addFlow.current;
+    const fields = (f && f.extract && f.extract.fields) || {};
+    const L = window.CELLAR_LISTS || { types: [], countries: [], grapes: [] };
+    const vintages = cellarVintages();
+    const grapes = [], otherGrapes = [];
+    (fields.grapes || []).forEach((g) => {
+      const hit = (L.grapes || []).find((x) => x.toLowerCase() === String(g).toLowerCase());
+      if (hit) { if (!grapes.includes(hit)) grapes.push(hit); }
+      else if (g && !otherGrapes.includes(g)) otherGrapes.push(String(g));
+    });
+    setForm({
+      producer: fields.producer || "", wine: fields.wine || "",
+      vintage: vintages.includes(fields.vintage) ? fields.vintage : "",
+      type: (L.types || []).includes(fields.type) ? fields.type : "",
+      grapes, otherGrapes,
+      region: fields.region || "",
+      country: (L.countries || []).includes(fields.country) ? fields.country : "",
+    });
+    setActiveSel(null);
+    go({ name: "form", mode: "add", fromPhoto: true });
+  };
+
+  // headless drive for the suite + the band probe. mockFlow seeds the S2
+  // screens (identify / match / correction) with a canned Vat 1 read so
+  // harness runs never touch the pipeline (no cost, no quota, no events —
+  // reported: true belt on top of the ?va-off braces).
   React.useEffect(() => {
     window.__vaCellar = {
       view: () => view.name,
       go: (name, id) => (name === "form" ? openForm("add") : go(id ? { name, id } : { name })),
       openSheet, closeSheet, refresh,
+      mockFlow: (name) => {
+        const mk = (lwin, producer, wine, region, score) => ({
+          lwin, producer, wine, display: producer + ", " + wine, country: "Australia",
+          region, subRegion: null, colour: "White", type: "White",
+          designation: null, classification: null, score,
+        });
+        const cands = [
+          mk(1315635, "Tyrrell's", "Vat 1 Semillon", "New South Wales", 0.95),
+          mk(1960750, "Tyrrell's", "Vat 15 Semillon", "New South Wales", 0.61),
+          mk(1777426, "Tyrrell's", "Semillon", "New South Wales", 0.55),
+          mk(1160512, "Tyrrell's", "Vat 47 Chardonnay", "New South Wales", 0.4),
+        ];
+        addFlow.current = {
+          photo: null, reported: true, candidates: cands, threshold: 0.72, top: cands[0],
+          route: name === "correct" ? "correction" : "sheet",
+          extract: {
+            fields: { producer: "Tyrrell's", wine: "Vat 1 Semillon", vintage: "2014", type: "White", region: "Hunter Valley", country: "Australia", grapes: ["Semillon"] },
+            confidence: 0.92,
+            rawReading: "TYRRELL'S · WINEMAKERS · VAT 1 · HUNTER SEMILLON · 2014",
+          },
+        };
+        setMatchData({ extract: addFlow.current.extract, candidates: cands, threshold: 0.72 });
+        if (name === "identify") { setIdState({ step: 1, fail: null }); go({ name: "identify" }); }
+        else go({ name: name === "correct" ? "correct" : "match" });
+      },
     };
     return () => { if (window.__vaCellar) delete window.__vaCellar; };
   });
@@ -510,7 +824,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           <div className="cl-count">{countLine}</div>
         </div>
         {entries.length === 0 ? null : (
-          <div className="cl-add" onClick={() => openForm("add")}><CelPlusIcon></CelPlusIcon><span>Add a bottle</span></div>
+          <div className="cl-add" onClick={beginAdd}><CelPlusIcon></CelPlusIcon><span>Add a bottle</span></div>
         )}
       </div>
     </div>
@@ -529,22 +843,34 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     <div className="cl2-list">
       {rows.length === 0 && filters.length ? (
         <div className="cl-noresult">Nothing sleeping under those filters</div>
-      ) : rows.map((e, i) => (
+      ) : rows.map((e, i) => {
+        // the settling shimmer (S2): a photo-matched record lands
+        // identity-only and wears the settling dress for its landing
+        // moment; S3's enrichment loop takes this over properly
+        const settling = e.identity.source === "matched" && e.enrichment
+          && e.enrichment.status === "pending" && Date.now() - e.addedTs < 30000;
+        return (
         <div key={e.id} className={"cl2-tilewrap" + (closingId === e.id ? " closing" : "")} style={{ "--cfi": Math.min(i * 30, 360) + "ms" }}>
-          <div className="cl2-tile" onClick={() => go({ name: "detail", id: e.id })}>
+          <div className={"cl2-tile" + (settling ? " settling" : "")} onClick={() => go({ name: "detail", id: e.id })}>
             <div className="bot"><CelBot src={celBottleFor(e)}></CelBot></div>
             <div className="tx">
               <div className="p">{e.identity.producer}</div>
               <div className="n">{e.identity.wine}</div>
               <div className="gy">{celGyLine(e)}</div>
               <div className="lc">{celLocLine(e)}</div>
+              {settling ? <div className="cl-settag">Settling in</div> : null}
             </div>
             <span className="cl-qty" onClick={(ev) => { ev.stopPropagation(); openSheet(e.id); }}>×{e.count}</span>
             <CelWin w={e.window}></CelWin>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
+  );
+  // the CC BY 4.0 attribution duty ships with the index (cellar-plan §2.1)
+  const lwinNote = (
+    <div className="cl-lwin-note">Wine identifiers from Liv-ex's LWIN database (CC BY 4.0), modified</div>
   );
   const empty = (
     <div className="cl-empty">
@@ -558,7 +884,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
         every cellar starts with one
         <CelWave></CelWave>
       </span>
-      <div className="cl-cta cl2-cta" onClick={() => openForm("add")}><CelPlusIcon></CelPlusIcon><span>Add a bottle</span></div>
+      <div className="cl-cta cl2-cta" onClick={beginAdd}><CelPlusIcon></CelPlusIcon><span>Add a bottle</span></div>
     </div>
   );
 
@@ -572,7 +898,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
             <div className="cl-count">{countLine}</div>
           </div>
           {entries.length === 0 ? null : (
-            <div className="cl-add" onClick={() => openForm("add")}><CelPlusIcon></CelPlusIcon><span>Add a bottle</span></div>
+            <div className="cl-add" onClick={beginAdd}><CelPlusIcon></CelPlusIcon><span>Add a bottle</span></div>
           )}
         </div>
         {entries.length === 0 ? empty : (
@@ -609,6 +935,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
             </div>
           </React.Fragment>
         )}
+        {lwinNote}
       </div>
       {sheet ? <div className={"cl-scrim " + sheet.cls} onClick={cancelSheet}></div> : null}
     </div>
@@ -621,6 +948,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           {head}
           {pills}
           {entries.length === 0 ? empty : tiles}
+          {lwinNote}
         </div>
       </div>
       {sheet ? <div className={"cl-scrim " + sheet.cls} onClick={cancelSheet}></div> : null}
@@ -666,6 +994,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
                     ))}
                   </div>
                 ) : null}
+                {d.labelPhoto ? <CelPhotoStrip recId={d.id}></CelPhotoStrip> : null}
                 {d.tastes ? (
                   <div className="cd-scales">
                     <div className="cd-scales-h">The palate</div>
@@ -708,7 +1037,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
             <span className="cl2-circ" onClick={() => go({ name: "detail", id: formSrc.id })}><CelBackIcon></CelBackIcon></span>
           ) : <span></span>}
           {editing ? <span></span> : (
-            <span className="cl2-circ" onClick={() => go({ name: "rack" })}>✕</span>
+            <span className="cl2-circ" onClick={() => { if (formSrc.fromPhoto) abandonFlow(); else go({ name: "rack" }); }}>✕</span>
           )}
         </div>
         <div className={"cf-scroll" + (scrolled.form ? " scrolled" : "")} onScroll={armScroll("form")}>
@@ -764,11 +1093,156 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     );
   }
 
+  // ---------- identify (S2 — a plain STAGE on the recipe: nothing scrolls,
+  // the layer eats the pan; cancel = abandon + discard) ----------
+  let identifyView = null;
+  if (view.name === "identify" && idState) {
+    const stepCls = (i) => (idState.step > i ? " done" : idState.step === i ? " live" : "");
+    identifyView = (
+      <div className={"va-layer cl-screen ca-idstage" + (leavingView ? " cf-push-leave" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar identify">
+        <div className="ca-id">
+          <img className="ca-id-bot" src="assets/bottle-white.png" alt="" />
+          <h3 className="ca-id-line">Making its acquaintance.</h3>
+          {idState.fail ? (
+            <div className="ca-id-fail">
+              <div className="ca-id-failline">{CEL_FAIL_LINES[idState.fail] || CEL_FAIL_LINES.error}</div>
+              <div className="ca-cta ghost ca-id-manual" onClick={openFormFromPhoto}>Your bottle, your words</div>
+            </div>
+          ) : (
+            <div className="ca-id-steps">
+              <span className={"ca-id-step" + stepCls(0)}>{idState.step === 0 ? <span className="dot"></span> : null}Reading the label</span>
+              <span className={"ca-id-step" + stepCls(1)}>{idState.step === 1 ? <span className="dot"></span> : null}Searching the racks</span>
+              <span className={"ca-id-step" + stepCls(2)}>{idState.step === 2 ? <span className="dot"></span> : null}Gathering its story</span>
+            </div>
+          )}
+        </div>
+        <div className="ca-id-cancel" onClick={abandonFlow}>Cancel</div>
+      </div>
+    );
+  }
+
+  // ---------- the match (S2 — SPARSE variant, §5.2/D11: database-known
+  // facts + the heuristic window word only; the story region carries the
+  // quiet sparse line. Decision bar per R2: the Pour's foot-pin
+  // construction, NOT QUITE ghost / THAT'S THE ONE filled.) ----------
+  let matchView = null;
+  if (view.name === "match" && matchData && matchData.candidates.length) {
+    const cand = matchData.candidates[0];
+    const fields = (matchData.extract && matchData.extract.fields) || {};
+    const vintage = fields.vintage || "";
+    const win = cellarComputeWindow({ identity: { vintage: vintage || "NV" }, facts: { color: cand.type, grapes: [] } });
+    const loc = [cand.region, cand.country].filter(Boolean).join(", ");
+    const stats = [];
+    if (cand.type) stats.push(["STYLE", cand.type]);
+    if (loc) stats.push(["REGION", loc]);
+    if (cand.classification || cand.designation) stats.push(["CLASSIFICATION", cand.classification || cand.designation]);
+    if (vintage) stats.push(["VINTAGE", vintage]);
+    matchView = (
+      <div className={"va-layer cl-screen cf-screen cf-match" + (leavingView ? " cf-push-leave" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar match">
+        <div className="cl2-nav">
+          <div className="cl-add" onClick={retake}><CelBackIcon></CelBackIcon><span>Retake</span></div>
+          <span className="cl2-circ" onClick={abandonFlow}>✕</span>
+        </div>
+        <div className={"cf-scroll" + (scrolled.match ? " scrolled" : "")} onScroll={armScroll("match")}>
+          <div className="cf-flow">
+            <div className="cd-scroll">
+            <div className="cd-heroB" style={{ paddingTop: "6px" }}>
+              <div className="bot"><CelBot src={cand.type === "Red" ? "assets/bottle-red.png" : "assets/bottle-white.png"} style={{ height: "136px" }}></CelBot></div>
+              <div className="clf-believes">The cellar believes</div>
+              <div className="cd-eyebrow" style={{ marginTop: "10px" }}>{cand.producer}</div>
+              <div className="cd-name">{cand.wine}</div>
+              {vintage ? <div className="clf-gy">{vintage}</div> : null}
+              {loc ? <div className="clf-loc">{loc}</div> : null}
+            </div>
+            {win ? <CelWindow w={win}></CelWindow> : null}
+            <div className="ca-sparse">Its story arrives once it settles in</div>
+            {stats.length ? (
+              <div className="cd-stats">
+                {stats.map(([k, v]) => (
+                  <div className="cd-stat" key={k}><span className="k">{k}</span><span className="v">{v}</span></div>
+                ))}
+              </div>
+            ) : null}
+            </div>
+          </div>
+        </div>
+        {/* R2: the Pour action bar's construction reused exactly — an
+            absolute, VisualViewport-tracked (--foot-vh) child of the
+            layer; never bottom-anchored in doc mode; eats pans itself
+            (membership rule's self-carry clause) */}
+        <div className="ca-barpin">
+          <div className="ca-bar">
+            <div className="ca-cta ghost" onClick={() => go({ name: "correct" })}>Not quite</div>
+            <div className="ca-cta fill" onClick={() => confirmCandidate(cand)}>That's the one</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- correction (S2 — manual FIRST, runner-ups below at the
+  // same level, "THE LABEL READ · …"; identity-level only) ----------
+  let correctView = null;
+  if (view.name === "correct") {
+    const md = matchData || {};
+    const fields = (md.extract && md.extract.fields) || {};
+    const read = (md.extract && md.extract.rawReading) || "";
+    const cameFromMatch = !!(md.candidates && md.candidates.length && md.candidates[0].score >= md.threshold);
+    const runners = (md.candidates || []).slice(cameFromMatch ? 1 : 0, cameFromMatch ? 4 : 3);
+    const vintage = fields.vintage || "";
+    correctView = (
+      <div className={"va-layer cl-screen cf-screen cf-correct" + (leavingView ? " cf-push-leave" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar correction">
+        <div className="cl2-nav">
+          {cameFromMatch ? (
+            <span className="cl2-circ" onClick={() => go({ name: "match" })}><CelBackIcon></CelBackIcon></span>
+          ) : <span></span>}
+          <span className="cl2-circ" onClick={abandonFlow}>✕</span>
+        </div>
+        <div className={"cf-scroll" + (scrolled.correct ? " scrolled" : "")} onScroll={armScroll("correct")}>
+          <div className="cf-flow">
+            <div className="cd-scroll">
+            <div className="ca-fix-head">
+              <h2 className="ca-fix-title">Set it right.</h2>
+              {read ? <div className="ca-fix-read">{("The label read · " + read).slice(0, 150)}</div> : null}
+            </div>
+            <div style={{ marginTop: "14px" }}>
+              <div className="ca-opt" onClick={openFormFromPhoto}>
+                <span className="ca-opt-ico"><CelPenIcon></CelPenIcon></span>
+                <div>
+                  <div className="ca-opt-name">Enter it yourself</div>
+                  <div className="ca-opt-sub">Producer, year, grape, the lot</div>
+                </div>
+              </div>
+              {runners.length ? (
+                <div className="ca-or"><span className="txt">Or one of these</span><span className="rule"></span></div>
+              ) : null}
+              {runners.map((c) => (
+                <div className="ca-opt" key={c.lwin} onClick={() => confirmCandidate(c)}>
+                  <div>
+                    <div className="ca-opt-name">{celCandName(c)}</div>
+                    <div className="ca-opt-sub">{[vintage, [c.region, c.country].filter(Boolean).join(", ")].filter(Boolean).join(" · ")}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <React.Fragment>
       {rack}
       {detail}
       {formView}
+      {identifyView}
+      {matchView}
+      {correctView}
+      {/* R3: the native photo input — no capture attribute, so iOS offers
+          Take Photo / Photo Library / Choose File (brief amendment A1) */}
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={onPhotoPicked} />
       {/* THE COUNT SHEET — E-A (cellar-plan §5.6): strictly transient,
           genuinely bottom-anchored, unmounted after the close animation.
           Nothing carries `bottom:` at rest. */}
@@ -784,7 +1258,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
             <span className="cl-bignum">{sheet.n}</span>
             <span className="cl-stepbtn" onClick={() => setSheet((s) => s && ({ ...s, n: s.n + 1 }))}><CelPlusIcon></CelPlusIcon></span>
           </div>
-          <div className="cl-sheet-note">At zero, the wine leaves the rack</div>
+          <div className="cl-sheet-note">{sheet.note || "At zero, the wine leaves the rack"}</div>
           <div className="cl-done" onClick={closeSheet}>Done</div>
         </div>
       ) : null}

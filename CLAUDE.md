@@ -47,11 +47,12 @@ when focus leaves the form (the Cellar's focus contract).
 
 ## Verification duties (non-negotiable for transition/layout changes)
 
-1. `scraps/choreo-tests.html` on the dev server — eight tests, must be 8/8
-   (T8 = the Cellar rack, added S1 Jul 17 2026; the harness loads the app
-   with `?va-off` so live-site runs never mint cohort installs).
+1. `scraps/choreo-tests.html` on the dev server — nine tests, must be 9/9
+   (T9 = Cellar identify+match, added S2 Jul 19 2026; the harness loads
+   the app with `?va-off` so live-site runs never mint cohort installs).
 2. `scraps/backdrop-probe.py` — the chrome-band probe (deck · reading ·
-   pour · memory · cellar, the last two rect-gated for reach). The iOS toolbar backdrop IS sim-detectable (texture
+   pour · memory · cellar · match, rect-gated for reach where mask-free;
+   the match band is flat-on-flat → recorded, device-only). The iOS toolbar backdrop IS sim-detectable (texture
    through the chrome ≈ band stddev 3.5+; the backdrop's flat fill ≈ 2.0).
    MANDATORY for anything touching pinned/sticky/viewport-sized
    construction; it convicted the stage pin and the pour's fixed bar.

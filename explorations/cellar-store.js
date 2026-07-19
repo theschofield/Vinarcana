@@ -67,6 +67,9 @@ const CellarStore = (() => {
     remove(id) {
       write(readEnv().wines.filter((w) => w.id !== id));
       cellarIndexRebuild();
+      // retention law (S2): retiring the record retires its label photo —
+      // photos exist only for manual+unmatched records that still live
+      try { CellarPhotos.del(id); } catch (e) {}
     },
     count() {
       // { wines, bottles } — the header line speaks both numbers
@@ -189,7 +192,9 @@ function cellarVintages() {
   return out;
 }
 
-// ---------- demo seed (dev affordance until S2's database lands) ----------
+// ---------- demo seed (RETIRED from the docs, S2 Jul 19 2026) ----------
+// Real capture works now — the seed is no longer a user-facing
+// affordance; the function stays for harnesses and dev only.
 // Visit once with ?cellar-seed to populate 15 wines from the locked canvas
 // mock (types, blends, an off-list grape, ready/resting/drink-soon spread).
 // ADDITIVE: wines already in the rack (by identity) are never touched, so

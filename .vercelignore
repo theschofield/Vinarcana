@@ -2,6 +2,8 @@
 # sources, and session tooling stay out of the published site
 docs
 content
+# golden-set fixtures are Ed's label photos — never published
+scraps/golden-set
 .claude
 CLAUDE.md
 claude-code-handoff

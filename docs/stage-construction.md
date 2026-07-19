@@ -179,9 +179,14 @@ The z-stack, bottom to top:
   rack (S1, Jul 17 2026 — from a scrolled RACK the document never
   moves through scroll, the E-A count sheet's open/close, or the
   release exit; the sheet must unmount after close; seeds and
-  restores va-cellar). Eight tests, must be 8/8. The harness loads
-  the app with `?va-off` — live-site runs must never mint cohort
-  installs (docs/analytics.md).
+  restores va-cellar), cellar identify+match (S2, Jul 19 2026 — the
+  identify STAGE passes the full pan-membership audit, the match
+  screen's decision bar and nav eat pans themselves, the match
+  scroller keeps its ≥1px ballast, and the document never moves
+  through the mocked identify → match → correction → abandon flow;
+  `__vaCellar.mockFlow()` never touches the pipeline). Nine tests,
+  must be 9/9. The harness loads the app with `?va-off` — live-site
+  runs must never mint cohort installs (docs/analytics.md).
 - **Recorded video or it didn't happen.** Anything touching scroll,
   compositing, or the pinned set gets a safaridriver run on the REAL page
   (no iframe — the iframe hides document-scroll rasterization behavior),
@@ -295,6 +300,26 @@ Scroll law 3(b)'s frame-walk is **permanent**, not interim: Ed chose the
 canvas's persistent-actor construction for Deck → Lenses over the
 origin-adoption proposal (choreography-grammar.md, Decision). 3(c) remains
 on the books as a lawful pattern but has no current application.
+
+## ADDENDUM · Jul 19, 2026 (S2 — the photo road joins the recipe)
+
+Sprint 2 added three screens, each declaring its kind first (§5):
+the IDENTIFY stage is a plain STAGE (`.ca-idstage` — pan-eaten by the
+docflow default, bottom-anchored TEXT pads by safe-area); the MATCH
+and CORRECTION screens are SCROLL OWNERS riding the `.cf-screen`
+family (sizing, scroller, ballast, top fade, pan-block exemption all
+inherited — zero new docflow membership entries). The match screen's
+DECISION BAR is the Pour foot-pin construction's second user, factored
+as `.ca-barpin`: in canvas/wrapped/desktop modes it rests IN FLOW at
+the layer's foot (the board's construction); in doc mode it is an
+absolute child of the layer topped at `--foot-vh − 68px` (the Pour's
+as-built seat), never fixed, never bottom-anchored, eating pans itself
+(the membership rule's self-carry clause). The probe's match step
+gates it by rect arithmetic — reach ≥ 100, zero `position: fixed`,
+bar top ≡ foot-vh − 68 exact — and RECORDS the band without gating
+it: the match band is flat-on-flat by design (short sparse content
+never reaches the chrome), so like the Approach its paint stats are
+device-only evidence.
 
 ## ADDENDUM · Jul 17, 2026 (the Cellar composes by the recipe)
 
