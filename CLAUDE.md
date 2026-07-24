@@ -80,7 +80,11 @@ when focus leaves the form (the Cellar's focus contract).
   into `explorations/arcana-guide.js` — never hand-edit the mirror output).
 - `scraps/` — test harnesses (deployed on purpose, so the suite runs on
   device against the live site).
-- `docs/` — the canon above. `claude-code-handoff/` — see below.
+- `docs/` — the canon above, plus **docs/bug-ledger.md** (the parked-bug
+  board: Ed files first-hand observations via the `/bug` skill, fixes
+  happen in batched rounds; every entry must be fixable from the repo
+  alone). Long conversations close via the `/handoff` skill →
+  `docs/handoffs/` kickoff docs. `claude-code-handoff/` — see below.
 
 ## The exchange station — claude-code-handoff/ (INTAKE PROTOCOL)
 
