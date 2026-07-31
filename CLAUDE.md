@@ -81,7 +81,7 @@ when focus leaves the form (the Cellar's focus contract).
 - `scraps/` — test harnesses (deployed on purpose, so the suite runs on
   device against the live site).
 - `docs/` — the canon above, plus **docs/bug-ledger.md** (the parked-bug
-  board: Ed files first-hand observations via the `/bug` skill, fixes
+  board: Ed files first-hand observations via the `/park` skill, fixes
   happen in batched rounds; every entry must be fixable from the repo
   alone). Long conversations close via the `/handoff` skill →
   `docs/handoffs/` kickoff docs. `claude-code-handoff/` — see below.

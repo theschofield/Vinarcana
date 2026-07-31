@@ -8,7 +8,7 @@ it later reading only its entry + the named canon. That's the contract:
 ## The laws of the ledger
 
 - **File in the moment, fix in rounds.** Filing must never derail the
-  work in flight — `/bug <what you saw>` appends and returns. Fixes are
+  work in flight — `/park` + your observations appends and returns (one call covers a whole list). Fixes are
   batched into focused rounds (the S1 device-round rhythm), grouped by
   the screen/construction they touch.
 - **Ed's words stay verbatim.** The "Seen" field is the first-hand
@@ -20,6 +20,7 @@ it later reading only its entry + the named canon. That's the contract:
 - **Append-only history.** Fixed bugs move to the CLOSED section with
   their verdict + commit — never deleted (they are the product's
   memory of its own weak spots, and regression fodder for the suite).
+- **Kin threads are the birds-eye.** Entries name related ids (`Kin:`) so clusters surface; fix rounds are planned by walking kin chains.
 - **The index is the board.** One line per bug; statuses are the lanes.
 
 **Severity lanes:** `BLOCKER` (breaks the ritual/data) · `LAW` (violates

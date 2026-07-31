@@ -21,7 +21,7 @@ truth.
    style. If a verdict is Ed's but unconfirmed, mark it PENDING rather
    than inventing a ruling.
 3. **Sweep the loose bugs.** Anything Ed mentioned but never filed →
-   file per the /bug skill. Update statuses on anything fixed this
+   park per the /park skill. Update statuses on anything fixed this
    session (move to CLOSED with commit hashes).
 4. **Write the kickoff** at `docs/handoffs/YYYY-MM-DD-<slug>.md`,
    modeled on cellar-sprint2-kickoff.md:
