@@ -353,7 +353,7 @@ fuzzy, rewrite.
 
 ---
 
-## PART 2 — THE LENSES (the 3–5 tappable facets)
+## PART 2 — THE LENSES (the 3–4 tappable facets)
 
 **What they are:** the facets of the card's meaning. The reader picks the one that resonates —
 that pick is what makes the wine reveal feel fated. Each lens maps 1:1 (invisibly!) to a wine idea
@@ -373,8 +373,86 @@ without naming wine.
 - ✗ any wine word: grape, glass, vintage, farm, cellar, producer, region. The wine stays hidden
   until the reveal. Always.
 
-**Gold standards:** the lens rows marked `approved` in `lenses.csv` (the full sets for The Moon,
-Death, The Tower, The Fool, The Hermit) are canon — study them before writing new ones.
+**Gold standards:** the lens rows marked `approved` in `lenses.csv` (12 full sets as of
+Jul 24 2026 — Moon, Death, Tower, Fool, Hermit, High Priestess, Magician, Hierophant, Lovers,
+Chariot, Wheel of Fortune, Devil — more landing each batch) are canon — study them before
+writing new ones.
+
+**Lens laws (batch-1 rulings, 2026-07-23):**
+- **Four lenses is the ceiling.** Cards carry 3–4 lenses (4 standard). The old 5-lens cards
+  are culled to 4; never draft a fifth.
+- **The nudge is retired.** No lens is ever permanently nudged; the CSV's nudge column stays
+  empty. Nudging, if it ever exists, is a runtime concern — never content.
+- **The Devil gets a pass on wine words.** "A second glass" keeps its glass: the ban protects
+  the hidden wine, and the Devil is licensed to break rules. Everywhere else the ban holds in
+  full, and even on the Devil nothing overt or forced.
+- **A voice-word echo in a lens can be a SORTER, not a flaw** (High Priestess III kept "quiet"
+  under the voice's "quiet enough"): a reader who resonated with the voice reaches for the
+  echoing lens; one who didn't rules it out fast — both outcomes mean the card read them.
+  Distinguish from CLAIM-DUPLICATION, where a subtitle merely restates the voice line and adds
+  no facet (The World I convicted; near-verbatim clones stay convictions).
+- **Collisions are flagged, never blocking (for now).** Cross-card stance or wine overlaps get
+  logged in voice-history.md and the lens ships anyway; a dedicated collision-refinement pass
+  will later cull hard-to-pair lenses and replace collisions with novel pairing ideas. Bottle
+  diversity: aim never to recommend the same bottle on two cards — swap in a replacement when
+  two share — but some bottles legitimately fit several cards; don't force uniqueness.
+- **Gap-fill policy:** every framework idea missing a lens is filled for every card from the
+  Eight of Wands onward (the audit's earlier skips are sanctioned); conceptual closeness to an
+  existing lens is not a reason to skip.
+- **Style vs bottle is not a collision** (Lovers II ruling, 2026-07-24): a card steering to a
+  STYLE (Riesling Spätlese at Lovers II) does not collide with another card recommending a
+  specific BOTTLE of that style (Dönnhoff Spätlese at Two of Cups IV). Collision checks bind
+  tightest at the pour level: the mapping cell's example wines are pipeline anchors, and the
+  actual bottle lives in reveals.csv (card + lens_no keyed — culls and renumbers must sync
+  there). The app's current pours for draft cards are that file's draft rows mirrored
+  design-side; they regenerate in the reveals pass.
+- **Claim-duplication is also flag-then-decide** (Emperor II ruling, 2026-07-24): "every order
+  traces back to one name" was KEPT under "Every empire began with someone..." — a subtitle
+  restating the voice's claim in fresh words can stand when it's the card's core. The
+  conviction bar stays at near-verbatim clones (The World I's "every piece finally in its
+  place" under "Every last piece, finally in place").
+- **THE CONFESSIONAL MODEL (Ed's articulation, 2026-07-24 — THE governing rubric):** the
+  spirit voice is just vague enough to spur an internal CONFESSION of a thing the card never
+  explicitly said; the lenses are slightly more specific than the voice; the user reaches for
+  the lens that matches the thing they just confessed to in their head. It feels like
+  mind-reading because they are telling on themselves. EVALUATE EVERY LENS by how well it
+  nails an internal confession spurred by that card's voice. Corollaries: (a) the wine rule
+  binds at the lens stage even on the Devil — "A second glass" was convicted for reading as a
+  literal drink instead of catching a life-confession (the earlier wine-word pass is
+  effectively revoked at lens level); (b) core-concept cells LEAD with the guidebook symbol
+  in caps, then qualify with the felt experience after the dash; (c) echo-repeats of the lens
+  are a delicate balance — sanctioned when the repeated phrase IS the resonant confession
+  ("The guilty pleasure. Pour heavier."), never deck-templated.
+- **THE CONCEPT-SOURCE LAW (2026-07-24):** a lens's core concept must come from the card's
+  canonical symbolism — the framework's Symbolism list or the guidebook writeup — never
+  invented to fit a bottle. Bottle-first drafting is a conviction ("The night shift" started
+  from Eiswein and bent a concept around it). The lens test: reading it must produce "oh my
+  god, the card knows about that thing in my life." CLOSINGS FOLLOW LENSES, never the reverse (Ed's
+  ruling): closing paragraphs are written after a card's four lenses are approved, and the old
+  closings rest on approvals now under review — when a lens set changes, flag the card's
+  closing for rewrite (the five canon closings are so flagged in guidebook.csv). A closing may
+  be read as evidence of intent, never as a constraint.
+- **GUIDEBOOK-WOVEN HOOKS (2026-07-24, Part 3B):** the hook is written from the card's
+  guidebook understanding of WHY the lens's symbol resonates — show the user's felt
+  experience, then transition into why this wine embodies it. Never written from the echo
+  alone. Depth beats deepen the card connection as well: the mechanism plus why this producer
+  does it best, with a proper segue when the label name differs from the story's famous name.
+- **NO SERVING RITUALS (the consumer-product law, 2026-07-24):** mapping ideas built on how a
+  host serves the wine (blind pours, side-by-side flights, guess-the-color games) are relics
+  of the framework's bartender-era origins and have no place in the consumer app — the user
+  experiences bottles alone. Root them out and replace with consumer-viable mappings (the
+  Moon's color-illusion idea was the first conviction, folded into Deceptive Wines as a match
+  signal; watch S07's blind-tasting framing and W05's compare-the-neighbors framing).
+- **THE FRAMEWORK IS THE HEADWATER** (Ed's doctrine, 2026-07-24): every lens interprets one
+  mapping idea in `docs/Tarot & Wine_ The Complete Framework.md`; lenses never invent ideas.
+  If an idea is too weird or unpairable even after deep search, propose MODIFYING the
+  framework — divergence is discussed, approved, then written back into the framework in the
+  same turn. Mapping ideas ↔ numbered lenses stay strictly 1:1, no orphans in either
+  direction. Bottle repeats rooted in the framework's own example reuse are NOT collisions
+  to fix at the mapping layer (C02 I Beaucastel ruling); diversity lives in the
+  stocklist/ingestion layer. A machine-readable mapping registry with per-idea match
+  criteria (for the automated ingestion system) is the planned end state — see the
+  2026-07-24 history entry.
 
 ---
 
@@ -447,6 +525,22 @@ nodded? If the echo would fit any other lens on the card, it's too generic; rewr
   actual chainsaw to his father's ancient casks and was nearly disinherited for it. What grew back
   is modern Barolo: rose and tar over something brand new."
 
+**Adopted structure (golden-set ruling, 2026-07-24): THE HOOK + THE DEPTH BEAT.** The blurb
+described above is THE HOOK: 2–4 sentences, 35–55 words, self-sufficient, ties the bow. This is
+possibly the first substantive moment of the whole reading for the user — it must make them feel
+the cards understand them and want the bottle like a soulmate. Fact-rich bottles then add an
+optional DEPTH BEAT (the `depth` column in reveals.csv): 2–3 sentences rendered below the hook,
+the somm leaning in with the part nobody tells you — people, dates, stakes. Never tech-sheet
+data, never a tasting-note dump, and never required for the reveal to land (skimmers stop at the
+hook and lose nothing; the smitten keep reading and fall further). Register shift, not length,
+is what kills resonance.
+**Provenance rule (the hallucination firewall):** a blurb may only assert what has been captured
+with a source at ingestion; no captured story-fact, no story-claim. Story-poor bottles get the
+honest tier — place, grape, structure, told charmingly — never invented drama.
+**Attainability law:** attainable bottles are the hard default; unicorns (the Opus One tier) are
+extreme rarities reserved for card-obvious fits, never something reached for. A couple of crazy
+gems belong in the deck, but their places are completely obvious.
+
 **Bans:** Part 1's hard-ban list applies in full. Plus: no invented facts (if the framework's
 mapping idea can't be verified, choose a producer/wine where it can); no moralizing close ("proof
 that risks pay off"); no second-person prescriptions ("you'll love how…").
@@ -473,7 +567,7 @@ Each pour also carries structured data (no voice required, accuracy only):
 | Layer | Prompt section | Output file | Row unit |
 |---|---|---|---|
 | Spirit's voice | Part 1 | `content/spirit-voices.csv` | one per card |
-| Lenses | Part 2 | `content/lenses.csv` | one per lens (3–5 per card) |
+| Lenses | Part 2 | `content/lenses.csv` | one per lens (3–4 per card) |
 | Lens echo + pours | Parts 3A/3B/3C | `content/reveals.csv` | one per POUR (echo repeats on every row of its lens) |
 | Guidebook (Deeper Reading) | `content/guidebook-prompt.md` | `content/guidebook.csv` | one per card (body governed by `status`; closing paragraph by `closing_status` — split approvals) |
 | All draft history | — | `content/voice-history.md` | every graded attempt, every layer |

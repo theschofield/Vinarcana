@@ -1009,3 +1009,609 @@ inv-09/10/13/14/16 not picked, retired. Pool now 9 approved.
 - inv r2 candidates (pending): "We were beginning to wonder." / "There you are." / "The night
   pours in your favor." / "Tonight was *always* going to happen." / "Everyone peeks eventually."
   / "After you." / "Thirst has excellent instincts." / "The cards like you already."
+
+---
+
+## Lens layer — in-app refinement pass, batch 1 (2026-07-23)
+
+THE AUDIT ran first: every card's lens count vs the framework's idea count — 37 cards run
+short, almost always by one. RULINGS (all codified in voice-prompt.md Part 2):
+1. Gap-fills SKIPPED for everything before the Eight of Wands (Chariot, Justice, Hanged
+   Man, Judgement, W02, W05, W06, W07 hold their current counts). From W08 onward, EVERY
+   missing idea gets a lens — "your call" closeness is not a reason to skip.
+2. Collisions: flag and proceed. A future dedicated pass will cull hard-to-pair lenses and
+   replace collisions with novel pairing ideas; for now the lenses ship. Bottle diversity:
+   recommend replacement bottles when two cards share one, but some repeats are legitimate
+   (framework wines pair to many cards by design) — never force it.
+3. NUDGE RETIRED deck-wide: "We should not be permanently nudging a lens, ever." Column
+   cleared on all 78 cards, approved rows included (general rule supersedes no-edit).
+4. FIVE-LENS CARDS CULL TO FOUR: four lenses is now the ceiling. The two 5-lens cards
+   (Wheel of Fortune, The Lovers) each lose one; cull cases argued per card.
+5. The Devil's wine-word pass: "the devil gets a pass. the devil always gets a pass."
+   Wine words stay banned everywhere else, and even the Devil's must never be overt/forced.
+6. W10's "too much" idea is NOT skipped — rescued via overwhelming-character reframe
+   (Ed's Bionic Frog / Rocks District suggestion). S10's past-peak idea replaced (noble-rot
+   recommendation pending grade). P11's school-wines idea replaced (career-changer
+   students recommendation pending grade).
+
+### Wheel of Fortune (X)
+- lens r1 (IV): "The turn / one moment changes the whole story" → REJECTED: third
+  rotation-name in one set; tells the reader nothing the wheel didn't.
+- lens r2 (IV): "A changing of the guard / one arrival rewrites the whole story" → APPROVED
+- lens r1 (III) session proposal "some things fall into the right lap" → REJECTED: "It
+  reads better the way it's currently written" (the land/lands voice echo waved)
+- lenses I, II, III, V → APPROVED as written. II ("Round it comes again", solera) is the
+  recommended CULL: blurs with I in-set, solera lives canonically at Hierophant III, and
+  recurrence is the least luck-flavored facet under a voice about luck landing. Verdict pending.
+
+### The World (XXI)
+- lens r1 (I): "every piece finally in its place" → REJECTED: near-verbatim clone of the
+  voice line rendered directly above it (the W03 conviction class)
+- lens r2 (I): "The whole picture / everything belongs in the frame" + remapped to the
+  Grand Tour flagship blends (Insignia, Grange) → APPROVED
+- lens r1 (II): "Earned, not given / long-aged patience wines" → RETIRED: mapping absent
+  from the World's framework ideas and poaching the Hermit's slow-aged territory
+- lens r2 (II): "Hands across the water / no border ever stopped a good idea" → APPROVED;
+  mapping bottles swapped for diversity (Seña/Almaviva stay at C02 III): Opus One + Cheval
+  des Andes — swap awaiting evaluation, row held at draft
+- III (Beaucastel) and IV → APPROVED as written (road/journey harmony waved). The UNESCO
+  idea deliberately left unmapped (a place to admire, not a stance to claim).
+
+### The Devil (XV)
+- lenses I, II, III → APPROVED as written. I keeps "glass" under the Devil's pass; II's
+  price/penny voice kinship waved as design.
+- lens IV mapping: "illusion wines: flor-aged, rancio" → REJECTED (absent from the card's
+  framework ideas) → remapped to "constructed crowd-pleasers: Caymus (poured knowingly),
+  Mega Purple-era blends" (Ed: Caymus is "the perfect example"). Name/subtitle rework
+  pending: "better when they aren't real" doesn't quite say engineered pleasure.
+- lens r2 (IV) candidate pending grade: "Too good to be true / pleasure never asks how it
+  was made"
+
+### The Magician (I)
+- lens I "Channeled, not made" → APPROVED (compressed negation-name flagged; "it works there")
+- lens r1 (II): "every piece played its part perfectly" → REJECTED: "every piece" verbatim
+  under the voice's spine
+- lens r2 (II): "the parts disappear into the whole" → REJECTED: wrong feel — not
+  disappearance; the parts fulfilled their purpose and became greater combined than they
+  could ever be alone (catalysts, amplification)
+- lens r3 (II) candidates pending: "together they outgrew themselves" /
+  "together they became what none could be alone"
+- lenses III, IV → APPROVED (Moon-II biodynamic kinship waved; "Between two worlds" vs
+  W02's "A foot in each world" name-twin flagged — W02 renames in its own batch)
+
+### The High Priestess (II)
+- ALL FOUR APPROVED AS WRITTEN — the set completes; closing unlocked. Session proposals
+  rejected, each minting a law:
+- (I) proposal "what's shown and what's held back are both real" → REJECTED: the lens
+  brings more texture to the concept of hiding — not a stance clash with "isn't hiding"
+- (III) proposal "A lower frequency" → REJECTED: the "quiet" echo is a SORTER — a reader
+  who resonated with the voice reaches for the echoing lens; one who didn't rules it out
+  fast. Both outcomes mean the card read them. (New law, codified in Part 2; distinct from
+  claim-duplication clones, which stay convictions.)
+- (IV) veil/Tower twin waved: the veil is the Priestess's own furniture.
+
+FULLY APPROVED LENS SETS (6): Moon, Death, Tower, Fool, Hermit, High Priestess. The World
+and the Wheel each sit one verdict away; Devil and Magician carry one lens each.
+
+---
+
+## Lens layer — batch 2 verdicts + backlog batch (2026-07-24)
+
+**Culls executed (four lenses is now the ceiling):** Wheel II "Round it comes again / the same
+crossroads, a different season" (solera) and Lovers V "A toast to us / some feelings insist on
+being celebrated" (Billecart rosé) removed; Wheel renumbered I–IV. reveals.csv is keyed by
+card + lens_no, so the two orphaned draft pours were removed and the Wheel references
+renumbered in sync (verified: zero orphaned reveal rows).
+
+**The wires-crossed scare RESOLVED (no error anywhere):** Ed saw the app recommend Vietti
+Barolo Rocche di Castiglione (Lovers IV) and Vouvray Moelleux Le Mont (C13 II) while the
+session flagged Roulot in both lens rows. Diagnosis: three layers. lenses.csv's mapping cell
+holds idea-level example ANCHORS; the actual bottle lives in reveals.csv (draft pours exist
+deck-wide, mirrored into the app design-side); both app bottles sit correctly inside their
+ideas with zero overlap. lenses.csv verified: every row parses to exactly 8 cells, 78 cards.
+The Roulot flag was anchor-level only → withdrawn. New law codified: STYLE vs BOTTLE is not a
+collision (Lovers II keeps Riesling Spätlese-the-style beside C02 IV's Dönnhoff-the-bottle).
+
+### Wheel of Fortune (X) — COMPLETE (closing unlocked)
+- cull of II approved ("Good suggestion"); set stands at I sum / II lucky break / III
+  changing of the guard / IV comeback, all approved.
+
+### The Lovers (VI) — COMPLETE (closing unlocked)
+- cull of V approved; I–IV approved as written. Session's Lovers II mapping swap REJECTED:
+  the Riesling stays (style-level, no collision — the law above).
+
+### The Devil (XV) — COMPLETE (closing unlocked)
+- lens r2 (IV): "Too good to be true / pleasure never asks how it was made" → APPROVED
+  ("perfect"). The showcase card's lens set is canon.
+
+### The Magician (I) — COMPLETE (closing unlocked)
+- lens (II): Ed reversed his own redirect: "it was actually more clever than I realized at a
+  glance. Parts disappear into the whole is a play on the magician as if it's a disappearing
+  act." → "the parts disappear into the whole" APPROVED. LESSON: a rejected line can win on
+  the second look; when a line has a hidden second reading, SAY SO in the proposal.
+
+### The Empress (III)
+- I, II, III → APPROVED (P13 heirloom kinship: "the similarity is fine")
+- lens r1 (IV): "the best care is practical" → REJECTED: "feels like someone is begrudgingly
+  allowing me there... the practical reasonable minimum." Redirect: relatable HOSPITALITY.
+- lens r2 (IV) candidate pending: "the warmest welcome comes from the kitchen"
+
+### The Emperor (IV)
+- I → APPROVED. III: "good rules don't retire" → APPROVED (replaced the verbatim P10-voice
+  clone "outlive their makers").
+- II: session fix REJECTED — original name + subtitle KEPT ("I actually like a founding house
+  and every order traces back to one name"): claim-duplication is flag-then-decide (law
+  codified). But the first-growth mapping REJECTED as lazy book-history; redirect: unique
+  winemaker LINEAGES (house → spinoff abroad → protégés' own houses).
+- lens r2 (II) mapping candidate pending: Moueix of Pétrus founding Dominus in Napa + the
+  Tchelistcheff tree from Beaulieu (Grgich, Heitz). Flag: P03 IV pours the student's work;
+  this pours the source.
+- IV: text approved; Roederer accepted, nicher example requested → candidate pending:
+  Cos d'Estournel's gravity-only cellar (no pumps; control as care, literally).
+
+### The Hierophant (V) — COMPLETE (closing unlocked)
+- lens r2 (I): "some knowledge was kept by candlelight" → APPROVED ("excellent")
+- II, III, IV → APPROVED as written; the Mascarello bottle-double resolved on the W07 side
+  as sanctioned: W07 I mapping now "Cappellano's no-scores Barolo" (Teobaldo Cappellano,
+  the producer who asked critics not to score his wines).
+
+### The Chariot (VII) — COMPLETE (closing unlocked)
+- all four approved as written (sorter-law echo on III; difficult-vintage family flag logged).
+
+### Gap-fill drafts added (pending grade) + framework updated (all three sanctioned):
+- W10 IV: "An acquired taste / made for the few who can carry it" → Bionic Frog / Rocks
+  District (framework's "Too Much" idea reframed to Overwhelming Character; W05 pick-a-side
+  kinship waved: "weight carried vs debate provoked... absolutely enough")
+- S10 IV: "Sweeter for the fall / some things must be lost completely first" → noble rot
+  (framework's past-peak idea replaced; "completely" echoes the voice deliberately, sorter-law;
+  "fall" carries both readings on purpose)
+- P11 IV: "A fresh page / it's never too late to be a student" → career-changers: Massican
+  (Dan Petroski), Sandhi (Rajat Parr) (framework's school-wines idea replaced; "page" echo =
+  sorter under the rank-pun voice)
+
+**Backlog proposals pending grade:** Empress IV r2 · Emperor II lineage mapping · Emperor IV
+niche example · World II mapping bottles (Opus One + Cheval des Andes, unanswered from batch
+1) · W02 I rename "The best of both" (kills the Magician IV name-twin) · Star II subtitle
+"the rebuilding is already underway" (de-twins ruin/ruins with Judgement III and drops the
+even/even echo under its own voice) · C02 I mapping "well-knit Châteauneuf GSM" (Beaucastel
+bottle stays unique to World III) · the three gap-fill drafts above.
+
+**Stale-content note for Part 3:** the draft reveals for World II and Devil IV now trail
+their reworked lenses; regenerate them in the reveals pass.
+
+FULLY APPROVED LENS SETS: 12 of 78 (Moon, Death, Tower, Fool, Hermit, High Priestess, Wheel,
+Magician, Devil, Hierophant, Lovers, Chariot). Guidebook closings newly unlocked this
+session: 7 (all but the original five).
+
+---
+
+## Lens layer — THE MAPPING-FIDELITY AUDIT + the source-of-truth doctrine (2026-07-24)
+
+**Doctrine issued by Ed (now canon, codified in Part 2):** the Complete Framework doc is the
+headwater; every lens is an interpretation of one of its mapping ideas; lenses never invent
+ideas. If an idea is too weird/unpairable even after deep search, we propose MODIFYING the
+framework — divergence is discussed, approved, then written back into the framework
+immediately, keeping mapping idea ↔ numbered lens strictly 1:1 with no orphans in either
+direction. End state: an automated ingestion system reads a wine's fact sheet / story /
+provenance and matches it to mapping ideas → lenses, so the framework must carry explicit
+match criteria per idea.
+
+**Approvals executed first:** Empress IV "the warmest welcome comes from the kitchen"
+(EMPRESS COMPLETES), Emperor II founding-lineage mapping (Moueix/Pétrus→Dominus +
+Tchelistcheff tree), Emperor IV Cos d'Estournel gravity-only cellar (EMPEROR COMPLETES).
+All three divergences synced INTO the framework same-turn (Emperor ideas #2 and #4
+rewritten; Cappellano added to W07's defended-tradition examples). 14 sets fully approved.
+
+**THE AUDIT — every lens row vs the framework, all 78 cards. Verdict: the rot is shallow.**
+The original generation pass DID work from the framework: the overwhelming majority of
+lenses trace directly to a framework idea using the framework's own examples (details in the
+session log). Full findings:
+- CONCEPT-LEVEL INVENTIONS (no framework anchor): exactly TWO ever existed — World II
+  "Earned, not given / long-aged patience wines" and Devil IV "illusion wines: flor-aged,
+  rancio" — BOTH already caught and replaced in batch 1. No others found.
+- EXAMPLE-LEVEL DRIFTS (right idea, examples not from the framework's list): Devil III
+  (White Zin/Lambrusco vs the framework's buttery Chard/jammy Lodi Zin — framework sync
+  proposed since the lens is approved) and Star III (Joly borrowed from other cards' lists;
+  handle in Star's batch). W02 IV naming Drouhin is the framework's own unnamed referent.
+- THIN CELLS (idea right, examples missing from the mapping cell; backfill via the registry,
+  not by editing approved rows): Magician I/II/IV, World IV, Hermit I/III.
+- The World specifically (the trigger of the scare) is framework-TRUE: lens I/III examples
+  (Insignia, Grange, Beaucastel) are literally framework idea #3's list; II's Opus One is
+  literally idea #4's example; IV is idea #1 with a thin cell. The reveal layer's Vietti
+  Rocche di Castiglione (Lovers IV) is the framework's own third example for
+  choice-of-terroir — more evidence the original pass consulted the framework closely.
+- WITHDRAWN under the doctrine: the session's C02 I proposal (swapping Beaucastel out) —
+  the framework itself lists Beaucastel at C02 #1, so the swap would move AWAY from source.
+  Root cause of same-bottle repeats is the framework reusing examples across cards BY
+  DESIGN; bottle diversity belongs to the stocklist/ingestion layer, not the mapping layer.
+- Scope caveat: this audit covered lens ↔ framework fidelity. The reveals layer's draft
+  bottle picks are a separate future audit (Part 3 regenerates them anyway).
+
+**Registry recommendation (pending Ed's verdict):** build `content/mapping-registry.csv` as
+the machine-readable source of truth — one row per lens: card, lens_no, mapping name,
+one-sentence definition, match_signals (what in a fact sheet/story/provenance qualifies),
+disqualifiers, example wines, status. Seed mechanically from framework + lenses.csv; author
+match-criteria in batches alongside the lens batches; on completion a mirror script
+regenerates the framework doc's per-card idea lists (prose doc keeps philosophy, rubric,
+usage, narratives). Alternative rejected: keeping prose as the machine source (unenforceable
+1:1 sync, unparseable criteria).
+
+**Still pending from the backlog batch (Ed stopped at item 4):** World II mapping nod (Opus
+One + Cheval des Andes) · W02 I rename "The best of both" · Star II subtitle "the rebuilding
+is already underway" · W10 IV / S10 IV / P11 IV gap-fill drafts.
+
+---
+
+## Lens layer — DOCTRINE CLARIFIED: positional 1:1 + concept transmission (2026-07-24)
+
+**Ed's clarification (supersedes the set-membership reading of "maps 1:1"):** bottles are NOT
+the unit of fidelity, concepts are, and the binding is POSITIONAL — Lens I = framework idea 1,
+Lens II = idea 2, Lens III = idea 3, Lens IV = idea 4, rigidly, for every card. A lens must
+TRANSMIT its idea's concept (the teaching point a stranger should get), not merely cite the
+idea's example bottles. The World exposed three distinct failure modes:
+1. POSITIONAL DRIFT — lenses covering ideas as an unordered set (session-made too: the batch-1
+   remap of World I to Grand Tour, the Wheel renumbering without framework sync).
+2. CONCEPT-TRANSMISSION FAILURE — right bottle, wrong message (World I says integration, not
+   perfection; World III says many-grapes, not the-whole-estate-in-one-glass; World IV's
+   journey's-end isn't in the framework at all).
+3. REVEAL FREELANCING — draft blurbs written to whatever story the bottle offered (the Opus
+   One collaboration blurb sits under World lens I; it belongs to idea #4).
+The prior audit's "shallow rot" verdict measured set-membership + example anchors and is
+UNRELIABLE for dimensions 1 and 2; AUDIT 2.0 pending with the corrected rubric. Prompt gaps
+identified for the Part 2 rewrite: no positional rule, no fidelity test, count-based audit
+spec, steering described as vibe-level.
+- Skips now create framework debt: under no-orphans, the 8 sanctioned-skip ideas (Chariot #5,
+  Justice #5, Hanged Man #2, Judgement #3, W02 #2, W05 #4, W06 #5, W07 #4) must be deleted
+  from the framework or formally retired — Ed's confirmation pending.
+- Sync executed this turn: culled Wheel-solera and Lovers-rosé ideas REMOVED from the
+  framework — which repairs positional alignment for both cards (Wheel ideas now = lenses
+  I–IV exactly; Lovers likewise).
+- Registry design revised (position-keyed, concept_definition + match_signals +
+  disqualifiers; verify script enforces 1:1 both directions; framework per-card lists
+  regenerated from it). Seeding HELD until Ed confirms the diagnosis and the World worked
+  example.
+
+---
+
+## Lens layer — THE CHAIN MODEL + the golden-set plan (2026-07-24)
+
+**Ed's full articulation of the user journey (the governing model for every layer, verbatim
+intent):** voice = the general reading that starts the user thinking of the thing in their
+life → each LENS is a slightly-less-vague LIFE-SIDE facet of the card's symbolism, written so
+the user can say no-no-THAT-one ("OMG, I pulled the World, does it know about that huge thing
+I just accomplished? This first lens is about accomplishment, that one must be for me!") →
+the tap confirms their fortune was told → THE REVEAL is where the mapping idea bridges the
+symbolic concept to the wine learning: what makes the wine special mirrors what makes the
+user special, anchoring wine knowledge to a personal moment even for novices. THE LENS NEVER
+SPEAKS WINE-SIDE: "A grand tour" (named the bridge) and "Hands across the water" (named the
+bottle's friendship story) were REJECTED as exactly this disease — Ed: "I really dislike how
+you wrote that lens." The mapping idea's wine connection surfaces ONLY after the tap.
+
+**World idea-set re-tuned by Ed:** idea 1 is ACCOMPLISHMENT (100 points as the wine world's
+crazy feat), idea 2 = journey's end (adopted), idea 3 is WHOLENESS/UNITY/INTEGRATION (grand
+tour is the bottle-side way to taste it, never the lens), idea 4 is travel INTEGRATED INTO
+THE SELF (not friendship across water).
+
+**Policy rulings:** (a) approved set out of order → reorder the FRAMEWORK's ideas, never
+renumber approved lenses. (b) The 8 orphaned 5th ideas STAY in the framework; each card's
+golden-style critique formally decides its cull (Ed trusts none of the prior lens decisions
+until the new rubric exists); removed ideas live on only in this file. Registry seeding and
+the Part 2 rewrite are HELD until the golden set codifies the rubric.
+
+**THE GOLDEN-SET PROCESS (next major effort):** land 5 perfect cards via full-chain critique
+per card: (1) the 4 mapping ideas as a coverage set of the card's symbolic spectrum (replace
+weak ones, discussed); (2) each idea's wine connection (a resonant tangible bridge?); (3) the
+lens writing (less vague than the voice, life-relatable; title carries it, subtitle adds
+color/confidence); (4) the blurb; (5) the bottle. Codify what makes good good at each step →
+rewrite Part 2 (+ other docs) → build the registry → Audit 2.0 → resume batches.
+
+**World take 3 discovery:** the four existing draft pours are all KEEPERS, merely misfiled —
+correct filing under the new idea order: Monfortino (100-point feat) → I, La Tâche (journey's
+end) → II, Beaucastel (whole estate) → III, Opus One (worlds integrated) → IV. Also noted for
+Part 3: the draft blurbs open by restating the lens subtitle verbatim (lazy echo-move;
+"Every piece finally in its place" even preserves a convicted subtitle).
+
+---
+
+## Lens layer — GOLDEN CARD 1: THE WORLD lands (2026-07-24)
+
+Take 3 APPROVED ("I absolutely love them"), with one user tune baked: lens III subtitle →
+"what was scattered is now one". THE WORLD'S LENS SET IS CANON (15 sets fully approved):
+- I: A crowning achievement / some feats speak for themselves → 100-point feat (Monfortino)
+- II: The arrival / the journey ends where it was always heading → destination bottle (La Tâche)
+- III: It all came together / what was scattered is now one → grand-tour estate (Beaucastel)
+- IV: Well traveled / no one comes home unchanged → globally integrated (Opus One)
+Retired to history: "The whole picture / everything belongs in the frame" (batch-1 rewrite,
+superseded), "Hands across the water / no border ever stopped a good idea" (wine-side lens,
+the disease exemplar), "A world unto itself / built from so many parts it became its own
+thing" (many-grapes read, missed wholeness).
+
+**New presentation law:** lens evaluations always show CORE CONCEPT | LENS | MAPPING IDEA
+(wine connection) side by side.
+
+Framework World section rewritten in the trial registry template (Core concept: X / Wine
+connection: Y / examples). Pours re-filed (Monfortino→I, La Tâche→II, Beaucastel→III, Opus
+One→IV; zero orphans) with fresh echo+blurb DRAFTS pending grade:
+- I echo "The crowning feat. Deserved." · blurb: summit/perfect-hundred (7 yrs one cask)
+- II echo "Journey's end. Welcome." (kept) · blurb: monopole, name that closes conversations
+- III echo "Everything, as one. Rare." · blurb: 13 varieties, every corner, one glass
+- IV echo "The long way home. Worth it." · blurb: Mondavi x Rothschild, both languages
+Next golden card after the reveal grades: The Moon (full-chain canon stress test), then
+Devil, Four of Cups, Queen of Wands. Roster approved by Ed.
+
+---
+
+## Lens layer — World II reveal rework + THE SUBSTANCE QUESTION (2026-07-24)
+
+World reveal grades: I (Monfortino), III (Beaucastel), IV (Opus One) pairings/echoes/blurbs
+all graded well — held at draft pending the substance ruling below. II REJECTED at the
+mapping-idea level: "the destination bottle" (La Tâche, nowhere-further-to-go) is unautomatable
+vibes and overlaps lens I's summit; Ed: "wines that are so good it's like your wine journey is
+over... is useless." Redirect: the bottle must represent the COMPLETION OF A GREAT UNDERTAKING
+(the bigger the better), with enthusiastic proponents (not necessarily universal). Lens II
+text itself unchanged and still right. Session proposal pending grade: idea reframed as "the
+long undertaking, finished" (culmination-framed releases; signals: producer's own story frames
+the wine as the end of an epic road; disqualifiers: routine long élevage = P07 patience,
+elegiac final vintages = S10) with Vin de Constance as the pour (the century road back to
+Napoleon's Constantia, completed 1986). Framework + CSV syncs HELD until graded.
+
+**The substance question (Ed, thinking aloud; session assessment given, ruling pending):** is
+the short blurb enough for the soulmate moment ("they need to feel like this bottle is their
+soulmate")? Options weighed: hook-only vs hook + optional depth beat; sourcing stories at
+ingestion scale; hallucination risk eroding trust. Session recommendation: hook stays
+self-sufficient (guidebook precedent), optional story-depth beat below it for bottles with
+earned facts; provenance-anchored generation (blurb claims must trace to facts captured at
+ingestion — the same extraction the pairing engine's match_signals already require; one
+pipeline, two consumers); two-tier policy for story-poor bottles (honest charm, never invented
+drama). Depth demo drafted on Vin de Constance.
+
+---
+
+## Lens layer — GOLDEN 1 CLOSED · hook+depth adopted · attainability law (2026-07-24)
+
+World II APPROVED end-to-end: idea "the long undertaking, finished" + Vin de Constance +
+hook blurb + depth beat ("your example is perfect"). Framework, lenses.csv, reveals.csv all
+synced. THE HOOK + DEPTH BEAT structure ADOPTED deck-wide (reveals.csv gained a `depth`
+column, all 285 rows migrated; laws codified in Part 3B: hook self-sufficient 35–55w, depth
+beat = somm leaning in, provenance rule / hallucination firewall, two-tier policy).
+**ATTAINABILITY LAW (Ed):** attainable bottles are the hard default; unicorns like Opus One
+are extreme rarities reserved for card-obvious fits ("otherwise all our efforts are a
+waste"); a couple of crazy gems belong, their places completely obvious. The World, as the
+deck's culmination card, carries the sanctioned gem density (Monfortino + Opus One), with
+Beaucastel and Vin de Constance keeping it honest.
+GOLDEN CARD 1 (The World) is COMPLETE pending only: Ed's grade of the three new depth beats
+(Monfortino/Beaucastel/Opus One, drafted into the depth column) and the Part 3C stats-verify
+of the four rows (fields carry best-effort values; rows held at draft until the stats check).
+Ingestion insight (for Ed's other chat): the pairing engine's match_signals and the blurb
+writer consume the SAME provenance-linked extraction; one pipeline, two consumers.
+
+## GOLDEN 2 OPENED: The Moon — chain state discovered
+Positional check: PASSES (lenses I–IV = framework ideas 1–4 in order). Lens III (nudge-era)
+carries 3 APPROVED pours (Vat 1, dry Furmint, Lapierre Morgon). Lenses I/II/IV carry one
+DRAFT pour each, pre-doctrine: I = Rousseau Gevrey-Chambertin (UNICORN — attainability-law
+violation candidate), II = Joly Coulée de Serrant (gem-tier; Joly's entry Savennières "Les
+Vieux Clos" is the same lunar story attainable), IV = Tissot Arbois Poulsard (attainable ✓).
+Steps 1–3 critique presented to Ed this turn; verdicts pending.
+
+---
+
+## Lens layer — GOLDEN 2 (The Moon) rulings + restructure (2026-07-24)
+
+World's three depth beats APPROVED as written ("all great"). Moon rulings:
+- **III + IV mapping ideas MERGED**: color illusion folds into Deceptive Wines as a match
+  signal (framework synced; serving-ritual bullet deleted). NEW DECK LAW (codified, Part 2):
+  NO SERVING RITUALS — bartender-era relic mappings (blind pours, flights, color games) get
+  rooted out; consumer-viable only. Watchlist: S07 IV blind-tasting framing, W05 II
+  compare-the-neighbors framing.
+- Idea coverage verdict: first three "kiiind of good"; a DREAMS-family gap named (dreams
+  guiding the way / dreams vs reality / darkness / the road out of dark) — new idea 4 must be
+  automatable. Session recommendation pending: "the night's work" (what forms in the dark
+  while the world sleeps) anchored on ice wine's frozen night harvest.
+- Lens I "A shifting face" and II "Drawn by the tide" reaffirmed (very relatable). III name
+  kept; SUBTITLE reopened: "the best deceptions never feel like one" too roundabout, unclear
+  what the user relates to and how it differs from lens I. One-shot rework pending:
+  "sometimes the story beats the truth".
+- Pour I: Rousseau Gevrey REPLACED by Cavallotto Bricco Boschis (attainability-law first
+  conviction; new hook + depth written, draft). Echo "The shapeshifter. Watch closely." KEPT
+  by Ed: an instruction-echo is welcome "when the reading becomes real" (3A calibration note).
+- Pour II: Coulée de Serrant swapped to Joly's Les Vieux Clos (Coulée stays in the mapping
+  cell as the mythic reference guiding pairing). Echo rephrased by Ed: "Pulled by the unseen.
+  Aren't we all." (half-restate flag waved: "the connection is clear").
+- Pour III ×3: depth beats written into the canon rows (sanctioned; approved rows may gain
+  the new field). Vat 1 / Furmint / Morgon depths drafted.
+- Pour IV (Tissot Poulsard): Ed notes it pairs as easily under III (it's deception, the dark
+  doing it) — disposition pending with the idea-4 decision.
+
+---
+
+## Lens layer — Moon idea 4 settled BY CANON + two new laws (2026-07-24)
+
+**Two convictions from Ed, both codified:**
+1. **CONCEPT-SOURCE LAW:** a core concept must come from the card's canonical symbolism (the
+   framework's Symbolism list or the guidebook writeup), never invented to fit a bottle. "The
+   night shift" convicted as bottle-first drafting: started from Eiswein, bent a concept
+   around it ("there's nothing in the card's meaning about making something in the dark...
+   nothing about a night shift is relatable"). Eiswein itself is liked; parked for a card
+   where its frozen-gamble story genuinely lives. The lens test, verbatim: reading it must
+   produce "oh my god, the card knows about that thing in my life."
+2. **GUIDEBOOK-WOVEN HOOKS:** blurb hooks are written from the card's guidebook understanding
+   of WHY the symbol resonates (the user's felt experience), weaving that into the transition
+   to the wine; never written from the echo alone. Hook I convicted (didn't touch the
+   unsettling which-version-is-real experience); hook II convicted (missed the undeniability
+   of a force stronger than you; must give newcomers something to sink teeth into). Depth
+   beats deepen the card connection too: mechanism + why this producer is best at it, and
+   they must segue when the label name differs from the famous name (Joly/Les Vieux Clos).
+   Style note: drop needless intensifiers ("spends the whole evening" → "spends the evening").
+
+**DISCOVERY — the canon closing constrains the lens set:** The Moon's approved closing
+enumerates its lenses ("...an instinct that has been right all along"), so idea 4 IS
+INTUITION by canon; the symbolism list (Illusion|Intuition|Dreams|The subconscious|Fear|The
+hidden) and guidebook para 7 ("a feeling is information arriving early... the card sides
+with you") confirm. Systemic rule: every card's closing paraphrases must match its final
+lens set, and canon closings constrain restructures.
+
+Tissot Poulsard row retired (approved). Moon I and II hooks/depths rewritten under the new
+laws (drafts, pending grade). Pending grade this turn: lens III subtitle one-shot
+("sometimes the story beats the truth", supported by the closing's "a deception you may
+already suspect"), lens IV "A gut feeling / the feeling got there before the facts" +
+Gramenon chain, the rewritten I/II chains.
+
+---
+
+## Lens layer — closings ruling + GOLDEN 3 opened: The Devil (2026-07-24)
+
+**CLOSINGS-FOLLOW-LENSES (Ed's reversal of the session's closing-as-constraint law):** closing
+paragraphs are written AFTER a card's four lenses are approved, and since many old approvals
+are now suspect, closings are not gospel — the five canon closings (Moon, Death, Tower, Fool,
+Hermit) are FLAGGED in guidebook.csv notes for likely rewrite as lens sets overhaul. Part 2
+law corrected. (Moon's intuition idea stands on the symbolism list + guidebook para 7.)
+
+Moon verdicts landed: lens III subtitle "sometimes the story beats the truth" APPROVED and
+written; I · Cavallotto chain "perfect"; II · Les Vieux Clos chain "perfect" (rows hold at
+draft pending the 3C stats pass only). Lens IV "A gut feeling / the feeling got there before
+the facts" + Gramenon chain written as DRAFT, awaiting Ed's explicit nod (not graded last
+round); Moon framework sync (idea 4 add + registry-format polish + closing re-check) queued
+behind that nod.
+
+**PARKED BOTTLES LEDGER (good chains orphaned by restructures, awaiting the right card):**
+Tissot Arbois Poulsard (color-lie, absorbed by Moon III's Morgon voicing) · Lustau Península
+Palo Cortado with its born-as-fino blurb (orphaned by Devil IV's constructed rework; candidate
+for a contemplative/accident-of-nature slot) · Eiswein / Inniskillin (the frozen-gamble story;
+parked at the night-shift conviction) · La Tâche (displaced by Vin de Constance).
+
+**The Devil (golden 3) pour re-filing (drafts):** Turley → lens I with its own second-glass
+story (echo "The second round. Inevitable." rides along); The Prisoner → lens IV (the
+285-million-dollar engineered-recipe story IS "pleasure never asks how it was made"; new echo
+"No questions asked. Smart."); SQN stays II (hook rewritten off the verbatim-subtitle opener;
+the sanctioned unicorn: luxury bondage NEEDS unattainability); NEW III pour Rombauer
+Chardonnay (the definitional butter-bomb guilty pleasure; echo sharpened "The soft spot. Pour
+heavier." replacing the verbatim lens-name restate). Positional note for close: framework
+Devil idea order reorders to match the approved lens order (policy a).
+
+---
+
+## Lens layer — THE CONFESSIONAL MODEL + Devil rebuilt (2026-07-24)
+
+**THE MOON CLOSES (golden 2):** lens IV "A gut feeling / the feeling got there before the
+facts" + Gramenon chain fully approved; framework Moon section completed in registry format
+(Shapeshifter / Unseen Pull / Deceptive Wines / Intuition). Content-approved reveal rows
+flipped to approved (World x4, Moon Cavallotto/Les Vieux Clos/Gramenon); the 3C stats sweep
+stays scheduled and may propose corrections for sanction.
+
+**THE CONFESSIONAL MODEL codified as THE rubric (Ed):** voice spurs an internal confession of
+a thing never said; lenses, slightly more specific, catch it; the user reaches for the one
+matching what they confessed in their head. "Feels like magic, but it's just you telling on
+yourself." Every lens is now evaluated by how well it nails the confession. Corollaries: the
+wine rule binds at lens level even on the Devil ("A second glass" convicted as literal drink);
+concept cells lead with the guidebook SYMBOL; echo-repeat is a balance, sanctioned when the
+repeat IS the confession.
+
+**Devil lens rebuild (drafts pending grade):**
+- lens r3 (I): "A second glass / the first one was never going to be enough" → REJECTED
+  (wine-rule breach at lens stage; not a life-confession) → "One more won't hurt / it was
+  never a fair fight" (the tempted person's own self-talk). Mapping reworked for automation:
+  THE VELVET TRAP — power hidden in plushness; signals computable from our own captured stats
+  (ABV 15+ described silky/seamless; plush low-tannin high-fruit; off-dry crowd styles).
+- lens r3 (II): "Worth every penny" title → REJECTED (a defense, not a confession) → "Under
+  its spell" (bondage + hype enchantment); subtitle kept per Ed. Concept: BONDAGE/MATERIALISM
+  — introduce cult wines, let the user judge the hype themselves.
+- lens r3 (III): subtitle "the best kind, no guilt at all" → REJECTED (erases the guilt; the
+  confessor knows they're "a dirty little gremlin") → "the shame is half the flavor". Title
+  kept. Echo "The guilty pleasure. Pour heavier." RESTORED per Ed (the repeat IS the tap).
+- lens r3 (IV): "Too good to be true / pleasure never asks how it was made" → REJECTED; Ed's
+  reframe: having given in to curiosity and seen what can't be unseen (the sausage principle)
+  → "How the sausage gets made / you looked, didn't you" (Ed's concept, session's words).
+- Pours: Turley hook re-anchored to the small-yes negotiation (close untouched; automation
+  confirmed: velvet-trap signature computable, hook/depth survive). SQN → SAXUM per Ed (more
+  attainable, "worth the hype" personally endorsed; the you-decide lesson written in; SQN
+  chain PARKED). Rombauer hook reworked to gremlin-glee ("Nobody admits it. Everybody's glass
+  is empty."). Prisoner → CAYMUS per Ed (the revered wine with the open secret); provenance
+  firewall honored: the blurb asserts only the documented (critics' questions, Mega Purple's
+  scale, Caymus's non-answer), insinuation carries the rest — the Devil's way. PRISONER chain
+  PARKED (the $285M engineered-brand story).
+
+---
+
+## Lens layer — Devil round 4 verdicts (2026-07-24)
+
+- Lens I: concept re-anchored PLEASURE TRAP as well as temptation (the 15% brick springs the
+  trap). Title "One more won't hurt" KEPT; subtitle "it was never a fair fight" REJECTED (the
+  title isn't about a fight; subtitle must add texture to the title). r4 candidate pending:
+  "the oldest lie we tell ourselves" (alt: "famously said right before it does").
+- Lens II: "Under its spell" REJECTED — CULT is the essential word (with chains and luxury);
+  the lens is about buying into the cult, bondage inherently understood, and you'll never
+  know if the alien sky god is real without attending a meeting or two. r4 candidate pending:
+  "Joining the cult / some chains look a lot like luxury" (subtitle retained). Echo cult-tuned:
+  "The initiation. Drink up." + hook opener now cult-framed; depth untouched.
+- Lens III: "A guilty pleasure / the shame is half the flavor" → APPROVED ("brilliant").
+  Rombauer pour approved (new gremlin hook + the Joy of Cooking depth beat retained).
+- Lens IV: lens text APPROVED as written ("hilarious and great"); concept re-anchored per Ed:
+  NOT pleasure traps — INDULGED CURIOSITY / FORBIDDEN KNOWLEDGE, with a bondage undertone (no
+  unseeing it). Note: "Forbidden knowledge" is not in the Devil's canon keyword list —
+  incomplete-lists precedent says propose the addition, pending Ed.
+- Pours: Turley APPROVED (tweak "great"), Rombauer APPROVED, Caymus APPROVED ("absolutely
+  perfect... my favorite lens and writing pairing so far"). Saxum held draft for the cult-tuned
+  echo/hook grade. Framework Devil block rewrite (registry format, lens-order positions, new
+  concept anchors) queued for card close.
+
+---
+
+## Lens layer — GOLDEN 3 CLOSED (The Devil) · GOLDEN 4 OPENED (Four of Cups) (2026-07-24)
+
+THE DEVIL COMPLETES end-to-end (15 full sets): lens I "One more won't hurt / the oldest lie
+we tell ourselves" and II "Joining the cult / some chains look a lot like luxury" approved
+("perfect"), Saxum chain approved ("perrrrrfect... I love this one now"). Framework Devil
+block rewritten in registry format, positions matched to lens order (Velvet Trap / Joining
+the Cult / Guilty Pleasure / Sausage). "Forbidden knowledge" keyword addition DECLINED by Ed:
+"just a form of regretted indulgence. We just won't capitalize that one" — concept cells may
+carry uncapitalized concepts when no canon keyword fits.
+
+**Four of Cups (golden 4) opened.** Voice: "Apathy has terrible eyesight. The gold is in the
+blind spot." Positional finding: old lens III carried framework idea 4 (fallen-from-favor)
+and idea 3 (re-evaluation) was the sanctioned gap — new lens III drafted, old III renumbered
+IV (Vecchio Samperi reveal renumbered in sync; zero orphans). Existing pours are strong
+(Pépière Muscadet, Oremus Mandolás, De Bartoli Vecchio Samperi) but all three hooks open
+with verbatim subtitles (lazy-echo class, rework queued) and none yet has a depth beat.
+Furmint double flagged: Moon III pour 2 is generic dry Furmint, C04 II is Oremus Mandolás
+(style-vs-bottle law passes; ingestion diversity will manage).
+
+Lens proposals written as drafts (pending grade), confession-first:
+- I CONTEMPLATION/BOREDOM — "I wrote it off as boring": "Worth a second look / boring is
+  usually a first impression" (subtitle "quiet things reward attention" retired as sermon)
+- II MISSED OPPORTUNITIES — "it was right in front of me": "Right under my nose / it was
+  there the whole time" (old "A gem in plain sight / the overlooked are rarely empty-handed"
+  retired: odd personification, points at a thing rather than catching a confession)
+- III RE-EVALUATION (new) — "maybe I was wrong about it": "Maybe I was wrong / tastes change
+  when nobody's watching" — the deck's FIRST first-person lens title, the confessional model
+  taken literally; flagged for Ed's call. Pour direction: post-Sideways Merlot.
+- IV DISCONTENT/NEGLECT — "the thing I love fell out of fashion": "Out of fashion, not out /
+  neglect says nothing about worth" KEPT as-is (negation-compression name flagged, wave
+  recommended; the mercy is right)
+
+---
+
+## Lens layer — GOLDENS ARE CEILINGS ruling · C04 parked · QW opened (2026-07-24)
+
+**Ed's ruling:** the golden set must contain only sky-high exemplars — never the hard-register
+cards, whose necessary compromises would "infect every card after this one." Every card aims
+at golden-level quality; some trickier ones may never reach it, but the ceiling stays sky
+high. FOUR OF CUPS PULLED from the golden roster: its restructure (positional fix, new lens
+III "Maybe I was wrong", renumbered IV) stays in the file AS DRAFT, to be returned to when the
+Cups batches come around. The first-person lens-title precedent rides with it, undecided.
+Golden 4 is now the Queen of Wands; a fifth-golden shortlist goes to Ed for choice.
+
+### Queen of Wands (golden 4) — opening critique (2026-07-24)
+Positional PASSES (lenses I–IV = ideas 1–4). Pours all keep: Michelot Meursault, Janasse
+Châteauneuf, Veuve Clicquot Yellow Label (the framework's own icon story), Fuligni Brunello —
+attainable across the board. Lens proposals (drafts):
+- lens r2 (I): "Sure of itself" → "Sure of herself" — "itself" described an object (wine-rule
+  flicker under the confessional rubric); the Queen's pronoun catches both readers: the
+  embodier ("that's my energy") and the needer ("the certainty I need to channel").
+- lens r2 (IV): subtitle "the lively ones still run deep" → "the glow goes all the way down" —
+  "run deep" collided VERBATIM with the other Queen's approved voice ("The calmest waters run
+  deep"), a side-by-side twin across the two queens; the fix keeps fire-imagery.
+- II and III recommended as written ("An empire of her own / underestimated is a temporary
+  condition" is already golden).
+Queued for the pours round: all four hooks open with verbatim subtitles (lazy-echo class),
+zero depth beats; echo I's "Magnetic." doubles lens II's subtitle word (minor flag); echo IV's
+"The full package." repeats inside its own blurb close (fix one side).

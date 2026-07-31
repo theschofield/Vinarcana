@@ -12,10 +12,11 @@ across the table, telling your fortune in spoken cadence — sly, composed, neve
   Part 2 lenses, Parts 3A/3B/3C reveals) plus the shared batch workflow. Read the relevant part
   before writing anything.
 - **`spirit-voices.csv`** — Part 1 output. One row per card: the spirit's voice + status.
-- **`lenses.csv`** — Part 2 output. One row per lens: name, subtitle, nudge flag, hidden wine
+- **`lenses.csv`** — Part 2 output. One row per lens: name, subtitle, nudge flag (RETIRED
+  Jul 23 2026 — never permanently nudge a lens; column kept, values empty), hidden wine
   mapping, status.
 - **`reveals.csv`** — Parts 3A/3B/3C output. One row per POUR: lens echo (repeats per lens),
-  blurb, wine, stats, palate values, status.
+  hook blurb + optional depth beat (adopted Jul 24 2026), wine, stats, palate values, status.
 - **`guidebook-prompt.md`** — THE prompt for the Guidebook (Deeper Reading) layer: the informative
   booklet voice, section-by-section rationale, anti-goals, pipeline notes. Reads on top of
   `voice-prompt.md`'s house rules and hard bans.

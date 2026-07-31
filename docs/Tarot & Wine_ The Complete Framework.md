@@ -137,11 +137,11 @@ An idea must pass every stage to be included:
 
   * **Highly structured, architectural wines:** Styles known for their firm tannic structure and framework, built for long aging (e.g., Classified Growth Bordeaux from Pauillac or St. Estèphe, traditional Barolo, or a powerful Napa Cabernet Sauvignon from a mountain site like Howell Mountain).
 
-  * **Wines from historically significant, "First Growth" estates:** The flagship wine from an estate that represents the pinnacle of its region's hierarchy and has set the standard for generations (e.g., Château Latour, Penfolds Grange, Vega Sicilia 'Unico').
+  * **Wines from founding houses and their lineages:** Estates whose name is the origin point of an entire order: the distinguished house whose pedigree flows outward into spinoffs abroad and protégés' own ventures, so that every branch traces back to one name (e.g., the Moueix family of Pétrus founding Dominus Estate in Napa; the André Tchelistcheff tree from Beaulieu Vineyard, whose students included Mike Grgich and Joe Heitz).
 
   * **Wines from a strictly defined Appellation d'Origine Contrôlée (AOC):** A wine that perfectly exemplifies the rules and laws of its appellation, showing how structure and regulation can create a benchmark for quality (e.g., a textbook Brunello di Montalcino or a classic Hermitage).
 
-  * **Wines defined by precise, controlled winemaking:** Highlighting producers who impose a specific, ordered vision onto their wines through meticulous technique and blending (e.g., the precise blending of Krug's Grande Cuvée, the powerful structure of Penfolds Grange, or the architectural finesse of a top First Growth Bordeaux like Château Haut-Brion).
+  * **Wines defined by precise, controlled winemaking:** Highlighting producers who impose a specific, ordered vision onto their wines through meticulous technique and blending (e.g., Cos d'Estournel's gravity-only cellar, rebuilt so the wine is never once pumped; the blending precision of Louis Roederer; or the architectural finesse of Château Haut-Brion).
 
 * *Narrative:* “The Emperor represents structure, authority, and the stable foundation upon which empires are built. This wine shares that character—it's built with a firm, commanding structure, a product of order and ambition. It speaks to the power of leadership and the security that comes from a world in which rules create greatness.”
 
@@ -174,8 +174,6 @@ An idea must pass every stage to be included:
   * **Wines from famous winemaking couples:** Highlighting the partnership and shared values of couples who work together to create beautiful wines (e.g., from modern power couples like Andy Erickson and Annie Favia of Favia, or Chris and Andrea Mullineux in South Africa; or historic partnerships like that of Madame Bollinger who took over from her husband, or Robert and Margrit Mondavi in Napa Valley).
 
   * **Wines representing a choice of terroir:** Highlighting the choice between different paths. This could be a wine from a vineyard straddling two famous appellations, or more commonly, a producer who bottles two distinct single-vineyard wines that express different values (e.g., Domaine Roulot's choice to bottle Meursault 'Les Perrières' and 'Les Charmes' separately; E. Guigal's distinct "La La" bottlings in Côte-Rôtie; or Vietti's separate bottlings of different Barolo Crus like Rocche di Castiglione and Lazzarito).
-
-  * **Rosé Champagne:** Often associated with romance and celebration, a high-quality Rosé Champagne embodies the harmony and joyous union of the Lovers (e.g., Billecart-Salmon Brut Rosé).
 
 * *Narrative:* “This card represents harmony, the beauty of a perfect union, and the importance of choices made from the heart. This wine reflects that balance and synergy, perhaps through its masterful blend of different grapes or its connection to a famous partnership. It celebrates the powerful alchemy that occurs when two forces align in perfect harmony.”
 
@@ -236,8 +234,6 @@ An idea must pass every stage to be included:
 * *Wine Mapping Ideas:*
 
   * **Non-Vintage Champagne:** The ultimate wine of cycles, masterfully blending multiple vintages, with reserve wines from past "turns of the wheel" providing depth and consistency to the current release (e.g., Krug Grande Cuvée or Egly-Ouriet Brut Tradition).
-
-  * **Wines from a Solera System:** A style where the continuous fractional blending system is a literal representation of the Wheel, with older wines educating the younger in a never-ending cycle (e.g., Sherry, Montilla-Moriles, or Rutherglen Muscat).
 
   * **Wines benefitting from “luck” or serendipity:** Representing fortunate turns of the wheel, this could be a surprisingly great wine from a generally difficult vintage (e.g., certain producers in 2011 Napa or 2007 Bordeaux), or the story of a "forgotten" barrel that develops into something exceptional (e.g., the origin stories of Penfolds Grange or Tignanello).
 
@@ -321,13 +317,13 @@ An idea must pass every stage to be included:
 
 * *Wine Mapping Ideas:*
 
-  * **"Cult" Wines and Materialism:** Discussing the world of highly sought-after, wildly expensive "cult" wines, questioning if the price reflects quality or the bondage of materialism (e.g., pouring an iconic but controversial Napa Cabernet like Screaming Eagle, or a more accessible cult-like wine like Sine Qua Non or Saxum).
+  * **The Velvet Trap (dangerously easy wines):** Core concept: TEMPTATION and the PLEASURE TRAP — the pull you keep saying yes to, one small yes at a time; you know you shouldn't, you just can't resist, and the fifteen-percent brick lands later. Wine connection: power hidden in plushness. Match signals (computable from captured stats): ABV near 15+ described as silky, seamless, or smooth; plush low-tannin, high-fruit profiles; off-dry crowd styles built to invite the next pour (Turley Zinfandel, hedonistic Grenache, off-dry Vouvray). Disqualifiers: big wines that taste big; an honest brute is the Ten of Wands' burden, not a trap.
 
-  * **Wines that are dangerously easy to drink:** A delicious, seductive wine that tempts you into having "just one more glass," representing temptation and the potential for negative patterns (e.g., a plush, fruit-forward California Zinfandel from a producer like Turley or a rich red blend like The Prisoner; an off-dry Vouvray from the Loire Valley; or a hedonistic, ripe Grenache from the Southern Rhône or Spain).
+  * **Joining the Cult (luxury bondage):** Core concept: BONDAGE and MATERIALISM — buying into the cult; the chains come with membership, and the only way to know if the hype is real is to attend a meeting or two. Wine connection: cult wines with allocation lists, engineered scarcity, and prices that dare you; the pour lets the user judge the substance behind the hype for themselves. Match signals: mailing-list allocations, waitlists, cult-tier secondary pricing (Saxum, Sine Qua Non, Screaming Eagle tier). Disqualifiers: merely expensive classics without the cult mechanics (that is the King of Pentacles' blue chip).
 
-  * **Wines with controversial additives:** Discussing the use of additives to create an illusion of quality or mask flaws (e.g., Mega Purple for color and sweetness in some value-priced California red blends like Apothic Red or Ménage à Trois; powdered tannins to add structure to entry-level reds; or specific commercial yeast strains engineered to produce particular, predictable flavors, tempting the palate with a constructed reality rather than an authentic one).
+  * **The Guilty Pleasure (critic-scorned, crowd-adored):** Core concept: THE SHADOW SELF with HUMOR ABOUT FLAWS — the indulgence guilt can't stop; the dirty little gremlin who knows exactly what they're doing and does it anyway. Wine connection: styles conventional taste scorns and everyone secretly drinks. Match signals: categories with a documented critics-versus-sales gap (butter-bomb Chardonnay like Rombauer, White Zinfandel done seriously, Lambrusco's cheap reputation, jammy Lodi Zin). Disqualifiers: simple crowd-pleasers nobody feels guilty about (that is the Six of Cups' easy pleasure).
 
-  * **Intensely Hedonistic "Guilty Pleasure" Styles:** A wine that is unapologetically hedonistic and might be considered a "guilty pleasure" by conventional taste. This acknowledges the pleasure trap of the Devil, and the humor in loving something "wrong" (e.g., a big, buttery, oak-driven Chardonnay that critics might scorn; a massively ripe, jammy Lodi Zinfandel; or a popular, slightly sweet red blend that delivers pure, simple pleasure over intellectual complexity).
+  * **How the Sausage Gets Made (controversial additives):** Core concept: indulged curiosity and forbidden knowledge, a form of regretted indulgence with a bondage undertone — you looked behind the curtain and there is no seeing it the old way again. Wine connection: pulling the curtain on the lab behind the glow and letting the user decide if they care. Match signals: documented or credibly-questioned use of Mega Purple, powdered tannin, or engineered flavor yeasts; the revered bottles critics keep asking about (Caymus, poured knowingly; Apothic-era blends). Disqualifiers: honest technique (temperature control, cultured yeast per se); the curtain-pull needs a secret behind it.
 
 * *Narrative:* “The Devil speaks to the temptations and attachments that can bind us—materialism, addiction, negative patterns. In the wine world, this can be seen in the obsession with "cult" wines. Is the pleasure worth the price, or is it a form of bondage to status? This wine invites us to explore our own relationship with temptation, luxury, and the powerful pull of the material world.”
 
@@ -369,13 +365,13 @@ An idea must pass every stage to be included:
 
 * *Wine Mapping Ideas:*
 
-  * **Wines that are notoriously chameleon-like:** Styles known for dramatic bottle variation or for showing completely different profiles depending on the day, the moon, or the drinker's mood (e.g., Pinot Noir is the classic example, especially from top Burgundy producers like Armand Rousseau whose wines can shift profoundly with air and age; likewise, traditional Barolo or Barbaresco from producers like Bartolo Mascarello or G. Rinaldi are notorious for being moody and revealing different facets over an evening).
+  * **The Shapeshifter (chameleon wines):** Core concept: INSTABILITY — something or someone keeps changing on you, and the unsettling part is deciding which version was real. Wine connection: wines notorious for moodiness, shifting dramatically with air, temperature, and the hours of an evening. Match signals: aromatically restless varieties raised the traditional, neutral-vessel way (old-method Barolo and Barbaresco like Cavallotto or G. Rinaldi; top Burgundy Pinot Noir). Disqualifiers: simple bottle variation from careless winemaking.
 
-  * **Wines from biodynamic producers who follow the lunar calendar:** The most literal interpretation, pouring a wine from an estate that explicitly uses the lunar cycle in their viticulture (e.g., Domaine Leflaive, Zind-Humbrecht, Nicolas Joly's Coulée de Serrant, or Domaine de la Romanée-Conti).
+  * **The Unseen Pull (lunar biodynamics):** Core concept: THE UNSEEN PULL — moved toward something by a force stronger than you that you cannot point to, the way the moon moves tides. Wine connection: estates that explicitly farm by the lunar calendar, where the moon's influence is strange, hard to explain, and undeniable in the glass. Match signals: biodynamic practice with stated lunar-calendar work (Nicolas Joly's Savennières, Domaine Leflaive, Zind-Humbrecht, Domaine de la Romanée-Conti).
 
-  * **Deceptive Wines:** Styles that create an illusion, where the nose promises one thing but the palate delivers another (e.g., a Dry Muscat from Alsace or a high-quality Argentinian Torrontés that smells of sweet grapes but is bone-dry; an aged Hunter Valley Semillon with toasty, nutty notes that suggest oak but is completely unoaked), or wines that completely transform in the glass over time (e.g., a young, reductive white Burgundy from producers like Coche-Dury or Roulot that starts with notes of struck match and evolves to reveal incredible complexity; or a young Northern Rhône Syrah that seems brutally savory and tannic at first but reveals beautiful floral and fruit notes with air).
+  * **Deceptive Wines (the beautiful lie):** Core concept: MISDIRECTION — something presents one way and is another, and the discovery is a delight rather than a betrayal. Wine connection: wines whose presentation contradicts their facts. Match signals: a nose that promises sweetness over a bone-dry palate (Dry Muscat, Torrontés, dry Tokaj Furmint trading on Aszú's sweet legend); oak flavors from a wine that never touched oak (aged Hunter Valley Semillon like Tyrrell's Vat 1); a color that lies about the weight (pale, chillable, secretly serious reds like Lapierre's Morgon or a Jura Poulsard; skin-contact whites built like reds). Disqualifiers: complexity or slow in-glass evolution without a genuine contradiction (that is the chameleon, idea 1).
 
-  * **The Illusion of Color (Blind Tasting):** Studies have famously shown that without visual cues, most people struggle to differentiate red and white wine, as our brains 'taste' what our eyes see. This is a journey into the subconscious palate (e.g., serving a chilled, light-bodied red like a Jura Poulsard or a full-bodied, textured white like a skin-contact Pinot Gris and challenging the guest to identify its color).
+  * **Intuition (the instinct that has been right all along):** Core concept: INTUITION — a feeling that arrives before the facts; the gut that knew first. Wine connection: winemakers who work by pure instinct over training and numbers — no formulas, no consultants, decisions by feel, vindicated by decades. Match signals: documented no-formal-training or by-feel, no-lab philosophies (Domaine Gramenon, built from 1979 by a former nurse who made every call by feel). Disqualifiers: gentle low-intervention as mere house style without the instinct-over-expertise story (that is the Page of Cups' sensitivity).
 
 * *Narrative:* “The Moon represents the realm of intuition, dreams, and illusion, where things are not always as they seem. This wine may be similarly enigmatic, shifting and changing in the glass. It might come from a vineyard farmed by the lunar cycle, or simply be a style that asks you to navigate by your senses rather than by logic. It is an invitation to explore the mysterious territory of the subconscious.”
 
@@ -419,13 +415,13 @@ An idea must pass every stage to be included:
 
 * *Wine Mapping Ideas:*
 
-  * **A "perfect" or 100-point wine:** A wine that has been judged by critics to be a complete and perfect expression of its style, representing the pinnacle of accomplishment (e.g., a legendary vintage of a First Growth Bordeaux like Château Latour, a perfect vintage of Penfolds Grange, or more attainably, a top-rated Châteauneuf-du-Pape from a producer like Clos des Papes, or a benchmark Brunello di Montalcino Riserva from Biondi-Santi).
+  * **The Crowning Achievement (a "perfect" or 100-point wine):** Core concept: ACCOMPLISHMENT — pulling off a feat so complete that nobody can argue with it. Wine connection: the wine world's own summit, a bottle critics have judged flawless (e.g., a legendary vintage of Giacomo Conterno's Barolo Riserva Monfortino, a perfect-score First Growth like Château Latour, or Penfolds Grange in a 100-point year).
 
-  * **Wines from a World Heritage Site:** A wine grown in a vineyard that is part of a UNESCO World Heritage site, representing its unity with global culture and history (e.g., vineyards in Saint-Émilion, the Douro Valley, or the Lavaux terraces in Switzerland).
+  * **The Journey's End (the long undertaking, finished):** Core concept: ARRIVAL — a long chapter closing exactly where it was always heading. Wine connection: wines whose release marks the completion of an epic, years-to-decades undertaking; the ribbon-cutting bottle. Match signals: the producer's own story frames the wine as a culmination (a legendary lost wine resurrected after a century, a flagship declared only when the long road truly ends). Disqualifiers: routine long aging as house style (that is patience, the Seven of Pentacles), elegiac final vintages (the Ten of Swords) (e.g., Klein Constantia's Vin de Constance, completing the century-long road back to Napoleon's Constantia; Casa Ferreirinha's Barca Velha, declared only in the years that finish the journey).
 
-  * **A 'Grand Tour' in a bottle:** Flagship blends from great estates that integrate grapes from their best and most diverse holdings, representing a complete journey through the property and a final, whole expression of their world (e.g., Joseph Phelps 'Insignia' from Napa Valley, Penfolds 'Grange' from across South Australia, or Château de Beaucastel's Châteauneuf-du-Pape, which can include up to 13 different grape varieties).
+  * **Wholeness (a 'Grand Tour' in a bottle):** Core concept: UNITY AND INTEGRATION — scattered parts finally becoming one whole. Wine connection: the estate whose entire physical world can be experienced in a single glass, a complete journey through the property in one unified expression (e.g., Château de Beaucastel's Châteauneuf-du-Pape drawing on all thirteen permitted varieties from across the estate, or a whole-estate flagship like Joseph Phelps 'Insignia').
 
-  * **Globally influenced wines:** Reflecting travel and the culmination of knowledge by integrating international techniques or perspectives (e.g., wines blending Old World structure with New World fruit, producers applying international experience, or successful international collaborations like Almaviva \[Chile/France\], Opus One \[USA/France\], or Seña \[Chile/USA\]).
+  * **The Integrated Traveler (globally influenced wines):** Core concept: TRAVEL THAT CHANGES YOU — gathering the world's influences and integrating them into who you are. Wine connection: the wine that did its own traveling, synthesizing international perspectives into one identity (e.g., Opus One \[USA/France\], Almaviva \[Chile/France\], Seña \[Chile/USA\], or Old World producers folding New World experience back into their wines).
 
 * *Narrative:* “The World signifies the successful completion of a journey, a moment of wholeness, integration, and accomplishment. This wine embodies that feeling of arrival. It could be a 'perfect' wine, a globally-influenced collaboration that unites different worlds, or a flagship blend that integrates diverse parcels into one complete expression. In every sense, it is a celebration of unity, travel, and the profound joy of a cycle brought to its triumphant close.”
 
@@ -543,7 +539,7 @@ An idea must pass every stage to be included:
 
 * *Wine Mapping Ideas:*
 
-  * **Wines Defending Terroir/Tradition:** Styles from producers staunchly defending a unique site or traditional methods against trends (e.g., traditional Barolo producers like Bartolo Mascarello upholding long macerations; growers in Burgundy like Domaine Roulot fighting for vineyard identity against homogenization).
+  * **Wines Defending Terroir/Tradition:** Styles from producers staunchly defending a unique site or traditional methods against trends (e.g., Teobaldo Cappellano, who famously asked critics not to score his Barolo; traditional Barolo producers like Bartolo Mascarello upholding long macerations; growers in Burgundy like Domaine Roulot fighting for vineyard identity against homogenization).
 
   * **Wines standing out in a crowd:** Styles holding their own distinct character amidst many similar offerings (ee.g., a uniquely expressive Sauvignon Blanc from a less-famous Loire appellation like Quincy or Reuilly standing up to Sancerre; a distinctive single-vineyard Pinot Noir from a small producer in Anderson Valley, California).
 
@@ -599,7 +595,7 @@ An idea must pass every stage to be included:
 
   * **Wines Reflecting a Difficult Vintage’s Burden:** Styles where the struggle of a tough year is palpable, even if the wine is good (e.g., wines from drought years showing intense concentration but perhaps less finesse or freshness; wines from hail-affected vintages where selection was paramount, such as Burgundy 2016 in certain communes, or parts of Bordeaux in 2017 where frost and hail required meticulous sorting by top estates).
 
-  * **Wines that are “Too Much”:** (Use cautiously) Styles where complexity tips into being overwhelming or tiring to drink (e.g., wines with excessive new oak masking fruit; high-alcohol wines lacking balancing acidity, feeling heavy and burdensome).
+  * **Wines of Overwhelming Character:** Styles that carry "too much" as an identity rather than a flaw: an intensity of character, not just weight, that divides the room, burdensome to some and the whole point to others (e.g., Cayuse's 'Bionic Frog' Syrah and the famously feral, savory funk of the Rocks District of Milton-Freewater; some say manure, others say masterpiece).
 
 * *Narrative:* “Oof. The Ten of Wands – the heavy sigh at the finish line after carrying it all. This wine might feel similarly intense, reflecting that immense effort or concentration. It’s complete, yes, but you can sense the weight of the journey. Consider if it’s the burden of responsibility, or perhaps just the density of achievement.”
 
@@ -1057,7 +1053,7 @@ An idea must pass every stage to be included:
 
   * **Wines representing an end of an era:** Styles from respected wineries that have closed or changed hands, or the very last vintage of a specific vineyard before replanting or destruction (e.g., the final wines made by Marius Gentaz-Dervieux in Côte-Rôtie before his retirement in 1993, the last vintages of Henri Jayer in Burgundy (d. 2006), or Noël Verset in Cornas (d. 2015)).
 
-  * **Wines tasted at the very end of their life:** Older wines clearly past their peak, demonstrating the acceptance of decline and finality (handle conceptually and with care).
+  * **Wines born from total surrender (Noble Rot):** The harvest is ruined completely: shriveled, consumed by botrytis, finished utterly. And precisely that ruin is what makes the sweetest wines in the world possible, the golden dawn behind the fallen figure (e.g., Tokaji Aszú from producers like Disznókő or Royal Tokaji, a German Beerenauslese, or a Sauternes from a producer like Château Suduiraut).
 
   * **Wines associated with historical ruin:** Styles from regions devastated by events that caused definitive endings. (e.g. a Lacryma Christi del Vesuvio from a producer like Mastroberardino, grown on the slopes of the volcano that destroyed Pompeii; or a wine from ungrafted vines that survived the ruin of phylloxera, such as an Assyrtiko from Santorini (Hatzidakis, Domaine Sigalas) or a Lisboa "Colares" from Adega Viúva Gomes.)
 
@@ -1305,7 +1301,7 @@ An idea must pass every stage to be included:
 
   * **Wines that are "textbooks" of a style:** A classic, well-made example of a specific grape or region that is perfect for someone learning about wine (e.g., a benchmark Marlborough Sauvignon Blanc from Cloudy Bay, a classic Napa Cabernet from a producer like Heitz, a textbook Chianti Classico from Felsina).
 
-  * **Wines from a viticultural school:** Styles made by students at institutions like UC Davis, Cornell, or the University of Montpellier, literally the work of apprentices.
+  * **Wines from career-changers who became students again:** Producers who walked out of finished careers to start from page one in wine, proof that it is never too late to become a student of a trade (e.g., Dan Petroski leaving magazine publishing to found Massican in Napa; sommelier-turned-winemaker Rajat Parr of Sandhi and Domaine de la Côte).
 
 * *Narrative:* “Here is the beginning of a tangible dream, the curiosity and focus of a student learning a new craft. This wine might represent a new project, an experiment, or simply a classic style perfect for study. It is grounded in the excitement of new, practical beginnings and the desire to learn.”
 
