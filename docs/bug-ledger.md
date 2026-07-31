@@ -52,6 +52,8 @@ named) · `WONTFIX` (with the reasoning).
 | B-015 | POLISH (?) | Cellar detail | scanned wines extremely light on facts — are we using the data fully? | OPEN |
 | B-016 | PAPERCUT | Cellar identify | Cancel doesn't read as a button — wants the outline treatment | OPEN |
 | B-017 | LAW (?) | App-wide | save toast sits behind iOS bottom chrome; needs a real toast system | OPEN |
+| B-018 | POLISH | Pipeline | resolve's type-agreement penalty backfires when extract misreads colour | OPEN |
+| B-019 | POLISH | Pipeline | golden run 1: conf-floor missing; merchant rows outrank the château | OPEN |
 
 ## INDEX — closed
 
@@ -180,6 +182,21 @@ named) · `WONTFIX` (with the reasoning).
 **Kin:** B-011 (settled-moment chip is its first new customer).
 **Context for the fix:** `.va-toast` (flow2.css:206) is `position:absolute; bottom:90px` in DOCUMENT space — bottom-anchored (why it sits behind/under the chrome band on device; also anchor-law-adjacent — the approved-anchor set in stage-construction §2 doesn't include it). Rebuild as a component: top-referenced or `--foot-vh`-tracked placement per context (the Pour's foot-pin precedent), entrance/exit on the house curves, one mount point in flow6-root (`showToast` at :310 is the seam; the cellar's `onToast` already routes through it). Band-probe after (a mispositioned toast is exactly the probe's prey).
 **Verdict space:** placement-per-context + motion are Ed's; the system shape is mechanical.
+
+### B-018 · OPEN · POLISH · Pipeline (type penalty backfires on misread)
+**Filed:** Jul 19 2026 (Ed round 1 + golden run 1).
+**Seen:** "10-fieuzal which it thinks is a red when it's actually a white."
+**Repro:** golden fixture 10-fieuzal — extract read Red at conf 0.95 for the white Bordeaux; resolve then matched L'Abeille de Fieuzal ROUGE at score 1.0 — the wrong wine, confidently (the correct Blanc rows 1016936/1016369 sit demoted).
+**Kin:** B-019, B-015.
+**Context for the fix:** `score()` in api/cellar-resolve.js applies +0.05/−0.15 type agreement — an extract colour misread AMPLIFIES into the wrong candidate. White Graves labels are exactly where extract misreads. Options: soften/skip the penalty when colour words are absent from rawReading; or penalize symmetrically both siblings and let name tokens decide. Golden 10-fieuzal is the regression fixture; CELLAR_MATCH_THRESHOLD tuning is §5.8's checkpoint 1 duty.
+**Verdict space:** mechanics mine; acceptable false-match rate is Ed's.
+
+### B-019 · OPEN · POLISH · Pipeline (golden run 1 scoring insights)
+**Filed:** Jul 19 2026 (golden run 1).
+**Seen (run data):** 02-saxum's garbage read (conf 0.3, hallucinated "Maxville") resolved at 0.69 — three hundredths under the sheet bar; 07-suduiraut matched a MERCHANT row ("Lay & Wheeler (Chateau Suduiraut)") over the château proper at 0.93.
+**Kin:** B-018, B-015.
+**Context for the fix:** routing gates on resolve score alone (`runPipeline`, flow6-cellar.jsx). Add an extract-confidence floor (conf below ~0.5 → correction route regardless of score) and prefer producer-proper rows over négociant "( … )" producers in `score()` (api/cellar-resolve.js). Golden fixtures 02/07 are the regressions.
+**Verdict space:** the floor value + merchant-row policy are §5.8 tuning calls for Ed after more real scans.
 
 ---
 

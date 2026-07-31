@@ -1,1 +1,22 @@
-[]
+[
+  { "file": "01-galimardes.HEIC", "expect": {}, "mustMatch": true,
+    "note": "known-good matcher (Ed, round 1) — enrich expect from the first run" },
+  { "file": "02-saxum.HEIC", "expect": {}, "mustMatch": false,
+    "note": "Saxum IS in LWIN (James Berry etc.) but the label is deliberately unreadable — the honest-miss fixture: extract should fail the read, route correction" },
+  { "file": "03-knox.HEIC", "expect": {}, "mustMatch": true,
+    "note": "known-good matcher (Ed, round 1)" },
+  { "file": "04-chanson.HEIC", "expect": { "producer": "Chanson" },
+    "note": "ASPIRATIONAL — in LWIN as 1024197 (Rouge) / 1063477 (Blanc) but Liv-ex's WINE field is literally 'Rouge'/'Blanc' (appellation lives in DISPLAY/region columns), so naming + scoring starve (B-015). Promote to mustMatch:true when resolve tuning lands" },
+  { "file": "05-cuvee.HEIC", "expect": {}, "mustMatch": true,
+    "note": "known-good matcher (Ed, round 1)" },
+  { "file": "06-alterego.HEIC", "expect": {}, "mustMatch": true,
+    "note": "known-good matcher (Ed, round 1)" },
+  { "file": "07-suduiraut.HEIC", "expect": { "producer": "Suduiraut" },
+    "note": "the deliberately imperfect shot — report-only; watch confidence honesty" },
+  { "file": "08-bellene.HEIC", "expect": {}, "mustMatch": true,
+    "note": "known-good matcher (Ed, round 1)" },
+  { "file": "09-barros.HEIC", "expect": { "producer": "Barros" },
+    "note": "ASPIRATIONAL — Barros port is in LWIN (Fortified); system struggles (Ed, round 1)" },
+  { "file": "10-fieuzal.HEIC", "expect": { "producer": "Fieuzal", "type": "White" },
+    "note": "ASPIRATIONAL — extract misreads it Red; the resolve type-agreement penalty then demotes the CORRECT Blanc candidate (B-018). Ground truth: White (1016936 grand vin blanc / 1016369 L'Abeille blanc)" }
+]

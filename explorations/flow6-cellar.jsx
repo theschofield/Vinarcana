@@ -107,7 +107,7 @@ const celCandName = (c) => {
 
 // the identify stage's honest lines (voice copy for Ed's S2 review)
 const CEL_FAIL_LINES = {
-  offline: "No road to the cellar right now",
+  offline: "No connection to your cellar right now",
   disabled: "The reader is resting",
   quota: "The reader needs a breath · try again soon",
   error: "The label kept its secrets",
@@ -1106,13 +1106,13 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           {idState.fail ? (
             <div className="ca-id-fail">
               <div className="ca-id-failline">{CEL_FAIL_LINES[idState.fail] || CEL_FAIL_LINES.error}</div>
-              <div className="ca-cta ghost ca-id-manual" onClick={openFormFromPhoto}>Your bottle, your words</div>
+              <div className="ca-cta ghost ca-id-manual" onClick={openFormFromPhoto}>Manual entry</div>
             </div>
           ) : (
             <div className="ca-id-steps">
               <span className={"ca-id-step" + stepCls(0)}>{idState.step === 0 ? <span className="dot"></span> : null}Reading the label</span>
               <span className={"ca-id-step" + stepCls(1)}>{idState.step === 1 ? <span className="dot"></span> : null}Searching the racks</span>
-              <span className={"ca-id-step" + stepCls(2)}>{idState.step === 2 ? <span className="dot"></span> : null}Gathering its story</span>
+              <span className={"ca-id-step" + stepCls(2)}>{idState.step === 2 ? <span className="dot"></span> : null}Pulling its record</span>
             </div>
           )}
         </div>

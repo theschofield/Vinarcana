@@ -27,7 +27,11 @@ sufficient — THIS is what proves the reader still reads.
    top hit must clear the threshold; `mustMatch: false` = it must NOT
    (the honest-miss fixtures). Omit = report-only.
 
-4. `node scraps/golden-set.js https://vinarcana.vercel.app`
+4. Run the set: either tell any Claude Code session "run the golden
+   set" — or yourself, in a terminal at the repo root:
+   `node scraps/golden-set.js` (it targets the live site by default).
+   Each line grades one photo; the summary counts pass/fail against
+   the manifest's expectations.
 
 The folder is .vercelignore'd — label photos never deploy. Runs cost
 ~$0.02/photo (extract); the per-install quota (~10/hour) is sized to
