@@ -1,0 +1,61 @@
+/* ============================================================
+   WINE SURFACES — the shared wine components' dress (cellar-plan §0
+   D24; docs/component-audit.md §5). Every value is lifted VERBATIM
+   from the locked canvas family it replaces — cl2-tile .p/.n/.gy/.lc
+   (rack tile), cd-eyebrow/cd-name + clf-gy/clf-loc (wine page hero),
+   cl-eyebrow/cl-wine (desktop row), rv-scale/cd-scale (the palate) —
+   so the screens look exactly as they did; only the code is shared.
+   One family, variants by class. Never re-derive a px value.
+   ============================================================ */
+
+/* ---------- the name block ---------- */
+.ws-name { min-width: 0; }
+.ws-name .ws-p { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.22em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-dark .ws-name .ws-p { color: rgba(245,170,93,0.62); }
+.rx-light .ws-name .ws-p { color: rgba(198,127,65,0.75); }
+.ws-name .ws-n { font-family: "DM Serif Display", serif; }
+.rx-dark .ws-name .ws-n { color: var(--bone); }
+.rx-light .ws-name .ws-n { color: var(--navy); }
+/* grapes · year as two spans: a long grape list clips, the year never
+   does (B-008) */
+.ws-gy { display: flex; align-items: baseline; gap: 0.55em; min-width: 0; font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; }
+.ws-gy .g { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ws-gy .y, .ws-gy .sep { flex: none; }
+.rx-dark .ws-gy { color: rgba(239,236,228,0.52); }
+.rx-light .ws-gy { color: rgba(21,34,49,0.55); }
+.ws-lc { font-family: "IBM Plex Mono", monospace; font-size: 7px; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-dark .ws-lc { color: rgba(239,236,228,0.34); }
+.rx-light .ws-lc { color: rgba(21,34,49,0.4); }
+
+/* tile — the rack (cl2-tile's locked values) */
+.ws-name.tile .ws-n { font-size: 19px; line-height: 1.12; margin-top: 5px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ws-name.tile .ws-gy { margin-top: 7px; }
+.ws-name.tile .ws-lc { margin-top: 5px; }
+
+/* hero — the wine page (cd-name / clf-gy / clf-loc's locked values, centered) */
+.ws-name.hero { text-align: center; }
+.ws-name.hero .ws-p { margin-top: 14px; white-space: normal; overflow: visible; }
+.ws-name.hero .ws-n { font-size: 25px; line-height: 1.05; margin-top: 7px; text-wrap: balance; }
+.ws-name.hero .ws-gy { justify-content: center; margin-top: 9px; }
+.ws-name.hero .ws-lc { margin-top: 5px; white-space: normal; overflow: visible; }
+
+/* row — the desktop rack (cl-eyebrow / cl-wine's locked values) */
+.ws-name.row .ws-n { font-size: 18px; line-height: 1.1; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- the bottle: decode-gated reveal (the deck's img law) ---------- */
+.ws-bot { opacity: 0; }
+.ws-bot.ld { opacity: 1; transition: opacity 240ms ease; }
+.ws-bot.ld-i { opacity: 1; }
+
+/* ---------- the palate (rv-scale's locked values — one row everywhere) ---------- */
+.ws-scale { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
+.ws-scale .lab { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; width: 52px; flex: none; }
+.ws-scale .lab.r { text-align: right; }
+.rx-dark .ws-scale .lab { color: rgba(239,236,228,0.35); }
+.rx-light .ws-scale .lab { color: rgba(21,34,49,0.38); }
+.rx-dark .ws-scale .lab.hot { color: rgba(239,236,228,0.85); }
+.rx-light .ws-scale .lab.hot { color: rgba(21,34,49,0.85); }
+.ws-scale .track { flex: 1; height: 1px; position: relative; background: rgba(239,236,228,0.16); }
+.rx-light .ws-scale .track { background: rgba(21,34,49,0.18); }
+.ws-scale .mark { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 6px; border-radius: 3px; background: var(--apri); box-shadow: 0 0 12px -2px rgba(245,170,93,0.5); }
+.rx-light .ws-scale .mark { background: var(--amber); box-shadow: 0 0 12px -2px rgba(198,127,65,0.45); }

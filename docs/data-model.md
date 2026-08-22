@@ -251,7 +251,20 @@ exactly the register this app never lies in.
 
 ---
 
-## 5 · QUESTIONS FOR ED — C15–C22 (continuing from component-audit C10–C14)
+## 5 · VERDICTS — answered by Ed, Jul 31 2026 (logged as cellar-plan D24)
+
+- C15 → no: grapes wait for S3's enrichment (B-010 parked).
+- C16 → show sub-region and classification whenever present; never show designation codes (AOP/DOCG…).
+- C17 → names come from DISPLAY_NAME minus the producer, derived at runtime (no rebuilds); the WINE column is never displayed; long appellation names stay whole.
+- C18 → no hand-kept list; waits for S3.
+- C19 → windows only for cellar bottles with a known 4-digit vintage, computed from vintage + type + region; nothing bottle-specific is shown without its inputs. Wine-level facts cache once per wine; bottle-level facts compute per bottle.
+- C20 → producer line normalizes to the parenthesized house; the outer name is kept as bottler.
+- C21 → no tags, no free-text rows: food pairings will be DERIVED from wine attributes by a pairing methodology (new workstream); the curated PAIRS WITH rows leave the pours when it ships.
+- C22 → illustrated/generated bottles rejected for specific wines; real photos required (retailer partnership for purchase deep-links preferred); illustrated shapes only for archetype pairings. Deep sourcing research ordered.
+
+The questions as originally asked follow, kept for the record.
+
+## 5a · QUESTIONS FOR ED — C15–C22 (continuing from component-audit C10–C14)
 
 **C15 · Adopt extract's grapes at confirm? (B-010)** The label reader
 already returns label-printed grapes (curated-list-filtered on the form

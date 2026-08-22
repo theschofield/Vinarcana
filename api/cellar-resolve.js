@@ -20,6 +20,7 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const { cellarGuard } = require("./_lib/cellar-guards.js");
+const { normalizeProducer, wineName } = require("./_lib/cellar-names.js");
 
 const GZ = path.join(__dirname, "_lwin", "lwin.db.gz");
 const TMP = "/tmp/va-lwin.db";
@@ -129,10 +130,14 @@ module.exports = async (req, res) => {
   const threshold = Math.max(0, Math.min(1, parseFloat(process.env.CELLAR_MATCH_THRESHOLD || "0.72")));
   res.status(200).json({
     threshold,
+    // display names per D24: the producer is the house behind a merchant
+    // label, the wine line derives from DISPLAY_NAME (never the raw WINE
+    // column) — scoring above still ran on the raw tokens
     candidates: ranked.map(({ c, s }) => ({
       lwin: c.lwin,
-      producer: c.producer,
-      wine: c.wine,
+      producer: normalizeProducer(c.producer).producer,
+      bottler: normalizeProducer(c.producer).bottler,
+      wine: wineName(c),
       display: c.display,
       country: c.country,
       region: c.region,

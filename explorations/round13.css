@@ -41,22 +41,11 @@
 .rx-dark .rv-cellar-line { color: rgba(239,236,228,0.45); }
 .rx-light .rv-cellar-line { color: rgba(21,34,49,0.5); }
 
-/* taste scales — hairline track, apricot marker, mono end labels */
+/* taste scales — the rows are the shared .ws-scale (wine-surfaces.css); only the container and its heading live here */
 .rv-scales { padding: 10px 24px 22px; }
 .rv-scales-h { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; padding: 8px 0 6px; }
 .rx-dark .rv-scales-h { color: rgba(239,236,228,0.42); }
 .rx-light .rv-scales-h { color: rgba(21,34,49,0.45); }
-.rv-scale { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
-.rv-scale .lab { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; width: 52px; flex: none; }
-.rv-scale .lab.r { text-align: right; }
-.rx-dark .rv-scale .lab { color: rgba(239,236,228,0.35); }
-.rx-light .rv-scale .lab { color: rgba(21,34,49,0.38); }
-.rx-dark .rv-scale .lab.hot { color: rgba(239,236,228,0.85); }
-.rx-light .rv-scale .lab.hot { color: rgba(21,34,49,0.85); }
-.rv-scale .track { flex: 1; height: 1px; position: relative; background: rgba(239,236,228,0.16); }
-.rx-light .rv-scale .track { background: rgba(21,34,49,0.18); }
-.rv-scale .mark { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 6px; border-radius: 3px; background: var(--apri); box-shadow: 0 0 12px -2px rgba(245,170,93,0.5); }
-.rx-light .rv-scale .mark { background: var(--amber); box-shadow: 0 0 12px -2px rgba(198,127,65,0.45); }
 .rv-wine { font-family: "DM Serif Display", serif; font-size: 26px; line-height: 1.05; text-wrap: balance; }
 .rx-dark .rv-wine { color: var(--bone); }
 .rx-light .rv-wine { color: var(--navy); }

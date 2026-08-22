@@ -7,8 +7,8 @@
 //   { id, addedTs, updatedTs, count,
 //     identity: { producer, wine, vintage, source: "matched"|"manual",
 //                 matchedId, confidence },
-//     facts: { color, style, grapes: [], otherGrapes: [], region, country,
-//              abv, appellation },
+//     facts: { color, grapes: [], otherGrapes: [], region, subRegion, country,
+//              classification, designation, bottler },   // LWIN facts land whole (D24)
 //     window: { from, to, status },       // computed v0 heuristic, see below
 //     tastes, story, stats,               // null until enrichment (S3)
 //     labelPhoto,                         // IndexedDB key; manual+unmatched only
@@ -38,8 +38,16 @@ const CellarStore = (() => {
     all() { return readEnv().wines.slice().sort((a, b) => b.addedTs - a.addedTs); },
     get(id) { return readEnv().wines.find((w) => w.id === id) || null; },
     findByIdentity(identity) {
+      const wines = readEnv().wines;
+      // the same LWIN + the same year IS the same wine however the strings
+      // differ ("Sémillon"/"Semillon") — the id wins when both sides have one
+      if (identity.matchedId) {
+        const byId = wines.find((w) => w.identity.matchedId === identity.matchedId
+          && String(w.identity.vintage || "") === String(identity.vintage || ""));
+        if (byId) return byId;
+      }
       const k = idKey(identity);
-      return readEnv().wines.find((w) => idKey(w.identity) === k) || null;
+      return wines.find((w) => idKey(w.identity) === k) || null;
     },
     add(rec) {
       const wines = readEnv().wines;
@@ -146,6 +154,9 @@ const CellarPhotos = (() => {
 // Returns { from, to, status: "ready"|"resting"|"fading", word } — words per
 // the canvas: READY renders NOTHING on rows, RESTING dim, DRINK SOON hollow
 // amber; the detail's status chip uses word (REST UNTIL <year> when resting).
+// Returns NULL without a 4-digit vintage (D24 (10)): the window is
+// bottle-level truth and needs the bottle's year — NV or unread means no
+// window, never a guess.
 const CELLAR_LONG_WHITES = new Set(["riesling", "sémillon", "semillon", "chenin blanc",
   "savagnin", "furmint", "assyrtiko", "chardonnay", "grüner veltliner", "hárslevelű"]);
 const CELLAR_LONG_REDS = new Set(["nebbiolo", "cabernet sauvignon", "syrah", "shiraz",
@@ -157,13 +168,10 @@ function cellarComputeWindow(rec) {
   const type = String((rec.facts && rec.facts.color) || "").toLowerCase();
   const grapes = ((rec.facts && rec.facts.grapes) || []).map((g) => String(g).toLowerCase());
   const vRaw = String((rec.identity && rec.identity.vintage) || "").trim();
-  const nv = !/^\d{4}$/.test(vRaw);
-  const v = nv ? nowY : parseInt(vRaw, 10);
+  if (!/^\d{4}$/.test(vRaw)) return null;
+  const v = parseInt(vRaw, 10);
   let from, to;
-  if (nv) {
-    // non-vintage: freshness counts from the add, not from a harvest
-    from = nowY; to = nowY + (type === "sparkling" ? 3 : 2);
-  } else if (type === "rosé") { from = v; to = v + 2; }
+  if (type === "rosé") { from = v; to = v + 2; }
   else if (type === "sparkling") { from = v + 1; to = v + 10; }
   else if (type === "orange") { from = v; to = v + 6; }
   else if (type === "fortified" || type === "dessert") { from = v; to = v + 30; }

@@ -316,7 +316,17 @@ lens id.
 
 ---
 
-## 7 · QUESTIONS FOR ED — C10–C14 (data-model.md continues C15+)
+## 7 · VERDICTS — answered by Ed, Jul 31 2026 (logged as cellar-plan D24)
+
+- C10 → the Pour's labels everywhere: SOFT↔ACIDIC · DRY↔SWEET · SMOOTH↔TANNIC · LIGHT↔BOLD.
+- C11 → red bottle for red wines, white bottle for everything else, until real images exist.
+- C12 → yes: match, detail, and the settled detail are states of ONE wine page; correction stays a list.
+- C13 → the three pairing types approved as tabled.
+- C14 → migration order and round sequencing approved.
+
+The questions as originally asked follow, kept for the record.
+
+## 7a · QUESTIONS FOR ED — C10–C14 (data-model.md continues C15+)
 
 **C10 · The palate-scale vocabulary.** One `WineScales` will caption the
 same four 0–1 axes everywhere. Today the Pour says SOFT↔ACIDIC ·

@@ -1,19 +1,11 @@
 // FLOW v5 — the Reveal layer.
-// · Every pour renders a real bottle image (red bottle is the safety fallback).
+// · Every pour renders a real bottle image (the shared fallback rule,
+//   wine-surfaces.jsx, stands in when a pour has none).
+// · The palate rows are the shared WineScales (one vocabulary everywhere, D24).
 // · Paginated pours pin the shout + card: they live on a layer UNDER the
 //   panes (bottles still pass in front), tracking the active pane's vertical
 //   scroll — horizontal swipes never move them. Panes keep invisible copies
 //   as spacers so scroll geometry and the actor's ghost slot are unchanged.
-
-function Scale({ l, r, v }) {
-  return (
-    <div className="rv-scale">
-      <span className={"lab" + (v <= 0.5 ? " hot" : "")}>{l}</span>
-      <div className="track"><div className="mark" style={{ left: v * 100 + "%" }}></div></div>
-      <span className={"lab r" + (v > 0.5 ? " hot" : "")}>{r}</span>
-    </div>
-  );
-}
 
 function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry, hasGuide, onDeeper }) {
   // the ENTRY pane choreographs in (pane 0 normally; the kept wine's pane on
@@ -21,7 +13,7 @@ function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry, hasGuide, onDee
   const heroIn = !entry || F.echoIn;
   const bodyIn = !entry || F.pourIn;
   const bottleIn = !entry || F.bottleIn;
-  const bottleSrc = p.bottle || "assets/bottle-red.png";
+  const bottleSrc = p.bottle || wineBottleSrc(null);
   const [scrolled, setScrolled] = React.useState(false);
   const d = (ms) => ({ transitionDelay: Math.round((!entry ? 0 : ms) / spd) + "ms" });
   const onScroll = (e) => {
@@ -56,10 +48,7 @@ function PourPane({ p, hl, light, i, F, spd, pinned, onV, entry, hasGuide, onDee
         </div>
         <div className={"rv-scales fx up" + (bodyIn ? " in" : "")} style={{ "--fxd": "var(--dPour)", ...d(240) }}>
           <div className="rv-scales-h">ON THE PALATE</div>
-          <Scale l="SOFT" r="ACIDIC" v={p.tastes.acid}></Scale>
-          <Scale l="DRY" r="SWEET" v={p.tastes.sweet}></Scale>
-          <Scale l="SMOOTH" r="TANNIC" v={p.tastes.tannin}></Scale>
-          <Scale l="LIGHT" r="BOLD" v={p.tastes.body}></Scale>
+          <WineScales tastes={p.tastes}></WineScales>
         </div>
       </div>
     </div>
@@ -158,4 +147,4 @@ function Reveal({ card, lens, light, F, onKeep, onFade, spd, initialWine, onDeep
   );
 }
 
-Object.assign(window, { Scale, PourPane, Reveal });
+Object.assign(window, { PourPane, Reveal });

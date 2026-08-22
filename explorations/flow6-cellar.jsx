@@ -8,6 +8,9 @@
 // · The count sheet is EXPERIMENT E-A (cellar-plan §5.6, D2): strictly
 //   transient, genuinely bottom-anchored, unmounted after close.
 // · The Cellar UI NEVER shows pairings — hard product law.
+// · Every wine renders through the shared wine surfaces (wine-surfaces.jsx,
+//   D24): wineView() is the one derivation, WineHero/WineNameBlock/
+//   WineStats/WineScales/WineWindow/WineBottle the one dress.
 // · Analytics (D13, docs/analytics.md): cellar_added at the manual-add
 //   commit, cellar_count on stepper confirms — through the vaTrack guard
 //   pattern; analytics missing must cost the cellar nothing.
@@ -98,13 +101,6 @@ function cellarProcessPhoto(file) {
 // meter). Analytics missing must cost the cellar nothing, as ever.
 const celInstallId = () => { try { return (window.VAAnalytics && VAAnalytics.install) || null; } catch (e) { return null; } };
 
-// a candidate's display name: the wine line already carries the producer
-// for some LWIN grand-vin rows — never print "Montrose Montrose"
-const celCandName = (c) => {
-  const p = String(c.producer || ""), w = String(c.wine || "");
-  return w.toLowerCase().startsWith(p.toLowerCase()) ? w : (p + " " + w).trim();
-};
-
 // the identify stage's honest lines (voice copy for Ed's S2 review)
 const CEL_FAIL_LINES = {
   offline: "No connection to your cellar right now",
@@ -113,24 +109,7 @@ const CEL_FAIL_LINES = {
   error: "The label kept its secrets",
 };
 
-// ---------- display helpers ----------
-const celBottleFor = (rec) => {
-  const c = String((rec.facts && rec.facts.color) || "").toLowerCase();
-  return c === "red" ? "assets/bottle-red.png" : "assets/bottle-white.png";
-};
-const celGrapesLine = (rec) => {
-  const f = rec.facts || {};
-  return [...(f.grapes || []), ...(f.otherGrapes || [])].join(", ");
-};
-const celGyLine = (rec) => {
-  const g = celGrapesLine(rec);
-  const v = (rec.identity && rec.identity.vintage) || "";
-  return [g, v].filter(Boolean).join(" · ");
-};
-const celLocLine = (rec) => {
-  const f = rec.facts || {};
-  return [f.region, f.country].filter(Boolean).join(", ");
-};
+// ---------- display helpers (wine derivations live in wine-surfaces.jsx) ----------
 const celAddedLabel = (ts) => new Date(ts).toLocaleString("en-US", { month: "short", day: "numeric" });
 // beat-time scroll-home guard (the sanctioned belt-and-braces pattern —
 // never a standing keeper): Safari's focus-reveal can nudge the document
@@ -177,25 +156,6 @@ const celRestoreOnLeave = () => setTimeout(() => {
 const celCountLine = (wines, bottles) =>
   wines + (wines === 1 ? " wine · " : " wines · ") + bottles + (bottles === 1 ? " bottle sleeping" : " bottles sleeping");
 
-// decode-gated bottle render (the deck's img law: fresh <img>s blank on
-// iOS while they decode — cached ones must appear WITH their tile)
-function CelBot({ src, style }) {
-  return (
-    <img className="cf-bot" src={src} alt="" decoding="async" draggable={false} style={style}
-      onLoad={(e) => { const el = e.currentTarget;
-        if (el.classList.contains("ld") || el.classList.contains("ld-i")) return;
-        const t0 = el.dataset.t0 ? +el.dataset.t0 : 0;
-        const quick = t0 && performance.now() - t0 < 160;
-        const done = () => el.classList.add(quick ? "ld-i" : "ld");
-        if (el.decode) el.decode().then(done).catch(done); else done();
-      }}
-      ref={(el) => { if (!el || el.dataset.t0) return;
-        el.dataset.t0 = String(performance.now());
-        if (el.complete && el.naturalWidth) el.classList.add("ld-i");
-      }} />
-  );
-}
-
 // the kept label photo (detail; manual+unmatched records only) — the blob
 // comes out of the IndexedDB sidecar and rides the decode gate like every
 // other image swap (iOS blanks fresh <img>s)
@@ -210,7 +170,7 @@ function CelPhotoStrip({ recId }) {
   }, [recId]);
   return (
     <div className="cd-photo">
-      <span className="ph">{url ? <CelBot src={url}></CelBot> : null}</span>
+      <span className="ph">{url ? <WineBottle src={url}></WineBottle> : null}</span>
       <div className="tx">Your label photo · kept with the bottle<br />because this entry is yours alone</div>
     </div>
   );
@@ -221,31 +181,6 @@ function CelWin({ w }) {
   if (!w || w.status === "ready") return null;
   const cls = cellarWinClass(w.status);
   return <span className={"cl-win " + cls}><span className="dot"></span>{w.status === "fading" ? "DRINK SOON" : "RESTING"}</span>;
-}
-
-// the drink-window band (detail): track spans [from−4, to+2] so the
-// window floats inside it — the canvas boards' proportions, derived once
-function CelWindow({ w }) {
-  const y0 = parseInt(w.from, 10), y1 = parseInt(w.to, 10);
-  const t0 = y0 - 4, t1 = y1 + 2, span = Math.max(1, t1 - t0);
-  const nowY = new Date().getFullYear();
-  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-  const b0 = (y0 - t0) / span, b1 = (y1 - t0) / span;
-  const now = clamp((nowY - t0) / span, 0.04, 0.96);
-  const st = cellarWinClass(w.status);
-  return (
-    <div className="cd-window">
-      <div className="cd-window-h">
-        <span>Drink window</span>
-        <span className={"st " + st}><span className="dot"></span>{w.word}</span>
-      </div>
-      <div className="cd-track">
-        <div className="cd-band" style={{ left: (b0 * 100) + "%", width: ((b1 - b0) * 100) + "%" }}></div>
-        <div className="cd-now" style={{ left: (now * 100) + "%" }}></div>
-      </div>
-      <div className="cd-track-labs"><span>{w.from}</span><span>{w.to}</span></div>
-    </div>
-  );
 }
 
 // ---------- the combobox (pick-only; typing alone commits nothing) ----------
@@ -704,9 +639,12 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
   const confirmCandidate = (cand) => {
     const f = addFlow.current || {};
     const fields = (f.extract && f.extract.fields) || {};
+    // the year is bottle-level truth: a 4-digit read or an explicit NV
+    // stays; anything else stays UNKNOWN — never a guessed "NV" (D24 (10))
+    const vRead = String(fields.vintage || "").trim();
     const identity = {
       producer: cand.producer, wine: cand.wine,
-      vintage: fields.vintage || "NV",
+      vintage: vRead === "NV" || /^\d{4}$/.test(vRead) ? vRead : "",
       source: "matched", matchedId: cand.lwin, confidence: cand.score,
     };
     const fromCorrect = viewRef.current.name === "correct";
@@ -722,11 +660,14 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
       }), 760);
       return;
     }
+    // LWIN's facts land whole (D24 (7)): sub-region + classification show
+    // on the wine page; designation codes and the bottler are kept unshown
     const facts = {
       color: cand.type || fields.type || null,
       grapes: [], otherGrapes: [],
-      region: cand.region || null, country: cand.country || null,
-      appellation: cand.classification || cand.designation || null,
+      region: cand.region || null, subRegion: cand.subRegion || null, country: cand.country || null,
+      classification: cand.classification || null, designation: cand.designation || null,
+      bottler: cand.bottler || null,
     };
     const rec = CellarStore.add({ identity, facts, window: null });
     CellarStore.update(rec.id, { window: cellarComputeWindow(rec) });
@@ -775,7 +716,7 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
         const mk = (lwin, producer, wine, region, score) => ({
           lwin, producer, wine, display: producer + ", " + wine, country: "Australia",
           region, subRegion: null, colour: "White", type: "White",
-          designation: null, classification: null, score,
+          designation: null, classification: null, bottler: null, score,
         });
         const cands = [
           mk(1315635, "Tyrrell's", "Vat 1 Semillon", "New South Wales", 0.95),
@@ -849,15 +790,13 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
         // moment; S3's enrichment loop takes this over properly
         const settling = e.identity.source === "matched" && e.enrichment
           && e.enrichment.status === "pending" && Date.now() - e.addedTs < 30000;
+        const v = wineView(e);
         return (
         <div key={e.id} className={"cl2-tilewrap" + (closingId === e.id ? " closing" : "")} style={{ "--cfi": Math.min(i * 30, 360) + "ms" }}>
           <div className={"cl2-tile" + (settling ? " settling" : "")} onClick={() => go({ name: "detail", id: e.id })}>
-            <div className="bot"><CelBot src={celBottleFor(e)}></CelBot></div>
+            <div className="bot"><WineBottle view={v}></WineBottle></div>
             <div className="tx">
-              <div className="p">{e.identity.producer}</div>
-              <div className="n">{e.identity.wine}</div>
-              <div className="gy">{celGyLine(e)}</div>
-              <div className="lc">{celLocLine(e)}</div>
+              <WineNameBlock view={v} variant="tile"></WineNameBlock>
               {settling ? <div className="cl-settag">Settling in</div> : null}
             </div>
             <span className="cl-qty" onClick={(ev) => { ev.stopPropagation(); openSheet(e.id); }}>×{e.count}</span>
@@ -875,9 +814,9 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
   const empty = (
     <div className="cl-empty">
       <div className="cl-empty-bots">
-        <CelBot src="assets/bottle-white.png" style={{ height: "108px", transform: "rotate(-3deg)" }}></CelBot>
-        <CelBot src="assets/bottle-red.png" style={{ height: "128px" }}></CelBot>
-        <CelBot src="assets/bottle-white.png" style={{ height: "100px", transform: "rotate(2.5deg)" }}></CelBot>
+        <WineBottle src="assets/bottle-white.png" style={{ height: "108px", transform: "rotate(-3deg)" }}></WineBottle>
+        <WineBottle src="assets/bottle-red.png" style={{ height: "128px" }}></WineBottle>
+        <WineBottle src="assets/bottle-white.png" style={{ height: "100px", transform: "rotate(2.5deg)" }}></WineBottle>
       </div>
       <h3 className="cl-empty-title">The rack stands empty.</h3>
       <span className="cl-jotline">
@@ -917,21 +856,21 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
             <div className="cld-list">
               {rows.length === 0 && filters.length ? (
                 <div className="cl-noresult">Nothing sleeping under those filters</div>
-              ) : rows.map((e, i) => (
+              ) : rows.map((e, i) => {
+                const v = wineView(e);
+                return (
                 <div className="cld2-cols cld-row" key={e.id} style={{ "--cfi": Math.min(60 + i * 30, 420) + "ms" }}
                   onClick={() => go({ name: "detail", id: e.id })}>
-                  <span className="bot"><CelBot src={celBottleFor(e)}></CelBot></span>
-                  <span>
-                    <div className="cl-eyebrow">{[e.identity.vintage, e.identity.producer && e.identity.producer.toUpperCase()].filter(Boolean).join(" · ")}</div>
-                    <div className="cl-wine" style={{ marginTop: "3px" }}>{e.identity.wine}</div>
-                  </span>
-                  <span className="cl-sub" style={{ marginTop: 0 }}>{celGrapesLine(e).toUpperCase()}</span>
-                  <span className="cl-sub" style={{ marginTop: 0 }}>{celLocLine(e).toUpperCase()}</span>
+                  <span className="bot"><WineBottle view={v}></WineBottle></span>
+                  <WineNameBlock view={v} variant="row"></WineNameBlock>
+                  <span className="cl-sub" style={{ marginTop: 0 }}>{v.grapes}</span>
+                  <span className="cl-sub" style={{ marginTop: 0 }}>{v.loc}</span>
                   <span><CelWin w={e.window}></CelWin></span>
                   <span className="added">{celAddedLabel(e.addedTs).toUpperCase()}</span>
                   <span className="cl-qty" onClick={(ev) => { ev.stopPropagation(); openSheet(e.id); }}>×{e.count}</span>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </React.Fragment>
         )}
@@ -961,13 +900,8 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
     const d = CellarStore.get(detSrc.id);
     if (!d) { detail = null; }
     else {
-      const stats = [];
-      const g = celGrapesLine(d);
-      if (g) stats.push(["GRAPE", g]);
-      if (d.facts && d.facts.color) stats.push(["STYLE", d.facts.color]);
-      const loc = celLocLine(d);
-      if (loc) stats.push(["REGION", loc]);
-      if (d.identity.vintage) stats.push(["VINTAGE", d.identity.vintage]);
+      const dv = wineView(d);
+      const stats = wineStatsFor(dv);
       detail = (
         <div className={"va-layer cl-screen cf-screen cf-detail" + (detLeaving ? " cf-push-leave" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar detail">
           <div className="cl2-nav">
@@ -977,36 +911,15 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
           <div className={"cf-scroll" + (scrolled.detail ? " scrolled" : "")} onScroll={armScroll("detail")}>
             <div className="cf-flow">
               <div className="cd-scroll">
-                <div className="cd-heroB" style={{ paddingTop: "6px" }}>
-                  <div className="bot"><CelBot src={celBottleFor(d)} style={{ height: "150px" }}></CelBot></div>
-                  <div className="cd-eyebrow" style={{ marginTop: "14px" }}>{d.identity.producer}</div>
-                  <div className="cd-name">{d.identity.wine}</div>
-                  {celGyLine(d) ? <div className="clf-gy">{celGyLine(d)}</div> : null}
-                  {celLocLine(d) ? <div className="clf-loc">{celLocLine(d)}</div> : null}
-                  <span className="cl-qty clf-qty" onClick={() => openSheet(d.id)}>×{d.count}</span>
-                </div>
-                {d.window ? <CelWindow w={d.window}></CelWindow> : null}
+                <WineHero view={dv} count={d.count} onCount={() => openSheet(d.id)}></WineHero>
+                {d.window ? <WineWindow w={d.window}></WineWindow> : null}
                 {d.story ? <div className="cd-story">{d.story}</div> : null}
-                {stats.length ? (
-                  <div className="cd-stats">
-                    {stats.map(([k, v]) => (
-                      <div className="cd-stat" key={k}><span className="k">{k}</span><span className="v">{v}</span></div>
-                    ))}
-                  </div>
-                ) : null}
+                <WineStats rows={stats}></WineStats>
                 {d.labelPhoto ? <CelPhotoStrip recId={d.id}></CelPhotoStrip> : null}
                 {d.tastes ? (
                   <div className="cd-scales">
                     <div className="cd-scales-h">The palate</div>
-                    {Object.entries({ ACID: ["SOFT", "BRIGHT"], SWEET: ["DRY", "SWEET"], TANNIN: ["SILK", "GRIP"], BODY: ["LIGHT", "FULL"] }).map(([k, ends]) => (
-                      d.tastes[k.toLowerCase()] == null ? null : (
-                        <div className="cd-scale" key={k}>
-                          <span className="lab">{ends[0]}</span>
-                          <span className="track"><span className="mark" style={{ left: (d.tastes[k.toLowerCase()] * 100) + "%" }}></span></span>
-                          <span className="lab r">{ends[1]}</span>
-                        </div>
-                      )
-                    ))}
+                    <WineScales tastes={d.tastes}></WineScales>
                   </div>
                 ) : null}
                 <div className="cd-foot">
@@ -1129,14 +1042,10 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
   if (view.name === "match" && matchData && matchData.candidates.length) {
     const cand = matchData.candidates[0];
     const fields = (matchData.extract && matchData.extract.fields) || {};
-    const vintage = fields.vintage || "";
-    const win = cellarComputeWindow({ identity: { vintage: vintage || "NV" }, facts: { color: cand.type, grapes: [] } });
-    const loc = [cand.region, cand.country].filter(Boolean).join(", ");
-    const stats = [];
-    if (cand.type) stats.push(["STYLE", cand.type]);
-    if (loc) stats.push(["REGION", loc]);
-    if (cand.classification || cand.designation) stats.push(["CLASSIFICATION", cand.classification || cand.designation]);
-    if (vintage) stats.push(["VINTAGE", vintage]);
+    // the wine page's MATCH state: what the database knows + the label's
+    // year; no drink window here — the bottle isn't in the cellar (D24 (10))
+    const mv = wineView(cand, { vintage: fields.vintage });
+    const stats = wineStatsFor(mv);
     matchView = (
       <div className={"va-layer cl-screen cf-screen cf-match" + (leavingView ? " cf-push-leave" : "") + (leaving ? " leaving" : "")} data-screen-label="Flow — Cellar match">
         <div className="cl2-nav">
@@ -1146,23 +1055,9 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
         <div className={"cf-scroll" + (scrolled.match ? " scrolled" : "")} onScroll={armScroll("match")}>
           <div className="cf-flow">
             <div className="cd-scroll">
-            <div className="cd-heroB" style={{ paddingTop: "6px" }}>
-              <div className="bot"><CelBot src={cand.type === "Red" ? "assets/bottle-red.png" : "assets/bottle-white.png"} style={{ height: "136px" }}></CelBot></div>
-              <div className="clf-believes">The cellar believes</div>
-              <div className="cd-eyebrow" style={{ marginTop: "10px" }}>{cand.producer}</div>
-              <div className="cd-name">{cand.wine}</div>
-              {vintage ? <div className="clf-gy">{vintage}</div> : null}
-              {loc ? <div className="clf-loc">{loc}</div> : null}
-            </div>
-            {win ? <CelWindow w={win}></CelWindow> : null}
+            <WineHero view={mv} believes></WineHero>
             <div className="ca-sparse">Its story arrives once it settles in</div>
-            {stats.length ? (
-              <div className="cd-stats">
-                {stats.map(([k, v]) => (
-                  <div className="cd-stat" key={k}><span className="k">{k}</span><span className="v">{v}</span></div>
-                ))}
-              </div>
-            ) : null}
+            <WineStats rows={stats}></WineStats>
             </div>
           </div>
         </div>
@@ -1216,14 +1111,17 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
               {runners.length ? (
                 <div className="ca-or"><span className="txt">Or one of these</span><span className="rule"></span></div>
               ) : null}
-              {runners.map((c) => (
+              {runners.map((c) => {
+                const cv = wineView(c, { vintage });
+                return (
                 <div className="ca-opt" key={c.lwin} onClick={() => confirmCandidate(c)}>
                   <div>
-                    <div className="ca-opt-name">{celCandName(c)}</div>
-                    <div className="ca-opt-sub">{[vintage, [c.region, c.country].filter(Boolean).join(", ")].filter(Boolean).join(" · ")}</div>
+                    <div className="ca-opt-name">{cv.oneLine}</div>
+                    <div className="ca-opt-sub">{[cv.vintage, cv.loc].filter(Boolean).join(" · ")}</div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
             </div>
           </div>
@@ -1250,8 +1148,8 @@ function CellarScreen({ light, desktop, leaving, onToast }) {
         <div className={"cl-sheet " + sheet.cls}
           onPointerDown={sheetDown} onPointerMove={sheetMove} onPointerUp={sheetUp} onPointerCancel={sheetUp}>
           <div className="cl-grab"></div>
-          <div className="cl-sheet-name">{sheetRec.identity.wine}</div>
-          <div className="cl-sheet-sub">{[sheetRec.identity.producer, sheetRec.identity.vintage, celLocLine(sheetRec)].filter(Boolean).join(" · ").toUpperCase()}</div>
+          <div className="cl-sheet-name">{wineView(sheetRec).name}</div>
+          <div className="cl-sheet-sub">{[wineView(sheetRec).producer, wineView(sheetRec).vintage, wineView(sheetRec).loc].filter(Boolean).join(" · ")}</div>
           <div className="cl-sheet-cap">Bottles on hand</div>
           <div className="cl-sheet-row">
             <span className={"cl-stepbtn" + (sheet.n === 0 ? " dim" : "")} onClick={() => setSheet((s) => s && s.n > 0 ? { ...s, n: s.n - 1 } : s)}><CelMinusIcon></CelMinusIcon></span>

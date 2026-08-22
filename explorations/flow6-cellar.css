@@ -118,17 +118,9 @@
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 56px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 56px), transparent 100%); }
 
-.cd-eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.22em; text-transform: uppercase; }
-.rx-dark .cd-eyebrow { color: rgba(245,170,93,0.62); }
-.rx-light .cd-eyebrow { color: rgba(198,127,65,0.75); }
-.cd-name { font-family: "DM Serif Display", serif; font-size: 25px; line-height: 1.05; margin-top: 7px; text-wrap: balance; }
-.rx-dark .cd-name { color: var(--bone); }
-.rx-light .cd-name { color: var(--navy); }
-.cd-heroB { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 30px 0; }
-.cd-heroB .bot img { height: 172px; width: auto; filter: drop-shadow(0 16px 26px rgba(0,0,0,0.6)); display: block; }
+.cd-heroB { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 6px 30px 0; }
+.cd-heroB .bot img { height: 150px; width: auto; filter: drop-shadow(0 16px 26px rgba(0,0,0,0.6)); display: block; }
 .rx-light .cd-heroB .bot img { filter: drop-shadow(0 16px 26px rgba(21,34,49,0.3)); }
-.cd-heroB .cd-name { margin-top: 14px; }
-.cd-heroB .cd-eyebrow { margin-top: 12px; }
 
 .cd-window { padding: 22px 24px 4px; }
 .cd-window-h { display: flex; justify-content: space-between; align-items: baseline; font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; }
@@ -176,15 +168,6 @@
 .cd-scales-h { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; padding: 8px 0 6px; }
 .rx-dark .cd-scales-h { color: rgba(239,236,228,0.42); }
 .rx-light .cd-scales-h { color: rgba(21,34,49,0.45); }
-.cd-scale { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
-.cd-scale .lab { font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; width: 52px; flex: none; }
-.cd-scale .lab.r { text-align: right; }
-.rx-dark .cd-scale .lab { color: rgba(239,236,228,0.35); }
-.rx-light .cd-scale .lab { color: rgba(21,34,49,0.38); }
-.cd-scale .track { flex: 1; height: 1px; position: relative; background: rgba(239,236,228,0.16); }
-.rx-light .cd-scale .track { background: rgba(21,34,49,0.18); }
-.cd-scale .mark { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 6px; border-radius: 3px; background: var(--apri); box-shadow: 0 0 12px -2px rgba(245,170,93,0.5); }
-.rx-light .cd-scale .mark { background: var(--amber); box-shadow: 0 0 12px -2px rgba(198,127,65,0.45); }
 
 .cd-foot { padding: 18px 24px 26px; text-align: center; }
 .cd-fix { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(239,236,228,0.4); border-bottom: 1px solid rgba(239,236,228,0.18); padding-bottom: 3px; cursor: pointer; }
@@ -235,14 +218,8 @@
 .cld-row .added { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(239,236,228,0.38); }
 .rx-light .cld-row .added { color: rgba(21,34,49,0.42); }
 .cld-row .cl-qty { justify-self: end; }
-/* the desktop eyebrow/wine/sub vocabulary rides Memory's ledger recipe on
-   the canvas (cl-eyebrow / cl-wine / cl-sub) — lifted with it */
-.cl-eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.22em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rx-dark .cl-eyebrow { color: rgba(245,170,93,0.62); }
-.rx-light .cl-eyebrow { color: rgba(198,127,65,0.75); }
-.cl-wine { font-family: "DM Serif Display", serif; font-size: 18px; line-height: 1.1; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rx-dark .cl-wine { color: var(--bone); }
-.rx-light .cl-wine { color: var(--navy); }
+/* the desktop row's sub columns (cl-sub) — the eyebrow/wine lines are the
+   shared name block's row variant (wine-surfaces.css) */
 .cl-sub { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rx-dark .cl-sub { color: rgba(239,236,228,0.42); }
 .rx-light .cl-sub { color: rgba(21,34,49,0.48); }
@@ -259,18 +236,6 @@
 .cl2-tile .bot img { height: 122px; width: auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5)); display: block; }
 .rx-light .cl2-tile .bot img { filter: drop-shadow(0 8px 14px rgba(21,34,49,0.28)); }
 .cl2-tile .tx { flex: 1; min-width: 0; padding-right: 56px; }
-.cl2-tile .p { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.22em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rx-dark .cl2-tile .p { color: rgba(245,170,93,0.62); }
-.rx-light .cl2-tile .p { color: rgba(198,127,65,0.75); }
-.cl2-tile .n { font-family: "DM Serif Display", serif; font-size: 19px; line-height: 1.12; margin-top: 5px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.rx-dark .cl2-tile .n { color: var(--bone); }
-.rx-light .cl2-tile .n { color: var(--navy); }
-.cl2-tile .gy { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rx-dark .cl2-tile .gy { color: rgba(239,236,228,0.52); }
-.rx-light .cl2-tile .gy { color: rgba(21,34,49,0.55); }
-.cl2-tile .lc { font-family: "IBM Plex Mono", monospace; font-size: 7px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rx-dark .cl2-tile .lc { color: rgba(239,236,228,0.34); }
-.rx-light .cl2-tile .lc { color: rgba(21,34,49,0.4); }
 .cl2-tile .cl-qty { position: absolute; top: 12px; right: 12px; background: rgba(24,23,23,0.55); }
 .rx-light .cl2-tile .cl-qty { background: rgba(221,219,214,0.7); }
 .cl2-tile .cl-win { position: absolute; right: 16px; bottom: 15px; }
@@ -322,12 +287,6 @@
 
 .clf-believes { margin-top: 13px; font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(239,236,228,0.42); }
 .rx-light .clf-believes { color: rgba(21,34,49,0.45); }
-.clf-gy { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 9px; }
-.rx-dark .clf-gy { color: rgba(239,236,228,0.52); }
-.rx-light .clf-gy { color: rgba(21,34,49,0.55); }
-.clf-loc { font-family: "IBM Plex Mono", monospace; font-size: 7px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 5px; }
-.rx-dark .clf-loc { color: rgba(239,236,228,0.34); }
-.rx-light .clf-loc { color: rgba(21,34,49,0.4); }
 .clf-qty { margin-top: 14px; }
 
 .clf-desk { display: flex; flex-direction: column; }
@@ -493,11 +452,7 @@
 @keyframes cfBack { from { opacity: 0; transform: translateY(26px); } }
 .cf-screen.cf-back { animation: cfBack 380ms cubic-bezier(0.16, 0.72, 0.18, 1) backwards; }
 
-/* bottle renders: decode-gated reveal (the deck's img law — a fresh
-   <img> blanks on iOS while it decodes; cached ones appear instantly) */
-.cf-bot { opacity: 0; }
-.cf-bot.ld { opacity: 1; transition: opacity 240ms ease; }
-.cf-bot.ld-i { opacity: 1; }
+/* bottle renders: the shared .ws-bot decode gate (wine-surfaces.css) */
 
 /* the form's scrolling column (non-doc modes; doc mode neutralizes it
    in flow6-docflow.css and the layer's own scroller takes over) */

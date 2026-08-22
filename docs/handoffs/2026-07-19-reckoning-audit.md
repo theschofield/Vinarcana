@@ -1,12 +1,5 @@
 # THE RECKONING AUDIT — kickoff (D22)
 
-> Ed: open a fresh session in this project and paste everything below
-> the rule. Before or while it works, your own outstanding parts (none
-> block the audit): the S2 device pass + review script (cellar-plan §6
-> S2 / D21), the va_quota SQL (analytics.md S2 addendum), golden-set
-> photos (scraps/golden-set/README.md). When the audit lands, it will
-> hand you C-numbered questions — those verdicts are the real output.
-
 ---
 
 Run **THE RECKONING AUDIT** — cellar-plan §0 **D22** is the directive
