@@ -219,39 +219,100 @@ last deliberately so no future hand "fixes" it.
 
 ---
 
-## 4 · BOTTLE IMAGERY AT SCALE — the costed options (for a verdict)
+## 4 · BOTTLE IMAGERY — the research readout (Aug 21, 2026)
 
-**The requirement, from the surfaces:** transparent-background bottle art
-that reads at 30–69px widths (rack/memory) up to 250px height (Pour),
-under CSS drop-shadows, in both modes. **The floor today:** two stock
-PNGs; `celBottleFor` renders every rosé, orange, sparkling, fortified and
-unknown wine as the white bottle (Pour/Memory fall back red — component-audit
-F2). **The keying data we own:** appType 99.9% + REGION 96.8% + SUB_TYPE
-99.7% — enough to derive shape (Bordeaux/Burgundy/flute/Champagne/
-fortified) + glass colour + wine colour for nearly every matched row.
-**The precedent:** the canvas already hand-made one true bottle
-(`bottle-vat1.png`, the Vat 1 pour) — the house knows what "real" looks
-like. Whichever option wins plugs into `WineBottle` (component-audit M2),
-so the verdict is a data/asset change, not a code hunt.
+Ed's verdict (cellar-plan D24 (13)): illustrated or generated bottles are REJECTED
+for specific wines — real, properly licensed photos are required, ideally from a
+retailer partnership traded for purchase deep-links; illustrated bottle SHAPES are
+allowed only for archetype pairings ("Burgundy", "Riesling"). The deep research
+that followed is filed whole, every claim with its source, in
+**docs/bottle-imagery-research.md**. This section is the plain readout.
+(An earlier draft of this section said Wine-Searcher's API returns label images;
+that came from a third-party scraper listing. The official API returns no images.)
 
-| option | one-time | per unique wine | monthly | rights | label fidelity | house-art fit |
-|---|---|---|---|---|---|---|
-| **A · House-illustrated archetypes** — 12–24 pieces: shape (bordeaux · burgundy · flute · champagne · fortified · dessert-half) × glass/wine colour, keyed from type+subType+region | Ed's canvas time, or commissioned ≈ $50–150/piece → **$600–3,600** | $0 | $0 | clean by construction | style-true, never label-true | native — it IS the house style |
-| **B · User photos as the art** | $0 | $0 | S6 storage (within Supabase Pro's 100GB at ~200KB/photo for a long time) | user-granted; **collides with the retention law** — photos are kept ONLY for manual+unmatched (hard product law); matched-wine display requires Ed to AMEND the law + an S6 rights line in the ToS | label-true for that user's bottle | poor — uncontrolled light/angle beside the tarot art |
-| **C · Hybrid (A floor + photo accent)** | as A | $0 | as B | as A+B | archetype always, the user's own label where law allows (the detail's photo strip already exists) | good — archetype carries the design; photo is a keepsake, not the layout |
-| **D · Paid feeds** | sales process | LWIN: **no images, ever** (§2.1). Wine-Searcher trade API: advertises label images among its 30+ fields (checked at audit time, Jul 2026); pricing enterprise-gated — §2.1's finding stands (historically hundreds/mo) — and **display/redistribution rights for their label images are unconfirmed** (their images are largely merchant/user-submitted; a legal read is mandatory, not optional). Scraper listings (~$0.025/wine) are §2.1-rejected on license+reliability — worse for images than for data | $100s/mo + legal | murky → blocking until proven | label-true where covered; fine-wine-biased coverage | foreign — real photos of mixed provenance inside the illustrated world |
-| **E · Generated per-wine art** (not in D22's candidate list; included for completeness) — an image model illustrates each unique wine at first add, style-locked to house reference art; §3.3's cache makes it one-time per wine | prompt+reference work | ≈ $0.02–0.08 (batchable at 50%) → $200–800 per 10k unique wines | $0 | generated — but drawing REAL labels invites trade-dress/trademark exposure, and near-real labels read as counterfeits when wrong | approximate — the dangerous middle: too real to be an archetype, not real enough to be true | controllable, with drift risk per generation |
+**Where we stand:** two stock PNGs plus one hand-made real bottle (the Vat 1 pour);
+286 of 287 curated pours use a stock bottle; the wine database (LWIN) has no images
+and never will. Every new image plugs into the shared `WineBottle` component
+(component-audit §5), so whichever source wins is a data change, not a code hunt.
 
-Interactions worth knowing before ruling: A is a strict prerequisite of
-C and a safe fallback under D/E; B/C change a product LAW, not just
-pixels; D re-opens the §2.1 vendor conversation the plan already closed
-once (revisit-with-telemetry was the standing rule); E's real risk is not
-cost but authenticity — an invented label on a real wine is a lie in
-exactly the register this app never lies in.
+**How the big apps do it:** Vivino, InVintory, Oeni and CellarTracker all run on
+photos their own users upload (plus bottle shots producers pay to supply), held
+under their own terms. None of them licenses images out, and no bottle-photo
+library exists for sale. Their long tail is the user's own camera, under a licence
+clause in the app's terms.
 
----
+**The three paths that hold up, ranked:**
 
-## 5 · VERDICTS — answered by Ed, Jul 31 2026 (logged as cellar-plan D24)
+1. **Wine.com through its affiliate program (Rakuten Advertising) — the strongest
+   single source.** 270,879 product pages; in a random check of 30, 25 had a studio
+   bottle shot on pure white with no baked-in shadow (the misses were 1997–2001
+   vintages); past vintages keep their pages and images. The affiliate product feed
+   is a daily file whose required columns are literally the product image URL and a
+   tracked product link; deep links to product pages exist; commission is reported
+   at 4% new / 2.5% returning with a 15-day cookie (unverified until inside the
+   dashboard). Cost: $0 licensing; background removal ≈ $0.002–0.02 per bottle
+   (pennies per wine a user adds; ≈ $300 to do the whole catalog on a rented GPU).
+   Caveats: US audience only (21+); the one thing not written anywhere is "may be
+   shown inside an app" — a one-line written OK from the affiliate manager is
+   needed before building; Rakuten is moving onto impact.com's platform through
+   2026–27, so the feed plumbing will change once.
+2. **A UK layer from retailers that already publish cut-outs** — Laithwaites UK
+   (Rakuten feed, transparent PNG cut-outs), Majestic (Awin feed, white-background
+   cut-outs, low resolution), Naked Wines US (Impact, transparent cut-outs). Almost
+   no processing needed and a UK purchase path; but these are everyday/own-label
+   ranges — they will never cover fine wine.
+3. **A direct image licence from a fine-wine merchant, traded for deep links —
+   Berry Bros. & Rudd first.** The best photography found (8,000-pixel masters on
+   white, consistent framing) and deep Bordeaux/Burgundy coverage, but no affiliate
+   program: it's a written-permission conversation (bbr@bbr.com), likely a small
+   fee or revenue share. Vinmonopolet (Norway) is the other "written agreement"
+   door, with the caveat that Norway bans alcohol advertising.
+
+For whatever none of the three covers, the legitimate answer is the one the
+incumbents use: the user's own label photo under a licence in our terms, curated
+before it goes public — the app's existing kept-photo path, extended.
+
+**Dead ends (checked; don't re-check):** Vivino (no API, affiliate closed), Total
+Wine (terms forbid reuse; bot wall), Instacart/Drizly (Drizly closed; alcohol
+excluded from commissions), all six government liquor monopolies (copyright + no
+commercial use), UPC databases (photos with no rights), trade platforms (licensed
+trade only), label-recognition APIs (text back, no image), Wine-Searcher's API (no
+image field), LWIN (no images).
+
+**Normalization — the server process Ed asked about:** feasible and cheap. Remove
+the background with BiRefNet (free, MIT licence) → clean the mask → trim → scale
+every standard bottle to one height (magnum ×1.15, half ×0.8) → bottom-align on a
+fixed transparent canvas → export 2×/3× WebP + PNG; the app's CSS drop-shadow does
+the rest. It runs as an offline batch (Vercel functions can't hold the model; the
+trim/scale step alone runs fine there). One trap: the popular `rembg` tool now
+silently defaults to a model that is NOT free for commercial use — always name
+BiRefNet explicitly. Quality checks are automatable (holes in clear glass, lost
+necks, leftover shadows, mirror reflections), followed by a human contact-sheet
+pass on the flagged 3–10%.
+
+**What needs Ed (actions only Ed can take):**
+1. Register as a Rakuten Advertising publisher (the sign-up link is on
+   https://www.wine.com/content/business-dev/affiliate-program), list the app as
+   the property, apply to wine.com's program, request Product Catalog access —
+   about 20 minutes; approvals take days to two weeks.
+2. Email the wine.com affiliate manager for written confirmation that feed bottle
+   shots may be displayed inside the app. Draft:
+
+   > Subject: Vintner's Arcana — product images in-app alongside deep links
+   >
+   > Hi — I run Vintner's Arcana, a wine-ritual app where users keep a cellar of
+   > the bottles they own. I've applied to the wine.com program on Rakuten and
+   > requested Product Catalog access. Every wine in a user's cellar would
+   > deep-link to its wine.com product page. To make that work I'd display the
+   > feed's bottle shots inside the app (as cut-outs of your own products, with
+   > the link alongside). Could you confirm in writing that in-app display of the
+   > catalog images is permitted under the program? Happy to share screens.
+   > Thanks — Ed
+
+3. Decide whether the UK layer (Majestic / Laithwaites) and the Berry Bros
+   conversation open now, or after wine.com answers.
+
+## 5 · VERDICTS — answered by Ed, Aug 21 2026 (logged as cellar-plan D24)
 
 - C15 → no: grapes wait for S3's enrichment (B-010 parked).
 - C16 → show sub-region and classification whenever present; never show designation codes (AOP/DOCG…).

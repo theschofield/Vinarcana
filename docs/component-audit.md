@@ -316,7 +316,7 @@ lens id.
 
 ---
 
-## 7 · VERDICTS — answered by Ed, Jul 31 2026 (logged as cellar-plan D24)
+## 7 · VERDICTS — answered by Ed, Aug 21 2026 (logged as cellar-plan D24)
 
 - C10 → the Pour's labels everywhere: SOFT↔ACIDIC · DRY↔SWEET · SMOOTH↔TANNIC · LIGHT↔BOLD.
 - C11 → red bottle for red wines, white bottle for everything else, until real images exist.

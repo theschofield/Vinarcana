@@ -42,14 +42,14 @@ named) · `WONTFIX` (with the reasoning).
 | B-005 | POLISH | Lenses | footer instructions lost their shimmer (Approach still has it) | OPEN |
 | B-006 | FEATURE | Lenses | tweaks-panel sliders for the flip hint + alternative hint treatments | OPEN |
 | B-007 | FEATURE | Pour/data | define the pairing TYPES (bottle · wine type · region+style …) as components | OPEN (types approved D24; built at S4) |
-| B-008 | PAPERCUT | Cellar rack | grapes·year line truncates the YEAR, not the grapes; width underused | IN-ROUND (Jul 31 — shared name block) |
+| B-008 | PAPERCUT | Cellar rack | grapes·year line truncates the YEAR, not the grapes; width underused | IN-ROUND (Aug 21 — shared name block) |
 | B-009 | FEATURE | Cellar rack | filter chips → grouped dropdowns (multi-select AND; single-select groups) | OPEN |
 | B-010 | POLISH (?) | Cellar rack | scanned bottles never show grapes — reads as a different component | PARKED (Ed, D24: S3 fills grapes) |
 | B-011 | POLISH | Cellar rack | "settling in" has no end state — needs a finished moment | OPEN |
 | B-012 | PAPERCUT | Pour | long wine metadata pushes Card-meaning button into the paragraph | OPEN |
 | B-013 | FEATURE | Pour | tap the card to flip, like the Lenses | OPEN |
 | B-014 | FEATURE | Pour/tweaks | sliders for flip + content slide/fade timing, JSON export | OPEN |
-| B-015 | POLISH (?) | Cellar detail | scanned wines extremely light on facts — are we using the data fully? | IN-ROUND (Jul 31 — name rule + sub-region/classification) |
+| B-015 | POLISH (?) | Cellar detail | scanned wines extremely light on facts — are we using the data fully? | IN-ROUND (Aug 21 — name rule + sub-region/classification) |
 | B-016 | PAPERCUT | Cellar identify | Cancel doesn't read as a button — wants the outline treatment | OPEN |
 | B-017 | LAW (?) | App-wide | save toast sits behind iOS bottom chrome; needs a real toast system | OPEN |
 | B-018 | POLISH | Pipeline | resolve's type-agreement penalty backfires when extract misreads colour | OPEN |
@@ -115,7 +115,7 @@ named) · `WONTFIX` (with the reasoning).
 **Verdict space:** the taxonomy and layouts are Ed's; the typing/enforcement is mechanical after.
 
 ### B-008 · IN-ROUND · PAPERCUT · Cellar rack (grapes·year truncation)
-**Round:** Jul 31 2026 — the grapes and the year become two spans inside the shared wine name block (component-audit M1).
+**Round:** Aug 21 2026 — the grapes and the year become two spans inside the shared wine name block (component-audit M1).
 **Filed:** Jul 19 2026 (S2 device round 1).
 **Seen:** "When there are a lot of grapes… the string truncates, but it truncates the year instead of truncating the list of grapes… there's also much more width we could be using to display the grapes and year, but I think we're limiting the width unnecessarily right now."
 **Kin:** B-010 (same `.gy` line).
@@ -130,7 +130,7 @@ named) · `WONTFIX` (with the reasoning).
 **Verdict space:** grouping/UX is a design pass for Ed; a canvas board may be warranted before build.
 
 ### B-010 · PARKED · POLISH (?) · Cellar rack (scanned bottles show no grapes)
-**Parked by Ed (D24, Jul 31 2026):** label-read grapes are not trustworthy enough to display; S3's enrichment fills grapes properly. Re-open at S3.
+**Parked by Ed (D24, Aug 21 2026):** label-read grapes are not trustworthy enough to display; S3's enrichment fills grapes properly. Re-open at S3.
 **Filed:** Jul 19 2026 (S2 device round 1).
 **Seen:** "When I scan bottles they're never getting what the grapes are so it looks like the card is using a different structure or component than all the other wines in my cellar in the list. maybe it is using a different component, but I can't be sure."
 **Kin:** B-015, B-008; THE RECKONING AUDIT.
@@ -166,7 +166,7 @@ named) · `WONTFIX` (with the reasoning).
 **Verdict space:** all dials Ed's, by design.
 
 ### B-015 · IN-ROUND · POLISH (?) · Cellar detail (scanned wines light on facts)
-**Round:** Jul 31 2026 — thread (1) fixed at the source: wine names derive from DISPLAY_NAME at runtime (api/_lib/cellar-names.js); sub-region + classification now stored and shown (D24). Thread (2) stays S3's.
+**Round:** Aug 21 2026 — thread (1) fixed at the source: wine names derive from DISPLAY_NAME at runtime (api/_lib/cellar-names.js); sub-region + classification now stored and shown (D24). Thread (2) stays S3's.
 **Filed:** Jul 19 2026 (S2 device round 1 — the "Blanc" scan).
 **Seen:** "The Wines I've scanned seem to be extremely light on facts and information on their wine list, so I want to make sure we're using the data we get from the database correctly."
 **Kin:** B-010; THE RECKONING AUDIT (the data-matrix workstream owns the full answer).
